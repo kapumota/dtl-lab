@@ -1,0 +1,340 @@
+package dltlab;
+
+import dltlab.app.DemoData;
+import dltlab.consensus.AdvancedConsensusResult;
+import dltlab.consensus.AdvancedConsensusSimulator;
+import dltlab.consensus.ConsensusConfig;
+import dltlab.consensus.ConsensusMetricsCsvExporter;
+import dltlab.blockchain.Block;
+import dltlab.blockchain.BlockChain;
+import dltlab.mempool.HighestFeePolicy;
+import dltlab.mempool.PackageAwarePolicy;
+import dltlab.mining.Miner;
+import dltlab.security.CrossShardReplayAttack;
+import dltlab.security.CrossShardTimeoutAttack;
+import dltlab.security.DoubleSpendAttack;
+import dltlab.security.InvalidSignatureAttack;
+import dltlab.security.PropertyBasedSecuritySuite;
+import dltlab.security.SecurityReportCsvExporter;
+import dltlab.security.SecurityScoreReport;
+import dltlab.sharding.CrossShardSession;
+import dltlab.sharding.CrossShardStatus;
+import dltlab.sharding.CrossShardTransfer;
+import dltlab.sharding.Receipt;
+import dltlab.sharding.ShardManager;
+import dltlab.sharding.ShardMetricsCsvExporter;
+import dltlab.visualization.ConsensusNetworkVisualizer;
+import dltlab.visualization.ForkTreeVisualizer;
+import dltlab.visualization.ShardVisualizer;
+import dltlab.metrics.CsvExporter;
+import dltlab.metrics.SimulationMetrics;
+import dltlab.mev.MEVDemoFactory;
+import dltlab.mev.MEVMetricsCsvExporter;
+import dltlab.mev.MEVScenario;
+import dltlab.mev.MEVScenarioResult;
+import dltlab.mev.MEVSimulator;
+import dltlab.mev.MEVType;
+import dltlab.transaction.Transaction;
+import dltlab.transaction.TxValidator;
+import dltlab.transaction.UTXO;
+import dltlab.transaction.UTXOPool;
+import dltlab.wallet.Wallet;
+
+import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Set;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+/** Pruebas minimas sin dependencias externas para que el CI sea simple. */
+public class TestRunner {
+    public static void main(String[] args) {
+        testValidTransaction();
+        testDoubleSpendRejected();
+        testInvalidSignatureRejected();
+        testBlockAdded();
+        testFakeGenesisRejected();
+        testCrossShardReplayRejected();
+        testPackageAwareSelection();
+        testMevScenarios();
+        testAdvancedConsensus();
+        testAdvancedSharding();
+        testVisualizationAndCsvExport();
+        testSecurityAttacks();
+        testPropertyBasedSecuritySuite();
+        System.out.println("Todas las pruebas pasaron correctamente.");
+    }
+
+    private static void testValidTransaction() {
+        Wallet miner = new Wallet("minero");
+        Wallet alice = new Wallet("alice");
+        BlockChain chain = DemoData.createChainWithGenesis(miner);
+        UTXOPool pool = chain.getMaxHeightUTXOPool();
+        UTXO coinbase = DemoData.firstUtxo(pool);
+        Transaction tx = miner.createSpend(coinbase, pool.getOutput(coinbase), alice.getPublicKey(), 1_000_000L, 1000L);
+        assertTrue(new TxValidator(pool).isValidTx(tx), "Una transaccion firmada por el dueno debe ser valida.");
+    }
+
+    private static void testDoubleSpendRejected() {
+        Wallet miner = new Wallet("minero");
+        Wallet alice = new Wallet("alice");
+        Wallet bob = new Wallet("bob");
+        BlockChain chain = DemoData.createChainWithGenesis(miner);
+        UTXOPool pool = chain.getMaxHeightUTXOPool();
+        UTXO coinbase = DemoData.firstUtxo(pool);
+        Transaction.Output output = pool.getOutput(coinbase);
+        Transaction tx1 = miner.createSpend(coinbase, output, alice.getPublicKey(), 1_000_000L, 1000L);
+        Transaction tx2 = miner.createSpend(coinbase, output, bob.getPublicKey(), 1_000_000L, 2000L);
+        Transaction[] accepted = new TxValidator(pool).handleTxs(new Transaction[]{tx1, tx2});
+        assertEquals(1, accepted.length, "Solo una transaccion debe sobrevivir al doble gasto.");
+    }
+
+    private static void testInvalidSignatureRejected() {
+        Wallet owner = new Wallet("dueno");
+        Wallet attacker = new Wallet("atacante");
+        Wallet recipient = new Wallet("receptor");
+        BlockChain chain = DemoData.createChainWithGenesis(owner);
+        UTXOPool pool = chain.getMaxHeightUTXOPool();
+        UTXO coinbase = DemoData.firstUtxo(pool);
+        Transaction.Output output = pool.getOutput(coinbase);
+        Transaction forged = new Transaction();
+        forged.addInput(coinbase.getTxHash(), coinbase.getOutputIndex());
+        forged.addOutput(output.getValue() - 1000L, recipient.getPublicKey());
+        forged.signInput(0, attacker.getPrivateKey());
+        forged.finalizeTransaction();
+        assertFalse(new TxValidator(pool).isValidTx(forged), "Una firma de otra wallet debe ser rechazada.");
+    }
+
+    private static void testBlockAdded() {
+        Wallet miner = new Wallet("minero");
+        Wallet alice = new Wallet("alice");
+        BlockChain chain = DemoData.createChainWithGenesis(miner);
+        UTXOPool pool = chain.getMaxHeightUTXOPool();
+        UTXO coinbase = DemoData.firstUtxo(pool);
+        Transaction tx = miner.createSpend(coinbase, pool.getOutput(coinbase), alice.getPublicKey(), 1_000_000L, 1000L);
+        chain.addTransaction(tx);
+        boolean added = new Miner(miner, new HighestFeePolicy(), 5).mineAndAdd(chain);
+        assertTrue(added, "El bloque con transaccion valida debe agregarse.");
+        assertEquals(2, chain.getMaxHeight(), "La altura debe aumentar despues del bloque valido.");
+    }
+
+    private static void testFakeGenesisRejected() {
+        Wallet miner = new Wallet("minero");
+        BlockChain chain = DemoData.createChainWithGenesis(miner);
+        Block fakeGenesis = new Block(null, miner.getPublicKey(), List.of(), 1);
+        assertFalse(chain.addBlock(fakeGenesis), "Un segundo bloque genesis debe ser rechazado.");
+    }
+
+    private static void testCrossShardReplayRejected() {
+        Wallet alice = new Wallet("alice");
+        Wallet bob = new Wallet("bob");
+        ShardManager manager = new ShardManager(2);
+        UTXO utxo = new UTXO(new byte[]{1, 2, 3}, 0);
+        manager.getShard(0).getUtxoPool().addUTXO(utxo, new Transaction.Output(10_000L, alice.getPublicKey()));
+        Receipt receipt = manager.lockAndCreateReceipt(new CrossShardTransfer(0, 1, utxo, 5000L, bob.getPublicKey()));
+        assertTrue(manager.commitReceipt(receipt), "El primer uso del recibo debe aceptarse.");
+        assertFalse(manager.commitReceipt(receipt), "El replay del recibo debe rechazarse.");
+    }
+
+
+    private static void testPackageAwareSelection() {
+        Wallet miner = new Wallet("minero");
+        Wallet alice = new Wallet("alice");
+        Wallet bob = new Wallet("bob");
+        Wallet carol = new Wallet("carol");
+        Wallet dan = new Wallet("dan");
+        BlockChain chain = DemoData.createChainWithGenesis(miner);
+        UTXOPool genesisPool = chain.getMaxHeightUTXOPool();
+        UTXO coinbase = DemoData.firstUtxo(genesisPool);
+        Transaction toAlice = miner.createSpend(coinbase, genesisPool.getOutput(coinbase), alice.getPublicKey(), 8_000_000L, 1000L);
+        chain.addTransaction(toAlice);
+        assertTrue(new Miner(miner, new HighestFeePolicy(), 5).mineAndAdd(chain), "Debe minarse el bloque inicial.");
+
+        UTXOPool pool = chain.getMaxHeightUTXOPool();
+        Transaction independent = DemoData.spendFirstOwned(pool, miner, dan, 1_000_000L, 20_000L);
+        Transaction parent = DemoData.spendFirstOwned(pool, alice, bob, 1_000_000L, 100L);
+        Transaction child = bob.createSpend(new UTXO(parent.getHash(), 0), parent.getOutputs().get(0), carol.getPublicKey(), 600_000L, 300_000L);
+
+        List<Transaction> selected = new PackageAwarePolicy().select(List.of(independent, child, parent), pool, 2);
+        Set<String> selectedIds = selected.stream().map(Transaction::id).collect(Collectors.toSet());
+        assertEquals(2, selected.size(), "El paquete padre-hijo debe caber en el bloque pequeno.");
+        assertTrue(selectedIds.contains(parent.id()), "La politica debe incluir la transaccion padre.");
+        assertTrue(selectedIds.contains(child.id()), "La politica debe incluir la transaccion hija de alto fee.");
+    }
+
+
+    private static void testMevScenarios() {
+        MEVSimulator simulator = new MEVSimulator();
+        List<MEVScenario> scenarios = new MEVDemoFactory().createScenarios();
+        assertEquals(3, scenarios.size(), "La demo MEV debe incluir front-running, back-running y sandwich.");
+
+        boolean sawFront = false;
+        boolean sawBack = false;
+        boolean sawSandwich = false;
+        List<MEVScenarioResult> results = new java.util.ArrayList<>();
+
+        for (MEVScenario scenario : scenarios) {
+            MEVScenarioResult result = simulator.evaluate(scenario);
+            results.add(result);
+            assertTrue(result.mevMinerRevenue() > result.honestMinerRevenue(),
+                    "El orden MEV debe aumentar el ingreso del productor del bloque en la demo.");
+
+            if (result.primaryType() == MEVType.FRONT_RUNNING) {
+                sawFront = true;
+                assertBefore(result.mevOrderLabels(), "bot_front_run", "usuario_trade",
+                        "En front-running, el bot debe aparecer antes del usuario.");
+            } else if (result.primaryType() == MEVType.BACK_RUNNING) {
+                sawBack = true;
+                assertBefore(result.mevOrderLabels(), "evento_objetivo", "bot_back_run",
+                        "En back-running, el bot debe aparecer inmediatamente despues del evento objetivo.");
+            } else if (result.primaryType() == MEVType.SANDWICH) {
+                sawSandwich = true;
+                assertBefore(result.mevOrderLabels(), "bot_compra_antes", "usuario_swap",
+                        "En sandwich, la compra del bot debe ir antes del swap del usuario.");
+                assertBefore(result.mevOrderLabels(), "usuario_swap", "bot_venta_despues",
+                        "En sandwich, la venta del bot debe ir despues del swap del usuario.");
+            }
+        }
+
+        Path out = new MEVMetricsCsvExporter().export(results, Path.of("build", "test-reports", "mev-metrics-test.csv"));
+        assertTrue(Files.exists(out), "El CSV especifico de MEV debe escribirse en disco.");
+        assertTrue(sawFront && sawBack && sawSandwich, "Deben cubrirse los tres tipos de MEV basico.");
+    }
+
+    private static void testAdvancedConsensus() {
+        Wallet miner = new Wallet("minero");
+        Wallet alice = new Wallet("alice");
+        Wallet bob = new Wallet("bob");
+        BlockChain chain = DemoData.createChainWithGenesis(miner);
+        UTXOPool pool = chain.getMaxHeightUTXOPool();
+        UTXO coinbase = DemoData.firstUtxo(pool);
+        Transaction tx1 = miner.createSpend(coinbase, pool.getOutput(coinbase), alice.getPublicKey(), 2_000_000L, 1000L);
+        Transaction tx2 = miner.createSpend(coinbase, pool.getOutput(coinbase), bob.getPublicKey(), 1_500_000L, 2000L);
+        Transaction tx3 = miner.createSpend(coinbase, pool.getOutput(coinbase), alice.getPublicKey(), 1_000_000L, 3000L);
+        Set<Transaction> universe = Set.of(tx1, tx2, tx3);
+
+        ConsensusConfig config = new ConsensusConfig(30, 6, 0.45, 0.30, 0.60, 0.25, 0.50, 0.30);
+        AdvancedConsensusResult result = new AdvancedConsensusSimulator().run(universe, config, new Random(23));
+
+        assertEquals(30, result.totalNodes(), "La simulacion debe respetar el tamano de red configurado.");
+        assertTrue(result.honestNodes() > result.maliciousNodes(), "La demo debe mantener mayoria honesta.");
+        assertTrue(result.censoringNodes() > 0, "La simulacion avanzada debe incluir nodos censores.");
+        assertTrue(result.equivocatingNodes() > 0, "La simulacion avanzada debe incluir nodos equivocadores.");
+        assertEquals(config.rounds(), result.roundMetrics().size(), "Debe existir una metrica por ronda.");
+        assertTrue(result.honestAgreementRatio() >= 0.0 && result.honestAgreementRatio() <= 1.0,
+                "El ratio de acuerdo honesto debe estar normalizado.");
+        assertTrue(result.censorshipSuccessRatio() >= 0.0 && result.censorshipSuccessRatio() <= 1.0,
+                "El exito de censura observado debe estar normalizado.");
+
+        ConsensusNetworkVisualizer visualizer = new ConsensusNetworkVisualizer();
+        assertTrue(visualizer.renderAscii(result).contains("Red de consenso"),
+                "La visualizacion ASCII de consenso debe producir texto legible.");
+        assertTrue(visualizer.renderDot(result).contains("digraph consenso"),
+                "La visualizacion DOT de consenso debe generarse.");
+        Path csv = new ConsensusMetricsCsvExporter().export(result, Path.of("build", "test-reports", "consensus-rounds-test.csv"));
+        assertTrue(Files.exists(csv), "El CSV de consenso por ronda debe escribirse en disco.");
+    }
+
+
+    private static void testAdvancedSharding() {
+        Wallet alice = new Wallet("alice");
+        Wallet bob = new Wallet("bob");
+        Wallet carol = new Wallet("carol");
+        Wallet dan = new Wallet("dan");
+        ShardManager manager = new ShardManager(3, 4, 3);
+
+        UTXO successUtxo = new UTXO(new byte[]{10, 1, 1}, 0);
+        manager.getShard(0).getUtxoPool().addUTXO(successUtxo, new Transaction.Output(7000L, alice.getPublicKey()));
+        CrossShardTransfer success = new CrossShardTransfer(0, 1, successUtxo, 4000L, bob.getPublicKey());
+        CrossShardSession successSession = manager.beginAtomicTransfer(success, 3);
+        assertTrue(manager.getShard(0).isLocked(successUtxo.key()), "El UTXO origen debe quedar bloqueado mientras esta pendiente.");
+        assertTrue(manager.commitAtomicTransfer(success.id()), "El commit atomico debe completarse con quorum en destino.");
+        assertTrue(successSession.status() == CrossShardStatus.COMMITTED, "La sesion exitosa debe terminar como COMMITTED.");
+        assertFalse(manager.getShard(0).isLocked(successUtxo.key()), "El commit debe liberar el bloqueo del origen.");
+        assertFalse(manager.getShard(0).getUtxoPool().contains(successUtxo), "El UTXO origen debe consumirse al confirmar.");
+        assertTrue(manager.getShard(1).getUtxoPool().totalValue() >= 4000L, "El shard destino debe recibir el monto transferido.");
+
+        UTXO timeoutUtxo = new UTXO(new byte[]{10, 2, 2}, 0);
+        manager.getShard(1).getUtxoPool().addUTXO(timeoutUtxo, new Transaction.Output(8000L, carol.getPublicKey()));
+        CrossShardTransfer timeout = new CrossShardTransfer(1, 2, timeoutUtxo, 5000L, dan.getPublicKey());
+        CrossShardSession timeoutSession = manager.beginAtomicTransfer(timeout, 1);
+        manager.advanceRounds(2);
+        assertTrue(timeoutSession.status() == CrossShardStatus.TIMED_OUT, "La sesion sin commit debe expirar por timeout.");
+        assertFalse(manager.getShard(1).isLocked(timeoutUtxo.key()), "El timeout debe liberar el bloqueo del origen.");
+        assertTrue(manager.getShard(1).getUtxoPool().contains(timeoutUtxo), "El timeout no debe consumir el UTXO origen.");
+
+        UTXO failedUtxo = new UTXO(new byte[]{10, 3, 3}, 0);
+        manager.getShard(0).getUtxoPool().addUTXO(failedUtxo, new Transaction.Output(6000L, alice.getPublicKey()));
+        CrossShardTransfer failed = new CrossShardTransfer(0, 2, failedUtxo, 3000L, bob.getPublicKey());
+        CrossShardSession failedSession = manager.beginAtomicTransfer(failed, 3);
+        manager.setShardOnline(2, false);
+        assertFalse(manager.commitAtomicTransfer(failed.id()), "El commit debe fallar si el shard destino no alcanza quorum.");
+        assertTrue(failedSession.status() == CrossShardStatus.FAILED_VALIDATION, "La sesion debe registrar fallo de validacion.");
+        assertFalse(manager.getShard(0).isLocked(failedUtxo.key()), "El fallo de validacion debe liberar el bloqueo del origen.");
+        manager.setShardOnline(2, true);
+
+        Path csv = new ShardMetricsCsvExporter().export(manager.getRoundMetrics(), Path.of("build", "test-reports", "sharding-rounds-test.csv"));
+        assertTrue(Files.exists(csv), "El CSV de sharding por ronda debe escribirse en disco.");
+        assertTrue(new ShardVisualizer().renderAscii(manager).contains("Transferencias cross-shard"),
+                "La visualizacion de shards debe incluir sesiones cross-shard.");
+    }
+
+    private static void testVisualizationAndCsvExport() {
+        Wallet miner = new Wallet("minero");
+        BlockChain chain = DemoData.createChainWithGenesis(miner);
+        String forks = new ForkTreeVisualizer().renderAscii(chain);
+        assertTrue(forks.contains("Arbol de forks"), "La visualizacion de forks debe producir texto legible.");
+        String forkDot = new ForkTreeVisualizer().renderDot(chain);
+        assertTrue(forkDot.contains("digraph forks"), "La visualizacion DOT de forks debe generarse.");
+
+        ShardManager manager = new ShardManager(2);
+        String shards = new ShardVisualizer().renderAscii(manager);
+        assertTrue(shards.contains("Mapa de shards"), "La visualizacion de shards debe producir texto legible.");
+
+        SimulationMetrics metrics = new SimulationMetrics();
+        metrics.put("prueba", 123L);
+        Path out = new CsvExporter().export(metrics, Path.of("build", "test-reports", "metrics-test.csv"));
+        assertTrue(Files.exists(out), "El CSV de metricas debe escribirse en disco.");
+    }
+
+    private static void testSecurityAttacks() {
+        assertTrue(new DoubleSpendAttack().run().defenseWorked(), "La defensa contra doble gasto debe pasar.");
+        assertTrue(new InvalidSignatureAttack().run().defenseWorked(), "La defensa contra firma invalida debe pasar.");
+        assertTrue(new CrossShardReplayAttack().run().defenseWorked(), "La defensa contra replay cross-shard debe pasar.");
+        assertTrue(new CrossShardTimeoutAttack().run().defenseWorked(), "La defensa contra timeout cross-shard debe pasar.");
+    }
+
+    private static void testPropertyBasedSecuritySuite() {
+        SecurityScoreReport report = new PropertyBasedSecuritySuite(2026L, 5).runAll();
+        assertTrue(report.allPassed(), "La suite property-based de seguridad no debe detectar fallas.");
+        assertTrue(report.score() == 100.0, "El security score debe ser 100 cuando no hay fallas.");
+        assertTrue(report.totalIterations() >= 25, "La suite debe ejecutar multiples propiedades pseudoaleatorias.");
+        Path csv = new SecurityReportCsvExporter().export(report, Path.of("build", "test-reports", "security-report-test.csv"));
+        assertTrue(Files.exists(csv), "El CSV de seguridad debe escribirse en disco.");
+    }
+
+
+
+    private static void assertBefore(List<String> labels, String first, String second, String message) {
+        int firstIndex = labels.indexOf(first);
+        int secondIndex = labels.indexOf(second);
+        if (firstIndex < 0 || secondIndex < 0 || firstIndex >= secondIndex) {
+            throw new AssertionError(message + " Orden=" + labels);
+        }
+    }
+
+    private static void assertTrue(boolean condition, String message) {
+        if (!condition) throw new AssertionError(message);
+    }
+
+    private static void assertFalse(boolean condition, String message) {
+        if (condition) throw new AssertionError(message);
+    }
+
+    private static void assertEquals(int expected, int actual, String message) {
+        if (expected != actual) {
+            throw new AssertionError(message + " Esperado=" + expected + ", actual=" + actual);
+        }
+    }
+}
