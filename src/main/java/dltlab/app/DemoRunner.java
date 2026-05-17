@@ -62,7 +62,7 @@ import java.util.Set;
 public class DemoRunner {
     public void runFullDemo() {
         SimulationMetrics metrics = new SimulationMetrics();
-        System.out.println("DLT-Lab Demo Completa v0.6");
+        System.out.println("Demostración de DLT-Lab");
         System.out.println("==========================");
 
         System.out.println("[1] Creando wallets...");
@@ -97,7 +97,7 @@ public class DemoRunner {
         Transaction childTx = bob.createSpend(parentOutput, parentTx.getOutputs().get(0), carol.getPublicKey(), 600_000L, 300_000L);
 
         // Orden intencional: primero una transaccion independiente, luego la hija, luego la padre.
-        // Asi se ve que FIFO y highest-fee pueden perder el paquete rentable si el bloque es pequeno.
+        // Asi se ve que FIFO y highest-fee pueden perder el paquete rentable si el bloque es pequeño.
         chain.addTransaction(independentTx);
         chain.addTransaction(childTx);
         chain.addTransaction(parentTx);
@@ -243,7 +243,7 @@ public class DemoRunner {
 
 
     public void runMevOnly() {
-        System.out.println("DLT-Lab MEV Demo v0.6");
+        System.out.println("Demostración MEV DLT-Lab");
         System.out.println("======================");
         MEVSimulator simulator = new MEVSimulator();
         List<MEVScenarioResult> results = new ArrayList<>();
@@ -257,7 +257,7 @@ public class DemoRunner {
     }
 
     public void runConsensusOnly() {
-        System.out.println("DLT-Lab Consenso Avanzado Demo v0.6");
+        System.out.println("Demostración DLT-Lab Consenso avanzado");
         System.out.println("====================================");
         Wallet miner = new Wallet("minero");
         Wallet alice = new Wallet("alice");
@@ -284,7 +284,7 @@ public class DemoRunner {
 
 
     public void runShardingOnly() {
-        System.out.println("DLT-Lab Sharding Avanzado Demo v0.6");
+        System.out.println("Demostración DLT-Lab sharding avanzado");
         System.out.println("====================================");
         Wallet alice = new Wallet("alice");
         Wallet bob = new Wallet("bob");
@@ -310,7 +310,7 @@ public class DemoRunner {
     }
 
     public void runSecurityOnly() {
-        System.out.println("DLT-Lab Seguridad y Verificacion Demo v0.6");
+        System.out.println("Demostración de DLT-Lab seguridad y verificacion");
         System.out.println("==========================================");
         SecurityScoreReport report = new PropertyBasedSecuritySuite(2026L, 8).runAll();
         System.out.println(report.render());
