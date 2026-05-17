@@ -1,8 +1,8 @@
-# Consenso avanzado en DLT-Lab
+### Consenso avanzado en DLT-Lab
 
-Esta fase modela consenso distribuido con una red de confianza dirigida. La relacion `sender -> receiver` significa que el receiver escucha propuestas del sender.
+Esta fase modela consenso distribuido con una red de confianza dirigida. La relacion `sender -> receiver` significa que el **receiver** escucha propuestas del sender.
 
-## Tipos de nodos
+#### Tipos de nodos
 
 ```text
 Honesto: retransmite transacciones conocidas y acepta las que superan un umbral de votos.
@@ -11,7 +11,7 @@ Equivocador: envia vistas diferentes a seguidores diferentes.
 Silencioso: no ayuda a propagar propuestas.
 ```
 
-## Metricas por ronda
+#### Metricas por ronda
 
 Cada ronda exporta:
 
@@ -21,7 +21,7 @@ Cada ronda exporta:
 - grupo honesto mayoritario
 - ratio de acuerdo honesto
 - salidas honestas que contienen la transaccion censurada
-- cantidad de grupos de consenso observados
+- cantidad de grupos de consenso observados.
 ```
 
 El archivo generado es:
@@ -30,7 +30,7 @@ El archivo generado es:
 reports/consensus_rounds.csv
 ```
 
-## Visualizacion
+#### Visualizacion
 
 La red se exporta en dos formatos:
 
@@ -45,6 +45,6 @@ El archivo DOT puede renderizarse con Graphviz:
 dot -Tpng reports/consensus_network.dot -o reports/consensus_network.png
 ```
 
-## Limitacion intencional
+#### Limitacion
 
 Esta fase no pretende ser un protocolo BFT completo. Es un laboratorio inicial para observar efectos de confianza, censura, equivocacion y propagacion de transacciones.
