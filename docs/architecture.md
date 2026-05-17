@@ -1,6 +1,6 @@
-# Arquitectura de DLT-Lab
+### Arquitectura de DLT-Lab
 
-DLT-Lab esta organizado como un laboratorio modular. Cada paquete ensena una idea especifica de blockchain o DLT.
+DLT-Lab esta organizado como un laboratorio modular. Cada paquete enseña una idea especifica de blockchain o DLT.
 
 ```text
 Wallets -> Transactions -> Mempool -> Miner -> BlockChain -> Verification / Security Suite
@@ -20,8 +20,7 @@ Advanced Consensus Lab <---------------------- Metrics CSV / DOT
 
 Sharding Lab -> Atomic Cross-shard Sessions -> Shard Metrics/Visualization
 ```
-
-## Principios
+#### Principios
 
 1. El modelo base es UTXO, inspirado en Bitcoin.
 2. La mempool es explicita para estudiar seleccion de transacciones.
@@ -33,7 +32,7 @@ Sharding Lab -> Atomic Cross-shard Sessions -> Shard Metrics/Visualization
 8. El consenso avanzado usa un grafo de confianza dirigido con nodos honestos, censores, equivocadores y silenciosos.
 9. La fase de seguridad ejecuta ataques, invariantes y pruebas pseudoaleatorias reproducibles.
 
-## Seleccion package-aware
+#### Seleccion package-aware
 
 La politica `PackageAwarePolicy` crea paquetes de transacciones con dependencias internas. Si una transaccion hija gasta una salida creada por una transaccion padre que todavia esta en la mempool, ambas se evaluan como un paquete ordenado.
 
@@ -44,7 +43,7 @@ Seleccion ingenua:       tx independiente + tx padre
 Seleccion package-aware: tx padre + tx hija de alto fee
 ```
 
-## Laboratorio MEV
+#### Laboratorio MEV
 
 El paquete `dltlab.mev` contiene escenarios reproducibles para estudiar:
 
@@ -59,7 +58,7 @@ El paquete `dltlab.mev` contiene escenarios reproducibles para estudiar:
 
 El objetivo no es simular toda la economia de Ethereum o un DEX real. El objetivo inicial es hacer visible el problema de ordenamiento: dos bloques con las mismas transacciones pueden tener resultados economicos distintos dependiendo del orden.
 
-## Sharding avanzado
+#### Sharding avanzado
 
 El paquete `dltlab.sharding` modela transferencias cross-shard con estados visibles:
 
@@ -72,17 +71,16 @@ PENDING -> ABORTED
 
 Cada shard tiene validadores configurables. La transferencia solo avanza si el origen y el destino alcanzan quorum. Si no se confirma antes del timeout, el UTXO origen se libera.
 
-## Visualizacion
+#### Visualizacion
 
 La visualizacion tiene dos formatos:
 
 - ASCII: facil de leer en terminal.
 - DOT: util para renderizar con Graphviz.
 
-La demo escribe ambos formatos en `reports/`.
+La demostración escribe ambos formatos en `reports/`.
 
-
-## Consenso avanzado
+#### Consenso avanzado
 
 El paquete `dltlab.consensus` contiene una simulacion con:
 
@@ -93,14 +91,13 @@ El paquete `dltlab.consensus` contiene una simulacion con:
 - nodos equivocadores
 - nodos silenciosos
 - metricas por ronda
-- visualizacion DOT/ASCII de la red
+- visualizacion DOT/ASCII de la red.
 ```
 
 Un nodo censor elimina una transaccion objetivo de sus propuestas. Un nodo equivocador envia subconjuntos distintos a seguidores distintos. Un nodo silencioso no retransmite nada.
 
 El objetivo educativo es observar convergencia, propagacion, grupos de consenso y efecto de comportamientos maliciosos sin implementar aun un protocolo BFT completo.
 
+#### Seguridad y verificacion
 
-## Seguridad y verificacion
-
-La fase 6 agrega una suite property-based reproducible con seed fija. Evalua doble gasto, firmas invalidas, validacion de forks, replay cross-shard, timeouts e invariantes runtime. Los resultados se exportan a `reports/security_report.csv` y `reports/security_report.txt`.
+Se agrega una **suite property-based** reproducible con seed fija. Evalua doble gasto, firmas invalidas, validacion de forks, replay cross-shard, timeouts e invariantes runtime. Los resultados se exportan a `reports/security_report.csv` y `reports/security_report.txt`.
