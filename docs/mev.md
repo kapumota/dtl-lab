@@ -1,10 +1,10 @@
-# MEV basico en DLT-Lab
+### MEV basico en DLT-Lab
 
 MEV significa valor extraible por el productor del bloque. En esta version se modela de forma abstracta para ensenar el efecto del ordenamiento de transacciones.
 
-## Escenarios incluidos
+#### Escenarios incluidos
 
-### Front-running
+##### Front-running
 
 Un bot observa una transaccion de usuario en la mempool y logra que su propia transaccion sea ordenada antes.
 
@@ -13,7 +13,7 @@ Orden honesto: usuario_trade -> tx_normal -> bot_front_run
 Orden MEV:     bot_front_run -> usuario_trade -> tx_normal
 ```
 
-### Back-running
+#### Back-running
 
 Un bot se coloca inmediatamente despues de una transaccion que cambia el estado economico.
 
@@ -22,7 +22,7 @@ Orden honesto: evento_objetivo -> tx_normal -> bot_back_run
 Orden MEV:     evento_objetivo -> bot_back_run -> tx_normal
 ```
 
-### Sandwich
+#### Sandwich
 
 Un bot rodea la transaccion del usuario con una transaccion antes y otra despues.
 
@@ -31,9 +31,9 @@ Orden honesto: usuario_swap -> tx_normal -> bot_compra_antes -> bot_venta_despue
 Orden MEV:     bot_compra_antes -> usuario_swap -> bot_venta_despues -> tx_normal
 ```
 
-## Metrica principal
+#### Metrica principal
 
-La demo compara:
+La demostración compara:
 
 ```text
 ingreso_minero_honesto = fees del orden honesto
@@ -46,6 +46,6 @@ Los resultados se exportan a:
 reports/mev_metrics.csv
 ```
 
-## Limitacion intencional
+#### Limitacion intencional
 
 Esta fase no modela AMMs, slippage real, pools de liquidez ni smart contracts. Es una capa pedagogica inicial para entender por que el orden de transacciones es un problema de seguridad/economia en DLT.
