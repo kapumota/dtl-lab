@@ -6,7 +6,7 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 
-/** Firma y verifica mensajes. En esta version se usa RSA para mantener la demo sencilla. */
+/** Firma y verifica mensajes. En esta version se usa RSA para mantener la demostración sencilla. */
 public final class SignatureUtils {
     private SignatureUtils() {}
 
