@@ -1,8 +1,8 @@
-# Sharding avanzado en DLT-Lab
+### Sharding avanzado en DLT-Lab
 
-La fase 5 convierte el sharding basico en un laboratorio de transacciones cross-shard con estados, quorum, validadores, timeouts y fallos.
+Se convierte el sharding basico en un laboratorio de transacciones cross-shard con estados, quorum, validadores, timeouts y fallos.
 
-## Componentes
+#### Componentes
 
 ```text
 Shard
@@ -24,7 +24,7 @@ CrossShardSession
   - FAILED_VALIDATION
 ```
 
-## Flujo atomico educativo
+#### Flujo atomico educativo
 
 ```text
 1. beginAtomicTransfer()
@@ -42,7 +42,7 @@ CrossShardSession
    Permite abortar manualmente una sesion pendiente y liberar el UTXO origen.
 ```
 
-## Casos incluidos en la demo
+#### Casos incluidos en la demo
 
 ```text
 COMMITTED          Transferencia exitosa de shard 0 a shard 1.
@@ -50,7 +50,7 @@ TIMED_OUT          Transferencia que no llega a confirmarse antes del timeout.
 FAILED_VALIDATION  Transferencia cuyo shard destino no alcanza quorum.
 ```
 
-## Invariantes relacionadas
+#### Invariantes relacionadas
 
 ```text
 - No se aceptan recibos duplicados.
@@ -59,7 +59,7 @@ FAILED_VALIDATION  Transferencia cuyo shard destino no alcanza quorum.
 - El commit consume el UTXO origen y crea valor en destino.
 ```
 
-## Reportes generados
+#### Reportes generados
 
 ```text
 reports/sharding_rounds.csv  Metricas por ronda logica.
@@ -67,6 +67,6 @@ reports/shards.txt           Estado ASCII de shards y sesiones.
 reports/shards.dot           Grafo DOT de shards y transferencias.
 ```
 
-## Limitacion intencional
+#### Limitacion intencional
 
-Este no es un protocolo cross-shard productivo. Es una maqueta pedagogica para visualizar atomicidad, bloqueo, recibos, quorum y fallos. Una siguiente fase podria modelar two-phase commit formal, validadores Byzantine, pruebas criptograficas de inclusion y especificaciones TLA+/Alloy.
+Este no es un protocolo cross-shard productivo. Es una maqueta para visualizar atomicidad, bloqueo, recibos, quorum y fallos. Se podria luego modelar two-phase commit formal, validadores Byzantine, pruebas criptograficas de inclusion y especificaciones TLA+/Alloy.
