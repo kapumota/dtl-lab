@@ -1,8 +1,8 @@
-# Seguridad y verificacion en DLT-Lab
+### Seguridad y verificacion en DLT-Lab
 
-La fase 6 agrega una capa de seguridad ejecutable. El objetivo no es demostrar seguridad matematica completa, sino convertir propiedades importantes de DLT en pruebas reproducibles, reportes y metricas que puedan ejecutarse localmente y en CI.
+Se agrega una capa de seguridad ejecutable. El objetivo no es demostrar seguridad matematica completa, sino convertir propiedades importantes de DLT en pruebas reproducibles, reportes y metricas que puedan ejecutarse localmente y en CI.
 
-## Componentes
+#### Componentes
 
 ```text
 PropertyBasedSecuritySuite
@@ -18,7 +18,7 @@ InvariantChecker
   Ejecuta invariantes sobre el estado observable del ledger.
 ```
 
-## Propiedades evaluadas
+#### Propiedades evaluadas
 
 ```text
 - Resistencia a doble gasto UTXO.
@@ -29,7 +29,7 @@ InvariantChecker
 - Invariantes runtime sobre genesis, UTXOs, recibos y bloqueos.
 ```
 
-## Invariantes ejecutables
+#### Invariantes ejecutables
 
 ```text
 Genesis unico
@@ -45,7 +45,7 @@ Cross-shard sin bloqueos colgados
   Una sesion terminal no debe dejar bloqueado el UTXO origen.
 ```
 
-## Comando dedicado
+#### Comando dedicado
 
 ```bash
 bash scripts/run_security_checks.sh
@@ -57,14 +57,14 @@ O directamente:
 java -cp build/classes dltlab.app.DltLabCLI security
 ```
 
-## Reportes generados
+#### Reportes generados
 
 ```text
 reports/security_report.csv
 reports/security_report.txt
 ```
 
-## Como leer el security score
+#### Como leer el security score
 
 ```text
 100/100  Todas las propiedades pasaron en todas las iteraciones.
@@ -73,6 +73,6 @@ reports/security_report.txt
 
 Las pruebas usan una seed fija para que el resultado sea reproducible. Si una propiedad falla, el mismo escenario puede repetirse.
 
-## Limite intencional
+#### Limite intencional
 
 Esto es property-based testing educativo y runtime verification. No reemplaza una especificacion formal en TLA+, Alloy, Coq o Isabelle. La idea es dejar una base clara para extender el proyecto hacia verificacion formal real.
