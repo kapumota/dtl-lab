@@ -7,7 +7,7 @@ import dltlab.transaction.UTXOPool;
 
 import java.util.List;
 
-/** Reporte pequeno para comparar estrategias de mempool. */
+/** Reporte pequeño para comparar estrategias de mempool. */
 public record SelectionReport(String policyName, int selectedCount, long totalFee) {
     public static SelectionReport from(String policyName, List<Transaction> txs, UTXOPool pool) {
         long total = 0L;
