@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/** Utilidad para escribir archivos de reporte de la demo. */
+/** Utilidad para escribir archivos de reporte de la demostración. */
 public final class ReportFiles {
     private ReportFiles() {}
 
