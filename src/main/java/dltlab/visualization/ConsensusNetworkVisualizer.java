@@ -12,7 +12,7 @@ public class ConsensusNetworkVisualizer {
     public String renderAscii(AdvancedConsensusResult result) {
         StringBuilder sb = new StringBuilder();
         sb.append("Red de consenso\n");
-        sb.append("================\n");
+        sb.append("----------------\n");
         sb.append("Nodos: ").append(result.totalNodes())
                 .append(" | honestos: ").append(result.honestNodes())
                 .append(" | maliciosos: ").append(result.maliciousNodes()).append('\n');

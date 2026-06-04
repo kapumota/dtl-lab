@@ -8,6 +8,12 @@ import dltlab.consensus.ConsensusMetricsCsvExporter;
 import dltlab.blockchain.Block;
 import dltlab.blockchain.BlockChain;
 import dltlab.mempool.HighestFeePolicy;
+import dltlab.transaction.TransactionSizeEstimator;
+import dltlab.transaction.FeeCalculator;
+import dltlab.mempool.TransactionMempool;
+import dltlab.mempool.MempoolConfig;
+import dltlab.mempool.MempoolAdmissionResult;
+import dltlab.mempool.FeeRatePolicy;
 import dltlab.mempool.PackageAwarePolicy;
 import dltlab.mining.Miner;
 import dltlab.security.CrossShardReplayAttack;
@@ -57,6 +63,9 @@ public class TestRunner {
         testFakeGenesisRejected();
         testCrossShardReplayRejected();
         testPackageAwareSelection();
+        testFeeRateSelectionByVirtualSize();
+        testMempoolEvictionByFeeRate();
+        testRbfReplacement();
         testMevScenarios();
         testAdvancedConsensus();
         testAdvancedSharding();
@@ -161,6 +170,72 @@ public class TestRunner {
         assertEquals(2, selected.size(), "El paquete padre-hijo debe caber en el bloque pequeno.");
         assertTrue(selectedIds.contains(parent.id()), "La politica debe incluir la transaccion padre.");
         assertTrue(selectedIds.contains(child.id()), "La politica debe incluir la transaccion hija de alto fee.");
+    }
+
+
+    private static void testFeeRateSelectionByVirtualSize() {
+        Wallet owner = new Wallet("dueno_fee_rate");
+        Wallet recipient = new Wallet("receptor_fee_rate");
+        UTXOPool pool = new UTXOPool();
+        Transaction largeHighFee = createSyntheticSpend(pool, owner, recipient, 11, 1_000_000L, 8_000L, 160);
+        Transaction smallBetterRate = createSyntheticSpend(pool, owner, recipient, 12, 1_000_000L, 4_000L, 0);
+
+        assertTrue(FeeCalculator.fee(largeHighFee, pool) > FeeCalculator.fee(smallBetterRate, pool),
+                "La transaccion grande debe pagar mayor fee absoluto.");
+        assertTrue(FeeCalculator.feeRate(smallBetterRate, pool).compareTo(FeeCalculator.feeRate(largeHighFee, pool)) > 0,
+                "La transaccion pequena debe tener mejor fee rate por vByte.");
+
+        long maxBlockVBytes = Math.max(
+                TransactionSizeEstimator.virtualSize(largeHighFee),
+                TransactionSizeEstimator.virtualSize(smallBetterRate)
+        );
+        List<Transaction> selected = new FeeRatePolicy().selectByVirtualSize(List.of(largeHighFee, smallBetterRate), pool, maxBlockVBytes);
+        assertEquals(1, selected.size(), "El bloque pequeno debe seleccionar solo una transaccion.");
+        assertTrue(selected.get(0).id().equals(smallBetterRate.id()),
+                "La seleccion por fee rate debe preferir la transaccion mas densa economicamente.");
+    }
+
+    private static void testMempoolEvictionByFeeRate() {
+        Wallet owner = new Wallet("dueno_eviction");
+        Wallet recipient = new Wallet("receptor_eviction");
+        UTXOPool pool = new UTXOPool();
+        Transaction lowRate = createSyntheticSpend(pool, owner, recipient, 21, 1_000_000L, 1_000L, 0);
+        Transaction highRate = createSyntheticSpend(pool, owner, recipient, 22, 1_000_000L, 8_000L, 0);
+        long maxMempoolVBytes = Math.max(
+                TransactionSizeEstimator.virtualSize(lowRate),
+                TransactionSizeEstimator.virtualSize(highRate)
+        ) + 1L;
+
+        TransactionMempool mempool = new TransactionMempool(new MempoolConfig(maxMempoolVBytes, 1L, true, true));
+        assertTrue(mempool.admit(lowRate, pool).accepted(), "La primera transaccion debe entrar en la mempool.");
+        MempoolAdmissionResult result = mempool.admit(highRate, pool);
+
+        assertTrue(result.accepted(), "La transaccion de mayor fee rate debe ser aceptada.");
+        assertTrue(mempool.contains(highRate), "La mempool debe conservar la transaccion de mayor fee rate.");
+        assertFalse(mempool.contains(lowRate), "La mempool debe descartar la transaccion de menor fee rate.");
+        assertEquals(1, result.evictedTransactions().size(), "La admission debe reportar una transaccion descartada.");
+    }
+
+    private static void testRbfReplacement() {
+        Wallet owner = new Wallet("dueno_rbf");
+        Wallet recipient = new Wallet("receptor_rbf");
+        UTXOPool pool = new UTXOPool();
+        UTXO utxo = syntheticUtxo(31);
+        Transaction.Output output = new Transaction.Output(1_000_000L, owner.getPublicKey());
+        pool.addUTXO(utxo, output);
+
+        Transaction original = owner.createSpend(utxo, output, recipient.getPublicKey(), 100_000L, 1_000L);
+        Transaction replacement = owner.createSpend(utxo, output, recipient.getPublicKey(), 100_000L, 8_000L);
+        TransactionMempool mempool = new TransactionMempool(new MempoolConfig(100_000L, 1L, true, false));
+
+        assertTrue(mempool.admit(original, pool).accepted(), "La transaccion original debe entrar en la mempool.");
+        MempoolAdmissionResult result = mempool.admit(replacement, pool);
+
+        assertTrue(result.accepted(), "La transaccion reemplazo debe aceptarse por RBF.");
+        assertTrue(result.replacedTransaction() != null, "El resultado debe indicar la transaccion reemplazada.");
+        assertTrue(result.replacedTransaction().id().equals(original.id()), "RBF debe reemplazar la transaccion original.");
+        assertTrue(mempool.contains(replacement), "La mempool debe conservar el reemplazo.");
+        assertFalse(mempool.contains(original), "La mempool debe retirar la transaccion original.");
     }
 
 
@@ -314,6 +389,38 @@ public class TestRunner {
         assertTrue(Files.exists(csv), "El CSV de seguridad debe escribirse en disco.");
     }
 
+
+
+    private static Transaction createSyntheticSpend(UTXOPool pool,
+                                                    Wallet owner,
+                                                    Wallet recipient,
+                                                    int seed,
+                                                    long inputValue,
+                                                    long fee,
+                                                    int extraOutputs) {
+        UTXO utxo = syntheticUtxo(seed);
+        Transaction.Output previous = new Transaction.Output(inputValue, owner.getPublicKey());
+        pool.addUTXO(utxo, previous);
+
+        long valueForOutputs = inputValue - fee;
+        if (valueForOutputs <= extraOutputs) {
+            throw new IllegalArgumentException("Fondos insuficientes para construir la transaccion sintetica.");
+        }
+
+        Transaction tx = new Transaction();
+        tx.addInput(utxo.getTxHash(), utxo.getOutputIndex());
+        for (int i = 0; i < extraOutputs; i++) {
+            tx.addOutput(1L, recipient.getPublicKey());
+        }
+        tx.addOutput(valueForOutputs - extraOutputs, recipient.getPublicKey());
+        tx.signInput(0, owner.getPrivateKey());
+        tx.finalizeTransaction();
+        return tx;
+    }
+
+    private static UTXO syntheticUtxo(int seed) {
+        return new UTXO(new byte[]{(byte) seed, (byte) (seed * 3), (byte) (seed * 7)}, 0);
+    }
 
 
     private static void assertBefore(List<String> labels, String first, String second, String message) {

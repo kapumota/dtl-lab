@@ -1,7 +1,9 @@
 package dltlab.mempool;
 
 import dltlab.transaction.FeeCalculator;
+import dltlab.transaction.FeeRate;
 import dltlab.transaction.Transaction;
+import dltlab.transaction.TransactionSizeEstimator;
 import dltlab.transaction.TxValidator;
 import dltlab.transaction.UTXO;
 import dltlab.transaction.UTXOPool;
@@ -12,18 +14,16 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 /**
- * Politica package-aware: construye paquetes ancestro -> descendiente y compara el fee total del paquete.
+ * Politica package-aware: construye paquetes ancestro a descendiente y compara su fee rate total.
  *
- * La idea educativa es mostrar por que un minero no debe mirar solo transacciones aisladas. Una
- * transaccion hija puede pagar un fee alto, pero ser invalida hasta que su transaccion padre sea
- * incluida en el mismo bloque. Esta politica detecta esas dependencias dentro de la mempool.
+ * Una transaccion hija puede pagar un fee alto, pero ser invalida hasta que su padre entre en el
+ * mismo bloque. Esta politica detecta esas dependencias y permite estudiar CPFP.
  */
 public class PackageAwarePolicy implements MempoolPolicy {
     @Override
@@ -33,14 +33,31 @@ public class PackageAwarePolicy implements MempoolPolicy {
 
     @Override
     public List<Transaction> select(Collection<Transaction> candidates, UTXOPool pool, int maxCount) {
+        return selectInternal(candidates, pool, maxCount, Long.MAX_VALUE);
+    }
+
+    public List<Transaction> selectByVirtualSize(Collection<Transaction> candidates, UTXOPool pool, long maxBlockVBytes) {
+        if (maxBlockVBytes <= 0) {
+            throw new IllegalArgumentException("La capacidad del bloque debe ser positiva.");
+        }
+        return selectInternal(candidates, pool, Integer.MAX_VALUE, maxBlockVBytes);
+    }
+
+    private List<Transaction> selectInternal(Collection<Transaction> candidates,
+                                             UTXOPool pool,
+                                             int maxCount,
+                                             long maxBlockVBytes) {
         List<Transaction> mempool = new ArrayList<>(candidates);
         Map<String, Transaction> byId = indexById(mempool);
         UTXOPool workingPool = new UTXOPool(pool);
         List<Transaction> selected = new ArrayList<>();
         Set<String> selectedIds = new HashSet<>();
+        long usedVBytes = 0L;
 
-        while (selected.size() < maxCount) {
-            Optional<PackageCandidate> best = findBestPackage(mempool, byId, workingPool, selectedIds, maxCount - selected.size());
+        while (selected.size() < maxCount && usedVBytes < maxBlockVBytes) {
+            int remainingSlots = maxCount - selected.size();
+            long remainingVBytes = maxBlockVBytes - usedVBytes;
+            Optional<PackageCandidate> best = findBestPackage(mempool, byId, workingPool, selectedIds, remainingSlots, remainingVBytes);
             if (best.isEmpty()) {
                 break;
             }
@@ -51,6 +68,7 @@ public class PackageAwarePolicy implements MempoolPolicy {
                     validator.applyTransaction(tx);
                     selected.add(tx);
                     selectedIds.add(tx.id());
+                    usedVBytes += TransactionSizeEstimator.virtualSize(tx);
                 }
             }
             workingPool = validator.getUtxoPool();
@@ -63,13 +81,14 @@ public class PackageAwarePolicy implements MempoolPolicy {
                                                        Map<String, Transaction> byId,
                                                        UTXOPool pool,
                                                        Set<String> selectedIds,
-                                                       int remainingSlots) {
+                                                       int remainingSlots,
+                                                       long remainingVBytes) {
         List<PackageCandidate> packages = new ArrayList<>();
         for (Transaction tx : mempool) {
             if (selectedIds.contains(tx.id())) {
                 continue;
             }
-            PackageCandidate candidate = buildPackage(tx, byId, pool, selectedIds, remainingSlots);
+            PackageCandidate candidate = buildPackage(tx, byId, pool, selectedIds, remainingSlots, remainingVBytes);
             if (candidate.valid()) {
                 packages.add(candidate);
             }
@@ -77,8 +96,8 @@ public class PackageAwarePolicy implements MempoolPolicy {
 
         return packages.stream()
                 .max(Comparator
-                        .comparingLong(PackageCandidate::totalFee)
-                        .thenComparingDouble(PackageCandidate::feePerTx)
+                        .comparing(PackageCandidate::feeRate)
+                        .thenComparingLong(PackageCandidate::totalFee)
                         .thenComparingInt(PackageCandidate::size));
     }
 
@@ -86,7 +105,8 @@ public class PackageAwarePolicy implements MempoolPolicy {
                                           Map<String, Transaction> byId,
                                           UTXOPool basePool,
                                           Set<String> selectedIds,
-                                          int remainingSlots) {
+                                          int remainingSlots,
+                                          long remainingVBytes) {
         LinkedHashMap<String, Transaction> ordered = new LinkedHashMap<>();
         Set<String> visiting = new HashSet<>();
         if (!collectAncestors(target, byId, basePool, selectedIds, visiting, ordered)) {
@@ -98,7 +118,12 @@ public class PackageAwarePolicy implements MempoolPolicy {
 
         TxValidator validator = new TxValidator(basePool);
         long totalFee = 0L;
+        long totalVBytes = 0L;
         for (Transaction tx : ordered.values()) {
+            long txVBytes = TransactionSizeEstimator.virtualSize(tx);
+            if (totalVBytes + txVBytes > remainingVBytes) {
+                return PackageCandidate.invalid();
+            }
             if (!validator.isValidTx(tx)) {
                 return PackageCandidate.invalid();
             }
@@ -107,9 +132,10 @@ public class PackageAwarePolicy implements MempoolPolicy {
                 return PackageCandidate.invalid();
             }
             totalFee += fee;
+            totalVBytes += txVBytes;
             validator.applyTransaction(tx);
         }
-        return new PackageCandidate(new ArrayList<>(ordered.values()), totalFee, true);
+        return new PackageCandidate(new ArrayList<>(ordered.values()), totalFee, totalVBytes, true);
     }
 
     private boolean collectAncestors(Transaction tx,
@@ -122,7 +148,7 @@ public class PackageAwarePolicy implements MempoolPolicy {
             return true;
         }
         if (!visiting.add(tx.id())) {
-            return false; // Ciclo artificial en la mempool.
+            return false;
         }
 
         for (Transaction.Input input : tx.getInputs()) {
@@ -162,17 +188,17 @@ public class PackageAwarePolicy implements MempoolPolicy {
         return dltlab.crypto.Hashing.hex(hash);
     }
 
-    private record PackageCandidate(List<Transaction> orderedTransactions, long totalFee, boolean valid) {
+    private record PackageCandidate(List<Transaction> orderedTransactions, long totalFee, long totalVBytes, boolean valid) {
         static PackageCandidate invalid() {
-            return new PackageCandidate(List.of(), Long.MIN_VALUE, false);
+            return new PackageCandidate(List.of(), Long.MIN_VALUE, 1L, false);
         }
 
         int size() {
             return orderedTransactions.size();
         }
 
-        double feePerTx() {
-            return orderedTransactions.isEmpty() ? 0.0 : (double) totalFee / orderedTransactions.size();
+        FeeRate feeRate() {
+            return new FeeRate(totalFee, Math.max(1L, totalVBytes));
         }
     }
 }

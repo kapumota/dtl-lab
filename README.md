@@ -40,7 +40,11 @@ DLT-Lab incorpora una mempool, que es el espacio donde se almacenan transaccione
 
 El sistema calcula la fee de una transacción como la diferencia entre la suma de sus inputs y la suma de sus outputs. Esto permite comparar estrategias de selección de transacciones. Por ejemplo, una política FIFO selecciona transacciones en el orden en que llegaron, una política de mayor fee prioriza las transacciones con mayor pago individual, una política MEV-aware reordena transacciones para capturar valor adicional; y una política package-aware analiza dependencias entre transacciones.
 
-La selección package-aware es especialmente importante. En una mempool real, una transacción hija puede depender de una transacción padre. Si la hija paga una fee alta pero el padre paga una fee baja, una estrategia que analiza transacciones de forma individual podría ignorar el paquete completo. DLT-Lab modela este problema permitiendo que el minero evalúe grupos de transacciones dependientes y seleccione el conjunto que genera mayor beneficio total.
+La Fase 1 agrega realismo económico a esta capa. El proyecto ahora estima el tamaño virtual de una transacción en vBytes, calcula fee rate en sats/vByte y permite construir bloques con una capacidad medida por espacio, no solo por cantidad de transacciones. Esto muestra por qué una transacción con fee absoluto alto puede perder frente a una transacción más pequeña con mejor densidad económica.
+
+La mempool también puede operar con reglas de admisión realistas. `MempoolConfig` define capacidad máxima, fee rate mínimo de relay, activación de RBF y activación de eviction. Si la mempool está llena, `LowestFeeRateEvictionPolicy` descarta primero transacciones de bajo fee rate. Si una transacción nueva gasta el mismo UTXO que una transacción pendiente, `RbfPolicy` permite reemplazarla solo si mejora el fee total y el fee rate.
+
+La selección package-aware es especialmente importante. En una mempool real, una transacción hija puede depender de una transacción padre. Si la hija paga una fee alta pero el padre paga una fee baja, una estrategia que analiza transacciones de forma individual podría ignorar el paquete completo. DLT-Lab modela este problema permitiendo que el minero evalúe grupos de transacciones dependientes y seleccione el conjunto que genera mayor beneficio total. En la Fase 1, esta política también puede respetar límites de vBytes, lo que permite modelar CPFP con mayor precisión.
 
 Este módulo conecta directamente con problemas reales de selección de transacciones, block capacity, optimización de fees y comportamiento económico de los productores de bloques.
 
@@ -117,7 +121,7 @@ src/main/java/dltlab/
   mempool/         Mempool y estrategias de seleccion
   metrics/         Exportacion CSV y archivos de reporte
   mev/             Front-running, back-running, sandwich y metricas MEV
-  mining/          Minero y construccion de bloques
+  mining/          Minero y construccion de bloques por cantidad o vBytes
   security/        Ataques, property-based suite, security score y CSV de seguridad
   sharding/        Shards, validadores, commit atomico, recibos y transacciones cross-shard
   transaction/     Transacciones, UTXO y validador
@@ -134,6 +138,7 @@ Requisito: Java 17+.
 
 ```bash
 bash scripts/run_tests.sh
+bash scripts/run_mempool_demo.sh
 bash scripts/run_demo.sh
 bash scripts/run_security_checks.sh
 ```
@@ -152,6 +157,7 @@ El proyecto incluye `pom.xml` basico para estructura Maven, pero los scripts sig
 
 ```bash
 java -cp build/classes dltlab.app.DltLabCLI demo full
+java -cp build/classes dltlab.app.DltLabCLI demo mempool
 java -cp build/classes dltlab.app.DltLabCLI demo mev
 java -cp build/classes dltlab.app.DltLabCLI demo consensus
 java -cp build/classes dltlab.app.DltLabCLI demo sharding
@@ -162,6 +168,21 @@ java -cp build/classes dltlab.app.DltLabCLI attack invalid-signature
 java -cp build/classes dltlab.app.DltLabCLI attack cross-shard-replay
 java -cp build/classes dltlab.app.DltLabCLI attack cross-shard-timeout
 ```
+
+#### Flujo recomendado por ramas para la Fase 1
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b fase-1-realismo-economico-mempool
+bash scripts/run_tests.sh
+bash scripts/run_mempool_demo.sh
+git add .
+git commit -m "Fase 1: agregar realismo economico de mempool"
+git push -u origin fase-1-realismo-economico-mempool
+```
+
+Luego se abre un Pull Request hacia `main`. Si el CI pasa, la rama se puede fusionar. La documentación específica está en `docs/fase-1-realismo-economico.md`.
 
 #### Reportes generados
 
