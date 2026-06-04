@@ -84,6 +84,14 @@ El modulo `network` agrega peers, tabla de vecinos, particiones, latencia de pro
 
 El modulo `consensus` agrega mensajes firmados, evidencia de equivocacion, scoring reputacional, slashing implicito y consenso ponderado por reputacion. Si un nodo firma dos mensajes incompatibles para la misma ronda y el mismo topico, se genera `EquivocationEvidence` y se reduce su `ReputationScore`.
 
+### Fase 4: Verificacion formal de commit cross-shard
+
+La Fase 4 agrega especificaciones formales para el protocolo cross-shard. Las pruebas runtime verifican ejecuciones concretas, pero no exploran por si solas todos los interleavings posibles de bloqueo, recibo, commit, aborto y timeout. Por eso se agregan modelos TLA+ y Alloy centrados en las invariantes criticas del protocolo.
+
+El modelo TLA+ se ubica en `specs/tla/` y define estados abstractos para el debito en el shard origen, la creacion del recibo, el consumo del recibo en el destino, la liberacion por timeout y la decision final. El modelo Alloy se ubica en `specs/alloy/` y permite revisar las mismas propiedades desde una perspectiva relacional.
+
+Las invariantes principales son `NoDoubleMint`, `NoValueLoss`, `NoReceiptReplay`, `AtomicCommit` y `TimeoutReleasesFunds`. Estas propiedades expresan que el destino no puede crear valor sin recibo valido, que una sesion terminal no debe perder valor, que un recibo no puede reutilizarse, que una transferencia no puede estar confirmada y abortada a la vez, y que un timeout debe liberar fondos.
+
 #### **Sharding avanzado y transacciones cross-shard**
 
 El módulo de **sharding** divide el **ledger** en varios **shards**. Cada shard mantiene su propio estado, su propio conjunto de UTXOs y su propio grupo de validadores. Esta división permite estudiar cómo un ledger distribuido puede escalar al procesar transacciones en paralelo.
@@ -148,6 +156,10 @@ src/main/java/dltlab/
   wallet/          Wallets para firmar transacciones
 src/test/java/dltlab/
   TestRunner.java  Pruebas sin dependencias externas
+
+specs/
+  tla/             Especificacion TLA+ del commit cross-shard
+  alloy/           Modelo Alloy del commit cross-shard
 ```
 
 #### Ejecutar localmente
@@ -159,6 +171,7 @@ bash scripts/run_tests.sh
 bash scripts/run_mempool_demo.sh
 bash scripts/run_defi_mev_demo.sh
 bash scripts/run_adversarial_demo.sh
+bash scripts/run_formal_checks.sh
 bash scripts/run_demo.sh
 bash scripts/run_security_checks.sh
 ```
