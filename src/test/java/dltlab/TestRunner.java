@@ -92,6 +92,7 @@ public class TestRunner {
         testSelfishMiningSimulator();
         testEclipseAttackSimulator();
         testReputationWeightedConsensus();
+        testFormalSpecificationFiles();
         testAdvancedConsensus();
         testAdvancedSharding();
         testVisualizationAndCsvExport();
@@ -377,6 +378,32 @@ public class TestRunner {
         assertEquals(1, result.slashingEvents().size(), "Debe generarse un evento de slashing reputacional.");
         assertTrue(result.finalScores().get(3).score() < 1.0, "El nodo equivocado debe perder reputacion.");
         assertTrue(result.selectedValue().equals("bloque-a"), "El valor con mayor peso honesto debe ganar.");
+    }
+
+    private static void testFormalSpecificationFiles() {
+        Path tla = Path.of("specs", "tla", "CrossShardCommit.tla");
+        Path cfg = Path.of("specs", "tla", "CrossShardCommit.cfg");
+        Path alloy = Path.of("specs", "alloy", "CrossShardCommit.als");
+        assertTrue(Files.exists(tla), "La especificacion TLA+ debe existir.");
+        assertTrue(Files.exists(cfg), "La configuracion TLC debe existir.");
+        assertTrue(Files.exists(alloy), "El modelo Alloy debe existir.");
+        String tlaText = readFile(tla);
+        String cfgText = readFile(cfg);
+        String alloyText = readFile(alloy);
+        for (String invariant : List.of("NoDoubleMint", "NoValueLoss", "NoReceiptReplay",
+                "AtomicCommit", "TimeoutReleasesFunds")) {
+            assertTrue(tlaText.contains(invariant), "TLA+ debe declarar " + invariant);
+            assertTrue(cfgText.contains(invariant), "TLC debe revisar " + invariant);
+            assertTrue(alloyText.contains(invariant), "Alloy debe revisar " + invariant);
+        }
+    }
+
+    private static String readFile(Path path) {
+        try {
+            return Files.readString(path);
+        } catch (Exception ex) {
+            throw new AssertionError("No se pudo leer " + path + ": " + ex.getMessage());
+        }
     }
 
     private static void testAdvancedConsensus() {
