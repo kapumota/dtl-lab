@@ -1,8 +1,41 @@
+# Compilacion Java
 build/
-*.class
-.DS_Store
-.idea/
-.vscode/
 out/
 target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Reportes y salidas generadas
 reports/
+*.log
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+
+# IDEs y editores
+.idea/
+.vscode/
+*.iml
+
+# Maven
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Parches locales
+*.patch
+*.rej
+*.orig
+
+# Backups
+*.bak
+*.backup
