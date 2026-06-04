@@ -7,6 +7,12 @@ import dltlab.consensus.ConsensusConfig;
 import dltlab.consensus.ConsensusMetricsCsvExporter;
 import dltlab.blockchain.Block;
 import dltlab.blockchain.BlockChain;
+import dltlab.defi.AmmPool;
+import dltlab.defi.ArbitrageScenario;
+import dltlab.defi.ConstantProductMarketMaker;
+import dltlab.defi.SwapOrder;
+import dltlab.defi.SwapResult;
+import dltlab.defi.Token;
 import dltlab.mempool.HighestFeePolicy;
 import dltlab.transaction.TransactionSizeEstimator;
 import dltlab.transaction.FeeCalculator;
@@ -34,12 +40,17 @@ import dltlab.visualization.ForkTreeVisualizer;
 import dltlab.visualization.ShardVisualizer;
 import dltlab.metrics.CsvExporter;
 import dltlab.metrics.SimulationMetrics;
+import dltlab.mev.BackrunArbitrageResult;
+import dltlab.mev.BackrunArbitrageSimulator;
+import dltlab.mev.DeFiMEVScenario;
 import dltlab.mev.MEVDemoFactory;
 import dltlab.mev.MEVMetricsCsvExporter;
 import dltlab.mev.MEVScenario;
 import dltlab.mev.MEVScenarioResult;
 import dltlab.mev.MEVSimulator;
 import dltlab.mev.MEVType;
+import dltlab.mev.SandwichAttackResult;
+import dltlab.mev.SandwichAttackSimulator;
 import dltlab.transaction.Transaction;
 import dltlab.transaction.TxValidator;
 import dltlab.transaction.UTXO;
@@ -67,6 +78,7 @@ public class TestRunner {
         testMempoolEvictionByFeeRate();
         testRbfReplacement();
         testMevScenarios();
+        testDefiAmmAndMev();
         testAdvancedConsensus();
         testAdvancedSharding();
         testVisualizationAndCsvExport();
@@ -276,6 +288,45 @@ public class TestRunner {
         assertTrue(Files.exists(out), "El CSV especifico de MEV debe escribirse en disco.");
         assertTrue(sawFront && sawBack && sawSandwich, "Deben cubrirse los tres tipos de MEV basico.");
     }
+
+    private static void testDefiAmmAndMev() {
+        Token usdc = Token.of("USDC", 6);
+        Token eth = Token.of("ETH", 18);
+        AmmPool pool = new AmmPool("USDC-ETH prueba", usdc, eth, 1_000_000.0, 500.0, 30);
+        ConstantProductMarketMaker marketMaker = new ConstantProductMarketMaker();
+        double invariantBefore = pool.invariant();
+        SwapResult swap = marketMaker.execute(pool, new SwapOrder("usuario", usdc, 50_000.0, 0.0));
+
+        assertTrue(swap.amountOut() > 0.0, "El swap debe producir salida positiva.");
+        assertTrue(swap.slippagePercent() > 0.0, "Un swap grande debe generar slippage positivo.");
+        assertTrue(pool.invariant() >= invariantBefore, "La fee del AMM debe conservar o aumentar el producto de reservas.");
+
+        DeFiMEVScenario sandwichScenario = new DeFiMEVScenario(
+                "Sandwich prueba",
+                new AmmPool("USDC-ETH sandwich", usdc, eth, 1_000_000.0, 500.0, 30),
+                new SwapOrder("usuario_swap", usdc, 50_000.0, 0.0),
+                new SwapOrder("bot_compra_antes", usdc, 20_000.0, 0.0),
+                0.20
+        );
+        SandwichAttackResult sandwich = new SandwichAttackSimulator().simulate(sandwichScenario);
+        assertTrue(sandwich.attackerProfit() > 0.0, "El sandwich debe calcular ganancia del atacante.");
+        assertTrue(sandwich.victimSlippageWithAttack() > sandwich.victimSlippageWithoutAttack(),
+                "El sandwich debe empeorar el slippage total de la victima.");
+        assertTrue(sandwich.victimWithAttack().amountOut() < sandwich.victimWithoutAttack().amountOut(),
+                "La victima debe recibir menos salida con el sandwich.");
+        assertTrue(sandwich.builderPayment() > 0.0, "El productor debe recibir un pago MEV positivo.");
+
+        ArbitrageScenario arbitrageScenario = new ArbitrageScenario(
+                "Arbitraje prueba",
+                new AmmPool("Pool ETH barato", usdc, eth, 1_000_000.0, 520.0, 30),
+                new AmmPool("Pool ETH caro", usdc, eth, 1_000_000.0, 480.0, 30),
+                usdc,
+                10_000.0
+        );
+        BackrunArbitrageResult arbitrage = new BackrunArbitrageSimulator().simulate(arbitrageScenario);
+        assertTrue(arbitrage.profit() > 0.0, "El arbitraje entre pools desbalanceados debe ser rentable.");
+    }
+
 
     private static void testAdvancedConsensus() {
         Wallet miner = new Wallet("minero");

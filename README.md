@@ -48,6 +48,12 @@ La selección package-aware es especialmente importante. En una mempool real, un
 
 Este módulo conecta directamente con problemas reales de selección de transacciones, block capacity, optimización de fees y comportamiento económico de los productores de bloques.
 
+### Fase 2: DeFi y MEV con AMM constante
+
+La Fase 2 agrega una capa DeFi para que el MEV deje de ser solo un reordenamiento abstracto de transacciones. El proyecto incorpora un AMM de producto constante basado en `x * y = k`, pools con reservas, fees en basis points, swaps con slippage y price impact, y simuladores para sandwich attack y backrun de arbitraje.
+
+El nuevo modulo permite comparar el swap de una victima sin ataque contra el mismo swap rodeado por operaciones de un bot. De esta forma se calcula la ganancia del atacante, la perdida adicional de la victima y el pago MEV al productor del bloque.
+
 #### **MEV y ordenamiento de transacciones**
 
 DLT-Lab incluye un módulo de MEV básico. MEV significa **"Maximal Extractable Value"** y se refiere al valor adicional que un productor de bloques puede extraer al decidir qué transacciones incluir y en qué orden colocarlas.
@@ -139,6 +145,7 @@ Requisito: Java 17+.
 ```bash
 bash scripts/run_tests.sh
 bash scripts/run_mempool_demo.sh
+bash scripts/run_defi_mev_demo.sh
 bash scripts/run_demo.sh
 bash scripts/run_security_checks.sh
 ```
@@ -177,6 +184,7 @@ git pull origin main
 git checkout -b fase-1-realismo-economico-mempool
 bash scripts/run_tests.sh
 bash scripts/run_mempool_demo.sh
+bash scripts/run_defi_mev_demo.sh
 git add .
 git commit -m "Fase 1: agregar realismo economico de mempool"
 git push -u origin fase-1-realismo-economico-mempool

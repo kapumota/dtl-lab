@@ -7,6 +7,12 @@ import dltlab.consensus.AdvancedConsensusSimulator;
 import dltlab.consensus.ConsensusConfig;
 import dltlab.consensus.ConsensusMetricsCsvExporter;
 import dltlab.crypto.Hashing;
+import dltlab.defi.AmmPool;
+import dltlab.defi.ArbitrageScenario;
+import dltlab.defi.ConstantProductMarketMaker;
+import dltlab.defi.SwapOrder;
+import dltlab.defi.SwapResult;
+import dltlab.defi.Token;
 import dltlab.mempool.FifoPolicy;
 import dltlab.transaction.TransactionSizeEstimator;
 import dltlab.transaction.FeeCalculator;
@@ -27,6 +33,11 @@ import dltlab.mev.MEVScenarioResult;
 import dltlab.mev.MEVSimulator;
 import dltlab.metrics.ReportFiles;
 import dltlab.metrics.SimulationMetrics;
+import dltlab.mev.BackrunArbitrageResult;
+import dltlab.mev.BackrunArbitrageSimulator;
+import dltlab.mev.DeFiMEVScenario;
+import dltlab.mev.SandwichAttackResult;
+import dltlab.mev.SandwichAttackSimulator;
 import dltlab.mining.Miner;
 import dltlab.security.CrossShardReplayAttack;
 import dltlab.security.CrossShardTimeoutAttack;
@@ -133,7 +144,17 @@ public class DemoRunner {
             System.out.println(result.render().indent(4));
         }
 
-        System.out.println("\n[5] Minando con package-aware y creando un fork...");
+        System.out.println("\n[5] Ejecutando MEV DeFi con AMM constante...");
+        SandwichAttackResult sandwich = new SandwichAttackSimulator().simulate(defaultSandwichScenario());
+        BackrunArbitrageResult arbitrage = new BackrunArbitrageSimulator().simulate(defaultArbitrageScenario());
+        metrics.put("defi_sandwich_ganancia_atacante", sandwich.attackerProfit());
+        metrics.put("defi_sandwich_perdida_victima", sandwich.victimLossInInputToken());
+        metrics.put("defi_sandwich_pago_productor", sandwich.builderPayment());
+        metrics.put("defi_arbitraje_ganancia", arbitrage.profit());
+        System.out.println(sandwich.render().indent(4));
+        System.out.println(arbitrage.render().indent(4));
+
+        System.out.println("\n[6] Minando con package-aware y creando un fork...");
         Miner packageMiner = new Miner(minerWallet, new PackageAwarePolicy(), 2);
         boolean minedSecond = packageMiner.mineAndAdd(chain);
         Block fork = new Block(genesis.getHash(), carol.getPublicKey(), List.of(), 2);
@@ -147,12 +168,12 @@ public class DemoRunner {
         System.out.println("    Altura maxima actual: " + chain.getMaxHeight());
         System.out.println("    Bloques conocidos recientes: " + chain.getKnownBlocks().size());
 
-        System.out.println("\n[6] Visualizando arbol de forks...");
+        System.out.println("\n[7] Visualizando arbol de forks...");
         ForkTreeVisualizer forkVisualizer = new ForkTreeVisualizer();
         String forkAscii = forkVisualizer.renderAscii(chain);
         System.out.println(forkAscii.indent(4));
 
-        System.out.println("\n[7] Ejecutando consenso avanzado con trust graph, censura y equivocacion...");
+        System.out.println("\n[8] Ejecutando consenso avanzado con trust graph, censura y equivocacion...");
         Set<Transaction> universe = new HashSet<>(List.of(txToAlice, parentTx, childTx, independentTx));
         ConsensusConfig consensusConfig = ConsensusConfig.educationalDefault();
         AdvancedConsensusResult consensus = new AdvancedConsensusSimulator().run(universe, consensusConfig, new Random(7));
@@ -180,7 +201,7 @@ public class DemoRunner {
                 System.out.printf("      Ronda %d: acuerdo honesto %.2f%%, mensajes=%d, grupos=%d%n",
                         metric.round(), metric.honestAgreementRatio() * 100.0, metric.totalMessages(), metric.consensusGroups()));
 
-        System.out.println("\n[8] Simulando sharding avanzado con commit atomico, timeouts y fallos...");
+        System.out.println("\n[9] Simulando sharding avanzado con commit atomico, timeouts y fallos...");
         ShardManager shardManager = buildAdvancedShardingDemo(alice, bob, carol, dan);
         metrics.put("shards", shardManager.getShards().size());
         metrics.put("sharding_sesiones", shardManager.getSessions().size());
@@ -197,30 +218,30 @@ public class DemoRunner {
                     + " estado=" + session.status() + " motivo=" + session.reason());
         }
 
-        System.out.println("\n[9] Visualizando shards...");
+        System.out.println("\n[10] Visualizando shards...");
         ShardVisualizer shardVisualizer = new ShardVisualizer();
         String shardAscii = shardVisualizer.renderAscii(shardManager);
         System.out.println(shardAscii.indent(4));
 
-        System.out.println("\n[10] Ejecutando ataques educativos...");
+        System.out.println("\n[11] Ejecutando ataques educativos...");
         System.out.println("    " + new DoubleSpendAttack().run().render().replace("\n", " | "));
         System.out.println("    " + new InvalidSignatureAttack().run().render().replace("\n", " | "));
         System.out.println("    " + new CrossShardReplayAttack().run().render().replace("\n", " | "));
         System.out.println("    " + new CrossShardTimeoutAttack().run().render().replace("\n", " | "));
 
-        System.out.println("\n[11] Verificando invariantes...");
+        System.out.println("\n[12] Verificando invariantes...");
         VerificationReport report = verificationReport(chain, shardManager);
         metrics.put("invariantes_ejecutadas", 4);
         System.out.println(report.render());
 
-        System.out.println("[12] Ejecutando suite de seguridad property-based...");
+        System.out.println("[13] Ejecutando suite de seguridad property-based...");
         SecurityScoreReport securityReport = new PropertyBasedSecuritySuite(2026L, 6).runAll();
         metrics.put("security_score", securityReport.score());
         metrics.put("security_iteraciones", securityReport.totalIterations());
         metrics.put("security_fallas", securityReport.totalFailed());
         System.out.println(securityReport.render());
 
-        System.out.println("[13] Exportando reportes...");
+        System.out.println("[14] Exportando reportes...");
         Path metricsPath = new CsvExporter().export(metrics, Path.of("reports", "metrics.csv"));
         Path mevMetricsPath = new MEVMetricsCsvExporter().export(mevResults, Path.of("reports", "mev_metrics.csv"));
         Path forksTxt = ReportFiles.write(Path.of("reports", "forks.txt"), forkAscii);
@@ -322,6 +343,25 @@ public class DemoRunner {
         }
         Path out = new MEVMetricsCsvExporter().export(results, Path.of("reports", "mev_metrics.csv"));
         System.out.println("CSV especifico de MEV: " + out);
+
+        System.out.println();
+        runDefiMevOnly();
+    }
+
+    public void runDefiMevOnly() {
+        System.out.println("Demostración DeFi MEV DLT-Lab");
+        System.out.println("-----------------------------");
+        DeFiMEVScenario sandwichScenario = defaultSandwichScenario();
+        SandwichAttackResult sandwich = new SandwichAttackSimulator().simulate(sandwichScenario);
+        System.out.println(sandwich.render());
+
+        ArbitrageScenario arbitrageScenario = defaultArbitrageScenario();
+        BackrunArbitrageResult arbitrage = new BackrunArbitrageSimulator().simulate(arbitrageScenario);
+        System.out.println(arbitrage.render());
+
+        Path report = ReportFiles.write(Path.of("reports", "defi_mev_report.txt"),
+                sandwich.render() + System.lineSeparator() + arbitrage.render());
+        System.out.println("Reporte DeFi MEV TXT: " + report);
     }
 
     public void runConsensusOnly() {
@@ -391,6 +431,27 @@ public class DemoRunner {
         }
     }
 
+
+    private DeFiMEVScenario defaultSandwichScenario() {
+        Token usdc = Token.of("USDC", 6);
+        Token eth = Token.of("ETH", 18);
+        AmmPool pool = new AmmPool("USDC-ETH principal", usdc, eth, 1_000_000.0, 500.0, 30);
+        SwapOrder victim = new SwapOrder("usuario_swap", usdc, 50_000.0, 0.0);
+        SwapOrder attackerFrontRun = new SwapOrder("bot_compra_antes", usdc, 20_000.0, 0.0);
+        return new DeFiMEVScenario("Sandwich USDC-ETH", pool, victim, attackerFrontRun, 0.20);
+    }
+
+    private ArbitrageScenario defaultArbitrageScenario() {
+        Token usdc = Token.of("USDC", 6);
+        Token eth = Token.of("ETH", 18);
+        AmmPool cheapEthPool = new AmmPool("Pool ETH barato", usdc, eth, 1_000_000.0, 520.0, 30);
+        AmmPool expensiveEthPool = new AmmPool("Pool ETH caro", usdc, eth, 1_000_000.0, 480.0, 30);
+        return new ArbitrageScenario("Backrun por desbalance USDC-ETH", cheapEthPool, expensiveEthPool, usdc, 10_000.0);
+    }
+
+    private SwapResult quoteSwap(AmmPool pool, SwapOrder order) {
+        return new ConstantProductMarketMaker().quote(pool, order);
+    }
 
     private Transaction createSyntheticSpend(UTXOPool pool,
                                              Wallet owner,

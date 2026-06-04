@@ -23,6 +23,11 @@ public class DltLabCLI {
             return;
         }
 
+        if (args.length >= 2 && args[0].equals("demo") && args[1].equals("defi")) {
+            new DemoRunner().runDefiMevOnly();
+            return;
+        }
+
         if (args.length >= 2 && args[0].equals("demo") && args[1].equals("consensus")) {
             new DemoRunner().runConsensusOnly();
             return;
@@ -62,6 +67,7 @@ public class DltLabCLI {
         System.out.println("  java dltlab.app.DltLabCLI demo full");
         System.out.println("  java dltlab.app.DltLabCLI demo mempool");
         System.out.println("  java dltlab.app.DltLabCLI demo mev");
+        System.out.println("  java dltlab.app.DltLabCLI demo defi");
         System.out.println("  java dltlab.app.DltLabCLI demo consensus");
         System.out.println("  java dltlab.app.DltLabCLI demo sharding");
         System.out.println("  java dltlab.app.DltLabCLI verify");
