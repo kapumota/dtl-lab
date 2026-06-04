@@ -6,6 +6,9 @@ import dltlab.consensus.AdvancedConsensusResult;
 import dltlab.consensus.AdvancedConsensusSimulator;
 import dltlab.consensus.ConsensusConfig;
 import dltlab.consensus.ConsensusMetricsCsvExporter;
+import dltlab.consensus.ReputationConsensusResult;
+import dltlab.consensus.ReputationWeightedConsensus;
+import dltlab.consensus.SignedConsensusMessage;
 import dltlab.crypto.Hashing;
 import dltlab.defi.AmmPool;
 import dltlab.defi.ArbitrageScenario;
@@ -39,6 +42,13 @@ import dltlab.mev.DeFiMEVScenario;
 import dltlab.mev.SandwichAttackResult;
 import dltlab.mev.SandwichAttackSimulator;
 import dltlab.mining.Miner;
+import dltlab.network.EclipseAttackResult;
+import dltlab.network.EclipseAttackSimulator;
+import dltlab.network.PeerTable;
+import dltlab.pow.HashPowerDistribution;
+import dltlab.pow.MiningRewardMetrics;
+import dltlab.pow.SelfishMiningSimulator;
+import dltlab.pow.SelfishMiningStrategy;
 import dltlab.security.CrossShardReplayAttack;
 import dltlab.security.CrossShardTimeoutAttack;
 import dltlab.security.DoubleSpendAttack;
@@ -201,7 +211,21 @@ public class DemoRunner {
                 System.out.printf("      Ronda %d: acuerdo honesto %.2f%%, mensajes=%d, grupos=%d%n",
                         metric.round(), metric.honestAgreementRatio() * 100.0, metric.totalMessages(), metric.consensusGroups()));
 
-        System.out.println("\n[9] Simulando sharding avanzado con commit atomico, timeouts y fallos...");
+        System.out.println("\n[9] Ejecutando resiliencia PoW, eclipse y reputacion...");
+        MiningRewardMetrics selfishMining = defaultSelfishMiningMetrics();
+        EclipseAttackResult eclipse = defaultEclipseResult();
+        ReputationConsensusResult reputation = defaultReputationResult();
+        metrics.put("pow_selfish_revenue_relativo", selfishMining.relativeRevenue());
+        metrics.put("pow_selfish_orphan_rate", selfishMining.orphanRate());
+        metrics.put("eclipse_nodos_aislados", eclipse.isolatedNodes());
+        metrics.put("eclipse_probabilidad_particion", eclipse.partitionProbability());
+        metrics.put("reputacion_evidencias_equivocacion", reputation.evidence().size());
+        metrics.put("reputacion_eventos_slashing", reputation.slashingEvents().size());
+        System.out.println(selfishMining.render().indent(4));
+        System.out.println(eclipse.render().indent(4));
+        System.out.println(reputation.render().indent(4));
+
+        System.out.println("\n[10] Simulando sharding avanzado con commit atomico, timeouts y fallos...");
         ShardManager shardManager = buildAdvancedShardingDemo(alice, bob, carol, dan);
         metrics.put("shards", shardManager.getShards().size());
         metrics.put("sharding_sesiones", shardManager.getSessions().size());
@@ -218,30 +242,30 @@ public class DemoRunner {
                     + " estado=" + session.status() + " motivo=" + session.reason());
         }
 
-        System.out.println("\n[10] Visualizando shards...");
+        System.out.println("\n[11] Visualizando shards...");
         ShardVisualizer shardVisualizer = new ShardVisualizer();
         String shardAscii = shardVisualizer.renderAscii(shardManager);
         System.out.println(shardAscii.indent(4));
 
-        System.out.println("\n[11] Ejecutando ataques educativos...");
+        System.out.println("\n[12] Ejecutando ataques educativos...");
         System.out.println("    " + new DoubleSpendAttack().run().render().replace("\n", " | "));
         System.out.println("    " + new InvalidSignatureAttack().run().render().replace("\n", " | "));
         System.out.println("    " + new CrossShardReplayAttack().run().render().replace("\n", " | "));
         System.out.println("    " + new CrossShardTimeoutAttack().run().render().replace("\n", " | "));
 
-        System.out.println("\n[12] Verificando invariantes...");
+        System.out.println("\n[13] Verificando invariantes...");
         VerificationReport report = verificationReport(chain, shardManager);
         metrics.put("invariantes_ejecutadas", 4);
         System.out.println(report.render());
 
-        System.out.println("[13] Ejecutando suite de seguridad property-based...");
+        System.out.println("[14] Ejecutando suite de seguridad property-based...");
         SecurityScoreReport securityReport = new PropertyBasedSecuritySuite(2026L, 6).runAll();
         metrics.put("security_score", securityReport.score());
         metrics.put("security_iteraciones", securityReport.totalIterations());
         metrics.put("security_fallas", securityReport.totalFailed());
         System.out.println(securityReport.render());
 
-        System.out.println("[14] Exportando reportes...");
+        System.out.println("[15] Exportando reportes...");
         Path metricsPath = new CsvExporter().export(metrics, Path.of("reports", "metrics.csv"));
         Path mevMetricsPath = new MEVMetricsCsvExporter().export(mevResults, Path.of("reports", "mev_metrics.csv"));
         Path forksTxt = ReportFiles.write(Path.of("reports", "forks.txt"), forkAscii);
@@ -251,6 +275,8 @@ public class DemoRunner {
         Path consensusCsv = new ConsensusMetricsCsvExporter().export(consensus, Path.of("reports", "consensus_rounds.csv"));
         Path consensusTxt = ReportFiles.write(Path.of("reports", "consensus_network.txt"), consensusAscii);
         Path consensusDot = ReportFiles.write(Path.of("reports", "consensus_network.dot"), consensusVisualizer.renderDot(consensus));
+        Path adversarialTxt = ReportFiles.write(Path.of("reports", "adversarial_network_report.txt"),
+                selfishMining.render() + System.lineSeparator() + eclipse.render() + System.lineSeparator() + reputation.render());
         Path shardingCsv = new ShardMetricsCsvExporter().export(shardManager.getRoundMetrics(), Path.of("reports", "sharding_rounds.csv"));
         Path securityCsv = new SecurityReportCsvExporter().export(securityReport, Path.of("reports", "security_report.csv"));
         Path securityTxt = ReportFiles.write(Path.of("reports", "security_report.txt"), securityReport.render());
@@ -266,6 +292,7 @@ public class DemoRunner {
         System.out.println("    Visualizacion shards DOT: " + shardsDot);
         System.out.println("    Visualizacion consenso TXT: " + consensusTxt);
         System.out.println("    Visualizacion consenso DOT: " + consensusDot);
+        System.out.println("    Reporte adversarial TXT: " + adversarialTxt);
     }
 
 
@@ -391,6 +418,20 @@ public class DemoRunner {
     }
 
 
+    public void runAdversarialNetworkOnly() {
+        System.out.println("Demostración DLT-Lab red y consenso adversarial");
+        System.out.println("------------------------------------------------");
+        MiningRewardMetrics selfishMining = defaultSelfishMiningMetrics();
+        EclipseAttackResult eclipse = defaultEclipseResult();
+        ReputationConsensusResult reputation = defaultReputationResult();
+        System.out.println(selfishMining.render());
+        System.out.println(eclipse.render());
+        System.out.println(reputation.render());
+        Path report = ReportFiles.write(Path.of("reports", "adversarial_network_report.txt"),
+                selfishMining.render() + System.lineSeparator() + eclipse.render() + System.lineSeparator() + reputation.render());
+        System.out.println("Reporte adversarial TXT: " + report);
+    }
+
     public void runShardingOnly() {
         System.out.println("Demostración DLT-Lab sharding avanzado");
         System.out.println("------------------------------------");
@@ -431,6 +472,28 @@ public class DemoRunner {
         }
     }
 
+
+    private MiningRewardMetrics defaultSelfishMiningMetrics() {
+        return new SelfishMiningSimulator(SelfishMiningStrategy.educationalDefault())
+                .simulate(HashPowerDistribution.fromAttackerShare(0.35), 5_000, 2026L);
+    }
+
+    private EclipseAttackResult defaultEclipseResult() {
+        PeerTable table = PeerTable.educationalTopology();
+        return new EclipseAttackSimulator().simulate(table, Set.of(0), Set.of(6, 7, 8), 3, 9, 120L);
+    }
+
+    private ReputationConsensusResult defaultReputationResult() {
+        List<SignedConsensusMessage> messages = List.of(
+                SignedConsensusMessage.sign(0, 7, "bloque", "bloque-a"),
+                SignedConsensusMessage.sign(1, 7, "bloque", "bloque-a"),
+                SignedConsensusMessage.sign(2, 7, "bloque", "bloque-a"),
+                SignedConsensusMessage.sign(3, 7, "bloque", "bloque-b"),
+                SignedConsensusMessage.sign(3, 7, "bloque", "bloque-c"),
+                SignedConsensusMessage.sign(4, 7, "bloque", "bloque-a")
+        );
+        return ReputationWeightedConsensus.educationalDefault().evaluate(messages);
+    }
 
     private DeFiMEVScenario defaultSandwichScenario() {
         Token usdc = Token.of("USDC", 6);

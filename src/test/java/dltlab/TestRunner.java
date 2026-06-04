@@ -5,6 +5,9 @@ import dltlab.consensus.AdvancedConsensusResult;
 import dltlab.consensus.AdvancedConsensusSimulator;
 import dltlab.consensus.ConsensusConfig;
 import dltlab.consensus.ConsensusMetricsCsvExporter;
+import dltlab.consensus.ReputationConsensusResult;
+import dltlab.consensus.ReputationWeightedConsensus;
+import dltlab.consensus.SignedConsensusMessage;
 import dltlab.blockchain.Block;
 import dltlab.blockchain.BlockChain;
 import dltlab.defi.AmmPool;
@@ -22,6 +25,13 @@ import dltlab.mempool.MempoolAdmissionResult;
 import dltlab.mempool.FeeRatePolicy;
 import dltlab.mempool.PackageAwarePolicy;
 import dltlab.mining.Miner;
+import dltlab.network.EclipseAttackResult;
+import dltlab.network.EclipseAttackSimulator;
+import dltlab.network.PeerTable;
+import dltlab.pow.HashPowerDistribution;
+import dltlab.pow.MiningRewardMetrics;
+import dltlab.pow.SelfishMiningSimulator;
+import dltlab.pow.SelfishMiningStrategy;
 import dltlab.security.CrossShardReplayAttack;
 import dltlab.security.CrossShardTimeoutAttack;
 import dltlab.security.DoubleSpendAttack;
@@ -79,6 +89,9 @@ public class TestRunner {
         testRbfReplacement();
         testMevScenarios();
         testDefiAmmAndMev();
+        testSelfishMiningSimulator();
+        testEclipseAttackSimulator();
+        testReputationWeightedConsensus();
         testAdvancedConsensus();
         testAdvancedSharding();
         testVisualizationAndCsvExport();
@@ -327,6 +340,44 @@ public class TestRunner {
         assertTrue(arbitrage.profit() > 0.0, "El arbitraje entre pools desbalanceados debe ser rentable.");
     }
 
+
+    private static void testSelfishMiningSimulator() {
+        MiningRewardMetrics metrics = new SelfishMiningSimulator(SelfishMiningStrategy.educationalDefault())
+                .simulate(HashPowerDistribution.fromAttackerShare(0.35), 5_000, 2026L);
+        assertTrue(metrics.privateBlocksMined() > 0, "El atacante debe minar bloques privados en la simulacion.");
+        assertTrue(metrics.publicBlocksMined() > 0, "La red honesta debe minar bloques publicos.");
+        assertTrue(metrics.orphanRate() > 0.0, "Selfish mining debe producir bloques huerfanos.");
+        assertTrue(metrics.maxPrivateLead() > 0, "La estrategia debe alcanzar lead privado positivo.");
+        assertTrue(metrics.relativeRevenue() >= 0.0 && metrics.relativeRevenue() <= 1.0,
+                "El revenue relativo debe estar normalizado.");
+        assertTrue(metrics.profitabilityThreshold() > 0.0 && metrics.profitabilityThreshold() < 0.5,
+                "El umbral de rentabilidad debe estar en un rango educativo razonable.");
+    }
+
+    private static void testEclipseAttackSimulator() {
+        PeerTable table = PeerTable.educationalTopology();
+        EclipseAttackResult result = new EclipseAttackSimulator().simulate(table, Set.of(0), Set.of(6, 7, 8), 3, 9, 120L);
+        assertEquals(10, result.totalPeers(), "La topologia educativa debe tener diez peers.");
+        assertEquals(3, result.controlledPeers(), "La demo debe controlar tres peers vecinos de la victima.");
+        assertEquals(1, result.isolatedNodes(), "La victima debe quedar aislada por vecinos controlados.");
+        assertTrue(result.partitionProbability() == 1.0, "La probabilidad de particion debe ser total para una victima aislada.");
+        assertTrue(result.averageLatencyMs() > 0.0, "La latencia promedio debe ser positiva.");
+    }
+
+    private static void testReputationWeightedConsensus() {
+        List<SignedConsensusMessage> messages = List.of(
+                SignedConsensusMessage.sign(0, 3, "bloque", "bloque-a"),
+                SignedConsensusMessage.sign(1, 3, "bloque", "bloque-a"),
+                SignedConsensusMessage.sign(2, 3, "bloque", "bloque-a"),
+                SignedConsensusMessage.sign(3, 3, "bloque", "bloque-b"),
+                SignedConsensusMessage.sign(3, 3, "bloque", "bloque-c")
+        );
+        ReputationConsensusResult result = ReputationWeightedConsensus.educationalDefault().evaluate(messages);
+        assertEquals(1, result.evidence().size(), "Debe detectarse una evidencia de equivocacion.");
+        assertEquals(1, result.slashingEvents().size(), "Debe generarse un evento de slashing reputacional.");
+        assertTrue(result.finalScores().get(3).score() < 1.0, "El nodo equivocado debe perder reputacion.");
+        assertTrue(result.selectedValue().equals("bloque-a"), "El valor con mayor peso honesto debe ganar.");
+    }
 
     private static void testAdvancedConsensus() {
         Wallet miner = new Wallet("minero");
