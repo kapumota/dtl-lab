@@ -33,6 +33,11 @@ public class DltLabCLI {
             return;
         }
 
+        if (args.length >= 2 && args[0].equals("demo") && args[1].equals("adversarial")) {
+            new DemoRunner().runAdversarialNetworkOnly();
+            return;
+        }
+
         if (args.length >= 2 && args[0].equals("demo") && args[1].equals("sharding")) {
             new DemoRunner().runShardingOnly();
             return;
@@ -69,6 +74,7 @@ public class DltLabCLI {
         System.out.println("  java dltlab.app.DltLabCLI demo mev");
         System.out.println("  java dltlab.app.DltLabCLI demo defi");
         System.out.println("  java dltlab.app.DltLabCLI demo consensus");
+        System.out.println("  java dltlab.app.DltLabCLI demo adversarial");
         System.out.println("  java dltlab.app.DltLabCLI demo sharding");
         System.out.println("  java dltlab.app.DltLabCLI verify");
         System.out.println("  java dltlab.app.DltLabCLI security");

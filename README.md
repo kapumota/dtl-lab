@@ -1,12 +1,12 @@
 ### DLT-Lab
 
-**DLT-Lab** es un laboratorio en Java para estudiar blockchains tipo **Bitcoin**, **ledgers distribuidos**, **mempool strategy**, **MEV**, **sharding**, **consenso** y **seguridad de DLT**. El proyecto está diseñado como un simulador modular, no como una **criptomoneda de producción**, con el objetivo de mostrar de forma ejecutable cómo interactúan los componentes principales de una infraestructura blockchain moderna: **validación de transacciones**, **construcción de bloques**, **estrategias de mempool**, **ordenamiento de transacciones**, **consenso distribuido**, **sharding**, **ataques** y **verificación de invariantes**.
+**DLT-Lab** es un laboratorio en Java para estudiar blockchains tipo **Bitcoin**, **ledgers distribuidos**, **mempool strategy**, **MEV**, **sharding**, **consenso** y **seguridad de DLT**. El proyecto está diseñado como un simulador modular, no como una **criptomoneda de producción**, con el objetivo de mostrar de forma ejecutable cómo interactúan los componentes principales de una infraestructura blockchain moderna: **validación de transacciones**, **construcción de bloques**, **estrategias de mempool**, **ordenamiento de transacciones**, **consenso distribuido**, **resiliencia adversarial de red**, **sharding**, **ataques** y **verificación de invariantes**.
 
 #### **Arquitectura general del sistema**
 
 DLT-Lab está organizado como un sistema modular. Cada módulo representa una parte concreta de una blockchain o ledger distribuido. Esta separación permite estudiar cada concepto de forma independiente, pero también permite integrarlos en una simulación completa.
 
-El núcleo del sistema contiene módulos para criptografía, **transacciones**, **UTXO**, **blockchain**, **mempool**, **minería**, **MEV**, **consenso**, sharding, seguridad, verificación, métricas y visualización. Esta arquitectura evita que el proyecto sea una simple colección de clases aisladas. En cambio, lo convierte en una plataforma donde las transacciones pueden ser creadas, validadas, seleccionadas por mineros, incluidas en bloques, propagadas por nodos, divididas entre shards y evaluadas mediante ataques e invariantes.
+El núcleo del sistema contiene módulos para criptografía, **transacciones**, **UTXO**, **blockchain**, **mempool**, **minería**, **MEV**, **DeFi**, **PoW adversarial**, **red P2P**, **consenso**, sharding, seguridad, verificación, métricas y visualización. Esta arquitectura evita que el proyecto sea una simple colección de clases aisladas. En cambio, lo convierte en una plataforma donde las transacciones pueden ser creadas, validadas, seleccionadas por mineros, incluidas en bloques, propagadas por nodos, divididas entre shards y evaluadas mediante ataques e invariantes.
 
 #### **Estructura del repositorio y automatización**
 
@@ -74,6 +74,16 @@ Con estos comportamientos, el proyecto permite simular situaciones donde la red 
 
 El sistema registra métricas por ronda, como número de nodos participantes, proporción de nodos honestos, transacciones aceptadas, transacciones censuradas, radio de acuerdo y evolución del consenso. Estas métricas se exportan a CSV para análisis posterior.
 
+### Fase 3: Resiliencia de red y consenso robusto
+
+La Fase 3 agrega una capa adversarial mas fuerte sobre la red y el consenso. El proyecto incorpora una simulacion de selfish mining en PoW, una topologia P2P con ataque eclipse y un consenso ponderado por reputacion con evidencia explicita de equivocacion.
+
+El modulo `pow` modela poder de hash atacante, bloques privados, bloques publicos, lead privado, bloques huerfanos y revenue relativo. Esto permite mostrar que un atacante puede obtener una recompensa observada diferente de su proporcion de hashrate cuando manipula la publicacion de bloques.
+
+El modulo `network` agrega peers, tabla de vecinos, particiones, latencia de propagacion y aislamiento de victimas. El ataque eclipse se representa como control de los vecinos visibles de una victima, lo que permite medir nodos aislados, bloques ocultos, transacciones censuradas y probabilidad de particion.
+
+El modulo `consensus` agrega mensajes firmados, evidencia de equivocacion, scoring reputacional, slashing implicito y consenso ponderado por reputacion. Si un nodo firma dos mensajes incompatibles para la misma ronda y el mismo topico, se genera `EquivocationEvidence` y se reduce su `ReputationScore`.
+
 #### **Sharding avanzado y transacciones cross-shard**
 
 El módulo de **sharding** divide el **ledger** en varios **shards**. Cada shard mantiene su propio estado, su propio conjunto de UTXOs y su propio grupo de validadores. Esta división permite estudiar cómo un ledger distribuido puede escalar al procesar transacciones en paralelo.
@@ -122,12 +132,14 @@ Esta capacidad de generar reportes hace que el proyecto sea útil no solo como c
 src/main/java/dltlab/
   app/             CLI y demo principal
   blockchain/      Bloques, cadena y forks
-  consensus/       Trust graph, nodos y simulador de consenso
+  consensus/       Trust graph, nodos, reputacion y simulador de consenso
   crypto/          Hashing, firmas y llaves
   mempool/         Mempool y estrategias de seleccion
   metrics/         Exportacion CSV y archivos de reporte
   mev/             Front-running, back-running, sandwich y metricas MEV
+  network/         Peers, topologia P2P, propagacion y eclipse attack
   mining/          Minero y construccion de bloques por cantidad o vBytes
+  pow/             Selfish mining, hashrate y metricas de recompensa
   security/        Ataques, property-based suite, security score y CSV de seguridad
   sharding/        Shards, validadores, commit atomico, recibos y transacciones cross-shard
   transaction/     Transacciones, UTXO y validador
@@ -146,6 +158,7 @@ Requisito: Java 17+.
 bash scripts/run_tests.sh
 bash scripts/run_mempool_demo.sh
 bash scripts/run_defi_mev_demo.sh
+bash scripts/run_adversarial_demo.sh
 bash scripts/run_demo.sh
 bash scripts/run_security_checks.sh
 ```
@@ -167,6 +180,7 @@ java -cp build/classes dltlab.app.DltLabCLI demo full
 java -cp build/classes dltlab.app.DltLabCLI demo mempool
 java -cp build/classes dltlab.app.DltLabCLI demo mev
 java -cp build/classes dltlab.app.DltLabCLI demo consensus
+java -cp build/classes dltlab.app.DltLabCLI demo adversarial
 java -cp build/classes dltlab.app.DltLabCLI demo sharding
 java -cp build/classes dltlab.app.DltLabCLI verify
 java -cp build/classes dltlab.app.DltLabCLI security
@@ -185,6 +199,7 @@ git checkout -b fase-1-realismo-economico-mempool
 bash scripts/run_tests.sh
 bash scripts/run_mempool_demo.sh
 bash scripts/run_defi_mev_demo.sh
+bash scripts/run_adversarial_demo.sh
 git add .
 git commit -m "Fase 1: agregar realismo economico de mempool"
 git push -u origin fase-1-realismo-economico-mempool
@@ -205,6 +220,7 @@ reports/security_report.csv      Reporte CSV de seguridad y verificacion
 reports/security_report.txt      Reporte legible de seguridad y verificacion
 reports/consensus_network.txt    Red de consenso en ASCII
 reports/consensus_network.dot    Red de consenso en formato Graphviz DOT
+reports/adversarial_network_report.txt Reporte de selfish mining, eclipse y reputacion
 reports/forks.txt                Arbol de forks en ASCII
 reports/forks.dot                Arbol de forks en formato Graphviz DOT
 reports/shards.txt               Mapa de shards en ASCII
