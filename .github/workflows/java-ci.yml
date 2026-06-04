@@ -1,5 +1,4 @@
 name: DLT-Lab CI
-
 on:
   push:
     branches: [ main ]
