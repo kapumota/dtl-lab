@@ -4,9 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dltlab</groupId>
     <artifactId>dlt-lab</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
     <name>DLT-Lab</name>
-    <description>Laboratorio educativo de Bitcoin-like DLT, sharding, MEV, seguridad y verificacion.</description>
+    <description>Laboratorio educativo de Bitcoin-like DLT, mempool economica, sharding, MEV, seguridad y verificacion.</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

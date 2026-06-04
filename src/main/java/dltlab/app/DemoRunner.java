@@ -8,6 +8,12 @@ import dltlab.consensus.ConsensusConfig;
 import dltlab.consensus.ConsensusMetricsCsvExporter;
 import dltlab.crypto.Hashing;
 import dltlab.mempool.FifoPolicy;
+import dltlab.transaction.TransactionSizeEstimator;
+import dltlab.transaction.FeeCalculator;
+import dltlab.mempool.TransactionMempool;
+import dltlab.mempool.MempoolConfig;
+import dltlab.mempool.MempoolAdmissionResult;
+import dltlab.mempool.FeeRatePolicy;
 import dltlab.mempool.HighestFeePolicy;
 import dltlab.mempool.MEVAwarePolicy;
 import dltlab.mempool.MempoolPolicy;
@@ -63,7 +69,7 @@ public class DemoRunner {
     public void runFullDemo() {
         SimulationMetrics metrics = new SimulationMetrics();
         System.out.println("Demostración de DLT-Lab");
-        System.out.println("==========================");
+        System.out.println("--------------------------");
 
         System.out.println("[1] Creando wallets...");
         WalletRegistry registry = new WalletRegistry();
@@ -242,9 +248,71 @@ public class DemoRunner {
     }
 
 
+    public void runMempoolEconomicsOnly() {
+        System.out.println("Demostración DLT-Lab mempool economica");
+        System.out.println("-------------------------------------");
+        Wallet owner = new Wallet("dueno_mempool");
+        Wallet recipient = new Wallet("receptor_mempool");
+        UTXOPool pool = new UTXOPool();
+
+        Transaction largeHighFee = createSyntheticSpend(pool, owner, recipient, 41, 1_000_000L, 8_000L, 160);
+        Transaction smallBetterRate = createSyntheticSpend(pool, owner, recipient, 42, 1_000_000L, 4_000L, 0);
+        long maxBlockVBytes = Math.max(
+                TransactionSizeEstimator.virtualSize(largeHighFee),
+                TransactionSizeEstimator.virtualSize(smallBetterRate)
+        );
+        List<Transaction> selected = new FeeRatePolicy().selectByVirtualSize(List.of(largeHighFee, smallBetterRate), pool, maxBlockVBytes);
+        System.out.println("\n[1] Seleccion por fee rate y capacidad en vBytes");
+        printTxEconomics("grande_fee_alto", largeHighFee, pool);
+        printTxEconomics("pequena_fee_rate_alto", smallBetterRate, pool);
+        System.out.println("    Capacidad de bloque en vBytes: " + maxBlockVBytes);
+        System.out.println("    Seleccionada: " + selected.get(0).shortId());
+
+        System.out.println("\n[2] Eviction de mempool por bajo fee rate");
+        Transaction lowRate = createSyntheticSpend(pool, owner, recipient, 43, 1_000_000L, 1_000L, 0);
+        Transaction highRate = createSyntheticSpend(pool, owner, recipient, 44, 1_000_000L, 8_000L, 0);
+        long maxMempoolVBytes = Math.max(
+                TransactionSizeEstimator.virtualSize(lowRate),
+                TransactionSizeEstimator.virtualSize(highRate)
+        ) + 1L;
+        TransactionMempool evictionMempool = new TransactionMempool(new MempoolConfig(maxMempoolVBytes, 1L, true, true));
+        System.out.println("    Admision baja: " + evictionMempool.admit(lowRate, pool).reason());
+        MempoolAdmissionResult evictionResult = evictionMempool.admit(highRate, pool);
+        System.out.println("    Admision alta: " + evictionResult.reason());
+        System.out.println("    Descartadas: " + evictionResult.evictedTransactions().size());
+        System.out.println("    Mempool conserva alta: " + evictionMempool.contains(highRate));
+
+        System.out.println("\n[3] Reemplazo por fee con RBF");
+        UTXO rbfUtxo = syntheticUtxo(45);
+        Transaction.Output rbfOutput = new Transaction.Output(1_000_000L, owner.getPublicKey());
+        pool.addUTXO(rbfUtxo, rbfOutput);
+        Transaction original = owner.createSpend(rbfUtxo, rbfOutput, recipient.getPublicKey(), 100_000L, 1_000L);
+        Transaction replacement = owner.createSpend(rbfUtxo, rbfOutput, recipient.getPublicKey(), 100_000L, 8_000L);
+        TransactionMempool rbfMempool = new TransactionMempool(new MempoolConfig(100_000L, 1L, true, false));
+        System.out.println("    Original: " + rbfMempool.admit(original, pool).reason());
+        MempoolAdmissionResult rbfResult = rbfMempool.admit(replacement, pool);
+        System.out.println("    Reemplazo: " + rbfResult.reason());
+        System.out.println("    Mempool conserva reemplazo: " + rbfMempool.contains(replacement));
+
+        System.out.println("\n[4] CPFP con paquete padre-hijo");
+        Wallet alice = new Wallet("alice_cpfp");
+        Wallet bob = new Wallet("bob_cpfp");
+        UTXO parentInput = syntheticUtxo(46);
+        Transaction.Output parentOutput = new Transaction.Output(1_000_000L, alice.getPublicKey());
+        pool.addUTXO(parentInput, parentOutput);
+        Transaction parent = alice.createSpend(parentInput, parentOutput, bob.getPublicKey(), 800_000L, 100L);
+        Transaction child = bob.createSpend(new UTXO(parent.getHash(), 0), parent.getOutputs().get(0), recipient.getPublicKey(), 500_000L, 200_000L);
+        long packageLimit = TransactionSizeEstimator.virtualSize(parent) + TransactionSizeEstimator.virtualSize(child);
+        List<Transaction> packageSelected = new PackageAwarePolicy().selectByVirtualSize(List.of(child, parent), pool, packageLimit);
+        System.out.println("    Paquete seleccionado: " + packageSelected.size() + " transacciones");
+        System.out.println("    Incluye padre: " + packageSelected.stream().anyMatch(tx -> tx.id().equals(parent.id())));
+        System.out.println("    Incluye hija: " + packageSelected.stream().anyMatch(tx -> tx.id().equals(child.id())));
+    }
+
+
     public void runMevOnly() {
         System.out.println("Demostración MEV DLT-Lab");
-        System.out.println("======================");
+        System.out.println("----------------------");
         MEVSimulator simulator = new MEVSimulator();
         List<MEVScenarioResult> results = new ArrayList<>();
         for (MEVScenario scenario : new MEVDemoFactory().createScenarios()) {
@@ -258,7 +326,7 @@ public class DemoRunner {
 
     public void runConsensusOnly() {
         System.out.println("Demostración DLT-Lab Consenso avanzado");
-        System.out.println("====================================");
+        System.out.println("------------------------------------");
         Wallet miner = new Wallet("minero");
         Wallet alice = new Wallet("alice");
         Wallet bob = new Wallet("bob");
@@ -285,7 +353,7 @@ public class DemoRunner {
 
     public void runShardingOnly() {
         System.out.println("Demostración DLT-Lab sharding avanzado");
-        System.out.println("====================================");
+        System.out.println("------------------------------------");
         Wallet alice = new Wallet("alice");
         Wallet bob = new Wallet("bob");
         Wallet carol = new Wallet("carol");
@@ -311,7 +379,7 @@ public class DemoRunner {
 
     public void runSecurityOnly() {
         System.out.println("Demostración de DLT-Lab seguridad y verificacion");
-        System.out.println("==========================================");
+        System.out.println("------------------------------------------");
         SecurityScoreReport report = new PropertyBasedSecuritySuite(2026L, 8).runAll();
         System.out.println(report.render());
         Path csv = new SecurityReportCsvExporter().export(report, Path.of("reports", "security_report.csv"));
@@ -321,6 +389,45 @@ public class DemoRunner {
         if (!report.allPassed()) {
             throw new IllegalStateException("La suite de seguridad detecto fallas. Revisar reports/security_report.csv");
         }
+    }
+
+
+    private Transaction createSyntheticSpend(UTXOPool pool,
+                                             Wallet owner,
+                                             Wallet recipient,
+                                             int seed,
+                                             long inputValue,
+                                             long fee,
+                                             int extraOutputs) {
+        UTXO utxo = syntheticUtxo(seed);
+        Transaction.Output previous = new Transaction.Output(inputValue, owner.getPublicKey());
+        pool.addUTXO(utxo, previous);
+        long valueForOutputs = inputValue - fee;
+        if (valueForOutputs <= extraOutputs) {
+            throw new IllegalArgumentException("Fondos insuficientes para construir la transaccion sintetica.");
+        }
+
+        Transaction tx = new Transaction();
+        tx.addInput(utxo.getTxHash(), utxo.getOutputIndex());
+        for (int i = 0; i < extraOutputs; i++) {
+            tx.addOutput(1L, recipient.getPublicKey());
+        }
+        tx.addOutput(valueForOutputs - extraOutputs, recipient.getPublicKey());
+        tx.signInput(0, owner.getPrivateKey());
+        tx.finalizeTransaction();
+        return tx;
+    }
+
+    private UTXO syntheticUtxo(int seed) {
+        return new UTXO(new byte[]{(byte) seed, (byte) (seed * 3), (byte) (seed * 7)}, 0);
+    }
+
+    private void printTxEconomics(String label, Transaction tx, UTXOPool pool) {
+        System.out.printf("    %s: fee=%d, vBytes=%d, feeRate=%.4f sats/vByte%n",
+                label,
+                FeeCalculator.fee(tx, pool),
+                TransactionSizeEstimator.virtualSize(tx),
+                FeeCalculator.feeRate(tx, pool).satsPerVByte());
     }
 
 

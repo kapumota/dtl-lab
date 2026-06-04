@@ -15,4 +15,12 @@ public final class FeeCalculator {
         }
         return inputs - tx.outputSum();
     }
+
+    public static FeeRate feeRate(Transaction tx, UTXOPool pool) {
+        long fee = fee(tx, pool);
+        if (fee == Long.MIN_VALUE) {
+            return new FeeRate(Long.MIN_VALUE, TransactionSizeEstimator.virtualSize(tx));
+        }
+        return new FeeRate(fee, TransactionSizeEstimator.virtualSize(tx));
+    }
 }

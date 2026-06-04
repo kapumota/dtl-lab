@@ -13,6 +13,11 @@ public class DltLabCLI {
             return;
         }
 
+        if (args.length >= 2 && args[0].equals("demo") && args[1].equals("mempool")) {
+            new DemoRunner().runMempoolEconomicsOnly();
+            return;
+        }
+
         if (args.length >= 2 && args[0].equals("demo") && args[1].equals("mev")) {
             new DemoRunner().runMevOnly();
             return;
@@ -55,6 +60,7 @@ public class DltLabCLI {
     private static void printHelp() {
         System.out.println("Uso:");
         System.out.println("  java dltlab.app.DltLabCLI demo full");
+        System.out.println("  java dltlab.app.DltLabCLI demo mempool");
         System.out.println("  java dltlab.app.DltLabCLI demo mev");
         System.out.println("  java dltlab.app.DltLabCLI demo consensus");
         System.out.println("  java dltlab.app.DltLabCLI demo sharding");
