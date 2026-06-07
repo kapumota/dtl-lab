@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/kapumota/dtl-lab/actions/workflows/java-ci.yml/badge.svg?branch=main)](https://github.com/kapumota/dtl-lab/actions/workflows/java-ci.yml)
 [![validation](https://github.com/kapumota/dtl-lab/actions/workflows/validation.yml/badge.svg?branch=main)](https://github.com/kapumota/dtl-lab/actions/workflows/validation.yml)
-![version](https://img.shields.io/badge/version-v1.0.0-orange)
+![version](https://img.shields.io/badge/version-v1.0.1-orange)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENCE)
 ![Java](https://img.shields.io/badge/Java-17%2B-blue?logo=openjdk)
 ![tests](https://img.shields.io/badge/tests-custom%20runner-brightgreen)
