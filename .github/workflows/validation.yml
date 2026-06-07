@@ -1,0 +1,33 @@
+name: validation
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Ejecutar validacion reproducible
+        run: bash scripts/validate.sh
+
+      - name: Publicar reportes generados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dtl-lab-reports
+          path: reports/
+          if-no-files-found: ignore
