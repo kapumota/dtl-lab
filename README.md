@@ -1,5 +1,15 @@
 ### DLT-Lab
 
+[![CI](https://github.com/kapumota/dtl-lab/actions/workflows/java-ci.yml/badge.svg?branch=main)](https://github.com/kapumota/dtl-lab/actions/workflows/java-ci.yml)
+[![validation](https://github.com/kapumota/dtl-lab/actions/workflows/validation.yml/badge.svg?branch=main)](https://github.com/kapumota/dtl-lab/actions/workflows/validation.yml)
+![version](https://img.shields.io/badge/version-v1.0.0-orange)
+[![license](https://img.shields.io/badge/license-MIT-green)](LICENCE)
+![Java](https://img.shields.io/badge/Java-17%2B-blue?logo=openjdk)
+![tests](https://img.shields.io/badge/tests-custom%20runner-brightgreen)
+![security](https://img.shields.io/badge/security-runtime%20invariants-teal)
+![formal](https://img.shields.io/badge/formal-TLA%2B%20%2B%20Alloy-blue)
+![demo](https://img.shields.io/badge/demo-CLI%20simulator-blue)
+
 **DLT-Lab** es un laboratorio en Java para estudiar blockchains tipo **Bitcoin**, **ledgers distribuidos**, **mempool strategy**, **MEV**, **DeFi**, **sharding**, **consenso**, **resiliencia adversarial de red**, **seguridad de DLT** y **verificación formal**.
 
 El proyecto está diseñado como un **simulador modular**, no como una criptomoneda de producción. Su objetivo es mostrar de forma ejecutable cómo interactúan los componentes principales de una infraestructura blockchain moderna: validación de transacciones, construcción de bloques, estrategias de mempool, ordenamiento económico de transacciones, mercados AMM simulados, consenso distribuido, ataques de red, sharding, invariantes runtime y especificaciones formales.
@@ -10,6 +20,25 @@ DLT-Lab llega a una versión `1.0.0` después de cuatro fases principales:
 * Fase 2: DeFi y MEV con AMM constante.
 * Fase 3: resiliencia de red y consenso adversarial.
 * Fase 4: verificación formal de commit cross-shard.
+
+
+#### Validación reproducible del software
+
+DLT-Lab se valida mediante un flujo reproducible conectado a GitHub Actions. El workflow `.github/workflows/validation.yml` ejecuta el script principal:
+
+```bash
+make validate
+```
+
+Este proceso comprueba estructura mínima del repositorio, compilación Java, pruebas automatizadas, demo CLI focalizada, seguridad runtime desde el flujo principal y verificación formal estructural.
+
+La validación local también puede ejecutarse con:
+
+```bash
+bash scripts/validate.sh
+```
+
+El objetivo de esta sección es que los badges del README no sean solo decorativos: deben representar una validación ejecutable del software.
 
 #### Estado actual del proyecto
 

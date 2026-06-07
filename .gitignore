@@ -39,3 +39,6 @@ Thumbs.db
 # Backups
 *.bak
 *.backup
+
+# Backups locales generados por scripts
+*.bak-badges-validation
