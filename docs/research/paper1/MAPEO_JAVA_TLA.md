@@ -22,10 +22,10 @@ El mapeo incluye:
 | Concepto | Evidencia Java | Evidencia TLA+ actual | Observación |
 |---|---|---|---|
 | Sesión iniciada | `CrossShardStatus.CREATED` y evento `CREATE_SESSION` | estado posterior a `Init` | TLA+ no tiene identificadores de múltiples sesiones |
-| Origen bloqueado o debitado | `SOURCE_LOCKED`, `Shard.lockUtxo` y eliminación posterior del UTXO | `originDebited` | TLA+ combina bloqueo y débito en una variable abstracta |
+| Origen bloqueado o debitado | `SOURCE_LOCKED`, `CommitPlan` y `AtomicCommitProtocol.applyCommit` | `originDebited` | TLA+ combina bloqueo y débito en una variable abstracta |
 | Recibo creado | `RECEIPT_CREATED` y acción `CREATE_RECEIPT` | `receiptCreated` | Java conserva identidad, contenido y evento del recibo |
-| Recibo entregado y consumido | `RECEIPT_DELIVERED`, `markReceiptConsumed` y `DESTINATION_PREPARED` | `receiptUseCount` | TLA+ no separa entrega, validación y preparación |
-| Destino acreditado | adición de UTXO al pool destino | `destinationCredited` | Java conserva monto, receptor e identificador sintético |
+| Recibo entregado y consumido | `RECEIPT_DELIVERED`, `applyCommit` y `DESTINATION_PREPARED` | `receiptUseCount` | TLA+ no separa entrega, validación y preparación |
+| Destino acreditado | `CommitPlan.targetUtxo` y `applyCommit` | `destinationCredited` | Java conserva monto, receptor e identificador sintético |
 | Commit | `CrossShardStatus.COMMITTED` | `committed` | Java usa un enum y TLA+ una variable booleana |
 | Abort | `CrossShardStatus.ABORTED` | `aborted` | Java distingue también timeout y fallo de validación |
 | Timeout | `CrossShardStatus.TIMED_OUT` y ronda límite | `expired` y acción `TimeoutOrigin` | el reloj y la ronda no están modelados explícitamente en TLA+ |
@@ -35,9 +35,9 @@ El mapeo incluye:
 
 | Acción TLA+ actual | Operación Java aproximada | Diferencia principal |
 |---|---|---|
-| `LockOrigin` | `beginAtomicTransfer`, `LOCK_SOURCE` y `CREATE_RECEIPT` | Java separa los estados, pero conserva una llamada coordinadora |
-| `CommitDestination` | `DELIVER_RECEIPT`, `PREPARE_DESTINATION` y `COMMIT_DESTINATION` | Java separa eventos, pero el modelo TLA+ conserva una acción agregada |
-| `TimeoutOrigin` | `advanceRound`, `expireTimedOutSessions` y `timeoutSession` | Java usa rondas lógicas y TLA+ solo una transición habilitada |
+| `LockOrigin` | `AtomicCommitProtocol.begin`, `LOCK_SOURCE` y `CREATE_RECEIPT` | Java separa estados y dependencias mediante `ProtocolContext` |
+| `CommitDestination` | `prepareCommit`, `applyCommit`, `PREPARE_DESTINATION` y `COMMIT_DESTINATION` | Java incluye snapshot y rollback que el modelo actual no representa |
+| `TimeoutOrigin` | `advanceRound` y `AtomicCommitProtocol.timeout` | Java usa rondas lógicas y TLA+ solo una transición habilitada |
 | `Stutter` | ausencia de acción observable | Java no registra stutter como evento |
 
 #### Abstracciones actuales
@@ -52,7 +52,7 @@ El modelo TLA+ omite deliberadamente:
 - múltiples shards;
 - múltiples transferencias;
 - red de mensajes;
-- excepciones de implementación;
+- excepciones de implementación y rollback;
 - estados intermedios de la sesión.
 
 #### Brechas para conformidad
@@ -89,7 +89,7 @@ and session.status == TIMED_OUT
     -> fundsReleased[transfer] = TRUE
 ```
 
-Estas reglas son preliminares y deberán revisarse después de la extracción del protocolo de la Fase 3 y de la ampliación formal de la Fase 6.
+Estas reglas son preliminares. La extracción Java está completada, pero TLA+ todavía no modela `CommitPlan`, `LedgerSnapshot` ni rollback. La revisión formal corresponde a la Fase 6.
 
 #### Restricción de redacción científica
 

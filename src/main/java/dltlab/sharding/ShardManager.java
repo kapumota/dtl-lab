@@ -1,8 +1,9 @@
 package dltlab.sharding;
 
-import dltlab.crypto.Hashing;
-import dltlab.transaction.Transaction;
-import dltlab.transaction.UTXO;
+import dltlab.sharding.protocol.AtomicCommitProtocol;
+import dltlab.sharding.protocol.CrossShardProtocol;
+import dltlab.sharding.protocol.ProtocolContext;
+import dltlab.sharding.protocol.ProtocolResult;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -11,12 +12,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Coordina shards, validadores, recibos y transferencias cross-shard. */
+/** Administra shards, validadores, reloj logico, sesiones y metricas agregadas. */
 public class ShardManager {
     private final List<Shard> shards = new ArrayList<>();
     private final Map<String, CrossShardSession> sessions = new LinkedHashMap<>();
     private final List<ShardRoundMetric> roundMetrics = new ArrayList<>();
     private final int quorum;
+    private final AtomicCommitProtocol protocol;
     private int currentRound = 0;
 
     public ShardManager(int shardCount) {
@@ -24,6 +26,11 @@ public class ShardManager {
     }
 
     public ShardManager(int shardCount, int validatorsPerShard, int quorum) {
+        this(shardCount, validatorsPerShard, quorum, ProtocolContext.FailureInjector.none());
+    }
+
+    public ShardManager(int shardCount, int validatorsPerShard, int quorum,
+                        ProtocolContext.FailureInjector failureInjector) {
         if (shardCount <= 0) {
             throw new IllegalArgumentException("Debe existir al menos un shard.");
         }
@@ -41,6 +48,9 @@ public class ShardManager {
             }
             shards.add(shard);
         }
+        ProtocolContext context = new ProtocolContext(shards, sessions, quorum,
+                () -> currentRound, failureInjector);
+        this.protocol = new AtomicCommitProtocol(context);
         snapshotMetrics();
     }
 
@@ -60,6 +70,10 @@ public class ShardManager {
         return currentRound;
     }
 
+    public CrossShardProtocol getProtocol() {
+        return protocol;
+    }
+
     public List<CrossShardSession> getSessions() {
         return Collections.unmodifiableList(new ArrayList<>(sessions.values()));
     }
@@ -73,7 +87,7 @@ public class ShardManager {
     }
 
     public int assignShard(PublicKey key) {
-        byte[] hash = Hashing.sha256(key.getEncoded());
+        byte[] hash = dltlab.crypto.Hashing.sha256(key.getEncoded());
         return Byte.toUnsignedInt(hash[0]) % shards.size();
     }
 
@@ -94,110 +108,44 @@ public class ShardManager {
         getShard(shardId).getValidators().get(validatorIndex).setHonest(honest);
     }
 
-    /** API simple de fases anteriores: bloquea el UTXO origen y crea un recibo. */
+    /** API simple de fases anteriores delegada al protocolo. */
     public Receipt lockAndCreateReceipt(CrossShardTransfer transfer) {
-        Shard source = getShard(transfer.sourceShardId());
-        validateSourceTransfer(transfer, source);
-        if (source.isLocked(transfer.sourceUtxo().key())) {
-            throw new IllegalStateException("El UTXO origen ya esta bloqueado.");
-        }
-        source.lockUtxo(transfer.sourceUtxo().key());
-        return createReceipt(transfer);
+        return protocol.lockAndCreateReceipt(transfer);
     }
 
-    /** API simple de fases anteriores: consume un recibo en el destino con proteccion contra replay. */
+    /** API simple de fases anteriores delegada al protocolo. */
     public boolean commitReceipt(Receipt receipt) {
-        Shard target = getShard(receipt.targetShardId());
-        if (!target.markReceiptConsumed(receipt.receiptId())) {
-            return false; // Proteccion contra replay del mismo recibo.
-        }
-        byte[] syntheticTxHash = Hashing.sha256(("cross-shard:" + receipt.receiptId()).getBytes());
-        target.getUtxoPool().addUTXO(new UTXO(syntheticTxHash, 0), new Transaction.Output(receipt.amount(), receipt.recipient()));
+        boolean committed = protocol.commitReceipt(receipt);
         snapshotMetrics();
-        return true;
+        return committed;
     }
 
-    /**
-     * Inicia una transferencia cross-shard atomica: valida el shard origen, bloquea el UTXO
-     * y deja una sesion pendiente hasta que el shard destino haga commit o venza el timeout.
-     */
+    /** Inicia una transferencia atomica y conserva la firma publica anterior. */
     public CrossShardSession beginAtomicTransfer(CrossShardTransfer transfer, int timeoutRounds) {
-        if (timeoutRounds <= 0) {
-            throw new IllegalArgumentException("El timeout debe ser positivo.");
-        }
-        if (sessions.containsKey(transfer.id())) {
-            throw new IllegalStateException("Ya existe una sesion para esta transferencia.");
-        }
-        Shard source = getShard(transfer.sourceShardId());
-        validateSourceTransfer(transfer, source);
-        int approvals = source.approvingValidators();
-        if (approvals < quorum) {
-            CrossShardSession failed = new CrossShardSession(transfer, createReceipt(transfer), currentRound,
-                    currentRound + timeoutRounds, approvals, source.getValidators().size());
-            failed.markFailedValidation("El shard origen no alcanzo quorum para bloquear el UTXO.", currentRound);
-            sessions.put(transfer.id(), failed);
-            snapshotMetrics();
-            return failed;
-        }
-        if (!source.lockUtxo(transfer.sourceUtxo().key())) {
-            throw new IllegalStateException("El UTXO origen ya esta bloqueado por otra transferencia.");
-        }
-        Receipt receipt = createReceipt(transfer);
-        CrossShardSession session = new CrossShardSession(transfer, receipt, currentRound,
-                currentRound + timeoutRounds, approvals, source.getValidators().size());
-        session.markSourceLocked(currentRound);
-        session.markReceiptCreated(currentRound);
-        sessions.put(transfer.id(), session);
+        protocol.begin(transfer, timeoutRounds);
         snapshotMetrics();
-        return session;
+        return sessions.get(transfer.id());
     }
 
-    /** Intenta confirmar atomicamente una transferencia pendiente en el shard destino. */
+    /** Entrega explicitamente el recibo al shard destino. */
+    public boolean deliverAtomicReceipt(String transferId) {
+        ProtocolResult result = protocol.deliverReceipt(transferId);
+        snapshotMetrics();
+        return result.success();
+    }
+
+    /** Intenta confirmar atomicamente una transferencia mediante el protocolo extraido. */
     public boolean commitAtomicTransfer(String transferId) {
-        CrossShardSession session = sessions.get(transferId);
-        if (session == null || session.isTerminal()) {
-            return false;
-        }
-        if (currentRound > session.timeoutRound()) {
-            timeoutSession(session);
-            snapshotMetrics();
-            return false;
-        }
-        Shard target = getShard(session.transfer().targetShardId());
-        int approvals = target.approvingValidators();
-        if (approvals < quorum) {
-            session.markFailedValidation("El shard destino no alcanzo quorum para consumir el recibo.", currentRound);
-            getShard(session.transfer().sourceShardId()).unlockUtxo(session.transfer().sourceUtxo().key());
-            snapshotMetrics();
-            return false;
-        }
-        session.markReceiptDelivered(currentRound);
-        if (!target.markReceiptConsumed(session.receipt().receiptId())) {
-            session.markFailedValidation("El recibo ya habia sido consumido en el shard destino.", currentRound);
-            getShard(session.transfer().sourceShardId()).unlockUtxo(session.transfer().sourceUtxo().key());
-            snapshotMetrics();
-            return false;
-        }
-        session.markDestinationPrepared(approvals, target.getValidators().size(), currentRound);
-        finalizeSourceDebit(session);
-        byte[] syntheticTxHash = Hashing.sha256(("atomic-cross-shard:" + session.receipt().receiptId()).getBytes());
-        target.getUtxoPool().addUTXO(new UTXO(syntheticTxHash, 0),
-                new Transaction.Output(session.receipt().amount(), session.receipt().recipient()));
-        session.markCommitted(approvals, target.getValidators().size(), currentRound);
+        ProtocolResult result = protocol.commit(transferId);
         snapshotMetrics();
-        return true;
+        return result.success();
     }
 
-    /** Aborta manualmente una sesion pendiente y libera el UTXO origen. */
+    /** Aborta una sesion mediante el protocolo extraido. */
     public boolean abortAtomicTransfer(String transferId, String reason) {
-        CrossShardSession session = sessions.get(transferId);
-        if (session == null || session.isTerminal()) {
-            return false;
-        }
-        getShard(session.transfer().sourceShardId()).unlockUtxo(session.transfer().sourceUtxo().key());
-        session.markAborted(reason == null ? "Transferencia abortada manualmente." : reason, currentRound);
+        ProtocolResult result = protocol.abort(transferId, reason);
         snapshotMetrics();
-        return true;
+        return result.success();
     }
 
     /** Avanza la ronda logica, expira sesiones vencidas y captura metricas. */
@@ -214,50 +162,10 @@ public class ShardManager {
     }
 
     private void expireTimedOutSessions() {
-        for (CrossShardSession session : sessions.values()) {
+        for (CrossShardSession session : new ArrayList<>(sessions.values())) {
             if (!session.isTerminal() && currentRound > session.timeoutRound()) {
-                timeoutSession(session);
+                protocol.timeout(session.transfer().id());
             }
-        }
-    }
-
-    private void timeoutSession(CrossShardSession session) {
-        getShard(session.transfer().sourceShardId()).unlockUtxo(session.transfer().sourceUtxo().key());
-        session.markTimedOut("La transferencia vencio antes de ser confirmada por el shard destino.", currentRound);
-    }
-
-    private void validateSourceTransfer(CrossShardTransfer transfer, Shard source) {
-        if (transfer.sourceShardId() == transfer.targetShardId()) {
-            throw new IllegalArgumentException("Una transferencia cross-shard debe mover valor entre shards distintos.");
-        }
-        if (!source.getUtxoPool().contains(transfer.sourceUtxo())) {
-            throw new IllegalArgumentException("El UTXO origen no existe en el shard indicado.");
-        }
-        Transaction.Output output = source.getUtxoPool().getOutput(transfer.sourceUtxo());
-        if (transfer.amount() <= 0) {
-            throw new IllegalArgumentException("El monto cross-shard debe ser positivo.");
-        }
-        if (transfer.amount() > output.getValue()) {
-            throw new IllegalArgumentException("El monto cross-shard excede el valor disponible.");
-        }
-    }
-
-    private Receipt createReceipt(CrossShardTransfer transfer) {
-        String receiptId = Hashing.hex(Hashing.sha256(("receipt:" + transfer.id()).getBytes()));
-        return new Receipt(receiptId, transfer.id(), transfer.sourceShardId(), transfer.targetShardId(),
-                transfer.sourceUtxo().key(), transfer.amount(), transfer.recipient());
-    }
-
-    private void finalizeSourceDebit(CrossShardSession session) {
-        CrossShardTransfer transfer = session.transfer();
-        Shard source = getShard(transfer.sourceShardId());
-        Transaction.Output original = source.getUtxoPool().getOutput(transfer.sourceUtxo());
-        source.getUtxoPool().removeUTXO(transfer.sourceUtxo());
-        source.unlockUtxo(transfer.sourceUtxo().key());
-        long change = original.getValue() - transfer.amount();
-        if (change > 0) {
-            byte[] changeHash = Hashing.sha256(("cross-shard-change:" + session.receipt().receiptId()).getBytes());
-            source.getUtxoPool().addUTXO(new UTXO(changeHash, 0), new Transaction.Output(change, original.getRecipient()));
         }
     }
 

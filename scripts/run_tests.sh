@@ -6,4 +6,6 @@ javac -cp build/classes -d build/test-classes $(find src/test/java -name "*.java
 java -cp build/classes:build/test-classes dltlab.sharding.CrossShardStateMachineTest
 java -cp build/classes:build/test-classes dltlab.sharding.TerminalStateTest
 java -cp build/classes:build/test-classes dltlab.sharding.InvalidTransitionTest
+java -cp build/classes:build/test-classes dltlab.sharding.protocol.AtomicCommitProtocolTest
+java -cp build/classes:build/test-classes dltlab.sharding.protocol.AtomicCommitRollbackTest
 java -cp build/classes:build/test-classes dltlab.TestRunner
