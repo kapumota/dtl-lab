@@ -1,3 +1,4 @@
+# Workflow de CI para ejecutar validación reproducible en cada push/PR a main y publicar reportes
 name: validation
 
 on:
