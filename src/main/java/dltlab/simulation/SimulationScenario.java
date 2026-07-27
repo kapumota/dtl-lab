@@ -1,0 +1,15 @@
+package dltlab.simulation;
+
+/** Escenarios mínimos del artefacto de interleavings deterministas. */
+public enum SimulationScenario {
+    S01_NORMAL_COMMIT,
+    S02_TIMEOUT_BEFORE_DELIVERY,
+    S03_DUPLICATED_RECEIPT,
+    S04_DELAYED_AFTER_TIMEOUT,
+    S05_COMMIT_TIMEOUT_SAME_ROUND,
+    S06_SAME_UTXO_CONFLICT,
+    S07_BIDIRECTIONAL_TRANSFERS,
+    S08_TEMPORARY_TARGET_OUTAGE,
+    S09_INSUFFICIENT_QUORUM,
+    S10_MULTIPLE_CONCURRENT_SESSIONS
+}

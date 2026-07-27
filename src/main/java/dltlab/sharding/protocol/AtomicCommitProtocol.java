@@ -288,7 +288,7 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
             return new AbortResult(transferId, false, session.status(),
                     "La sesion ya tiene una decision terminal.", false);
         }
-        if (context.logicalTime() <= session.timeoutRound()) {
+        if (context.logicalTime() < session.timeoutRound()) {
             return new AbortResult(transferId, false, session.status(),
                     "La sesion todavia no alcanzo su timeout.", false);
         }

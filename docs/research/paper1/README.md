@@ -4,14 +4,14 @@
 
 Este directorio contiene la documentación de investigación del Paper 1 de DLT-Lab.
 
-- Fase actual: Fase 3, protocolo atómico extraído.
-- Estado: commit separado de `ShardManager` con snapshot y rollback ejecutable.
+- Fase actual: Fase 4, interleavings y simulación determinista.
+- Estado: scheduler discreto, red reproducible y diez escenarios ejecutables.
 - Baseline de investigación: commit `34f4c088b9f5db3e3b54824de69db8589fd06de3`.
-- Commit padre de la Fase 3: `a0b10bb67a5e54ca574d4aa960c12ddb5b3db6e5`.
+- Commit padre de la Fase 4: `d9658d1`.
 - Versión visible del software: `v1.1.0-alpha.1`.
-- Rama de trabajo: `paper1/fase-3-protocolo-atomico`.
+- Rama de trabajo: `paper1/fase-4-interleavings-deterministas`.
 
-La Fase 3 extrae la lógica de commit desde `ShardManager` hacia `AtomicCommitProtocol`. La aplicación usa `CommitPlan`, `LedgerSnapshot` y rollback ante excepciones controladas. TLA+ y Alloy permanecen sin cambios.
+La Fase 4 agrega simulación discreta sobre el protocolo extraído. El scheduler controla ronda, prioridad, entrega, pérdida, duplicación, retraso y reordenamiento sin threads reales. TLA+ y Alloy permanecen sin cambios.
 
 #### Objetivo del Paper 1
 
@@ -47,9 +47,10 @@ La contribución esperada no es presentar DLT-Lab completo como un nuevo simulad
 - `MAPEO_JAVA_TLA.md`: correspondencia conceptual entre Java y TLA+.
 
 
-#### Documento de la Fase 3
+#### Documentos de las Fases 3 y 4
 
 - `ARQUITECTURA_PROTOCOLO_ATOMICO.md`: separación de responsabilidades, plan de commit, snapshot, puntos de fallo y rollback.
+- `SIMULACION_DETERMINISTA.md`: reloj lógico, scheduler, red, modelos de fallos, escenarios y matriz de seeds.
 
 #### Relación con la documentación existente
 
@@ -60,7 +61,7 @@ La documentación de este directorio no reemplaza:
 - `specs/tla/README.md`;
 - `README.md`.
 
-Esos archivos describen el software y la Fase 4 existente. Este directorio define la conversión del componente cross-shard en un artefacto de investigación.
+Esos archivos describen el software y la verificación formal histórica del repositorio. Este directorio define la conversión del componente cross-shard en un artefacto de investigación.
 
 #### Reglas de trabajo
 
@@ -146,3 +147,30 @@ La Fase 3 se considera completa cuando:
 8. Las pruebas de Fase 2 y las invariantes runtime continúan pasando.
 9. TLA+ y Alloy permanecen sin cambios.
 10. El commit fusionado puede etiquetarse como `v1.1.0-alpha.1`.
+
+
+#### Implementación de la Fase 4
+
+- `SimulationClock` elimina dependencia del tiempo del sistema.
+- `EventQueue` y `EventScheduler` definen un orden total reproducible.
+- `DeterministicRandom` implementa SplitMix64 con seed explícita.
+- `NetworkFaultModel` controla entrega, pérdida, retraso, duplicación y reordenamiento.
+- `SimulationRun` ejecuta el protocolo real y genera trazas estables.
+- `ScenarioCatalog` contiene los escenarios `S01` a `S10`.
+- `SimulationDeterminismTest` compara texto, hash y estado final.
+- `SimulationScenarioMatrixTest` ejecuta la matriz de seeds.
+
+#### Criterios de cierre de la Fase 4
+
+La Fase 4 se considera completa cuando:
+
+1. La misma seed produce exactamente la misma traza y estado final.
+2. Ningún componente consulta el reloj del sistema.
+3. Los eventos se ordenan por ronda, prioridad y secuencia.
+4. Los seis modelos de red son ejecutables y reproducibles.
+5. Los escenarios `S01` a `S10` tienen pruebas de resultado.
+6. La carrera commit-timeout produce una única decisión terminal.
+7. CI ejecuta al menos 100 seeds por escenario.
+8. El runner local ejecuta al menos 1000 seeds por escenario.
+9. Las pruebas e invariantes de las fases anteriores continúan pasando.
+10. TLA+ y Alloy permanecen sin cambios.

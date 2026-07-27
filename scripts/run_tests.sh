@@ -8,4 +8,6 @@ java -cp build/classes:build/test-classes dltlab.sharding.TerminalStateTest
 java -cp build/classes:build/test-classes dltlab.sharding.InvalidTransitionTest
 java -cp build/classes:build/test-classes dltlab.sharding.protocol.AtomicCommitProtocolTest
 java -cp build/classes:build/test-classes dltlab.sharding.protocol.AtomicCommitRollbackTest
+java -cp build/classes:build/test-classes dltlab.simulation.SimulationDeterminismTest
+DTL_SIMULATION_SEEDS=100 java -cp build/classes:build/test-classes dltlab.simulation.SimulationScenarioMatrixTest
 java -cp build/classes:build/test-classes dltlab.TestRunner
