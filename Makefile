@@ -1,3 +1,4 @@
+# Makefile principal para ai-code-triage: orquesta validación, pruebas, demostraciones y verificación de seguridad/formal
 .PHONY: validate test demo demo-mempool demo-defi demo-adversarial security formal clean
 
 validate:
