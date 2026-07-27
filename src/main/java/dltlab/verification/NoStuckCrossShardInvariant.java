@@ -1,7 +1,6 @@
 package dltlab.verification;
 
 import dltlab.sharding.CrossShardSession;
-import dltlab.sharding.CrossShardStatus;
 import dltlab.sharding.Shard;
 
 /** Verifica que las sesiones cross-shard terminales no dejen UTXOs bloqueados. */
@@ -13,7 +12,7 @@ public class NoStuckCrossShardInvariant implements Invariant {
                     "No hay shards configurados en esta simulacion.");
         }
         for (CrossShardSession session : state.shardManager().getSessions()) {
-            if (session.status() == CrossShardStatus.PENDING) {
+            if (!session.isTerminal()) {
                 continue;
             }
             Shard source = state.shardManager().getShard(session.transfer().sourceShardId());

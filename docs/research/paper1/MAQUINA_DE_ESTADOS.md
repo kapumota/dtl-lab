@@ -2,83 +2,11 @@
 
 #### Propósito
 
-Este documento separa la máquina de estados observada en el baseline de la máquina de estados objetivo del Paper 1. Esta distinción evita presentar como implementados estados que todavía no existen en Java.
+Este documento describe la máquina de estados Java implementada en la Fase 2 y distingue sus garantías runtime de las propiedades formales que se verificarán en fases posteriores.
 
-#### Máquina de estados del baseline
+#### Estados implementados
 
-`CrossShardStatus` contiene actualmente:
-
-```text
-PENDING
-COMMITTED
-ABORTED
-TIMED_OUT
-FAILED_VALIDATION
-```
-
-Las transiciones observables son:
-
-```text
-PENDING -> COMMITTED
-PENDING -> ABORTED
-PENDING -> TIMED_OUT
-PENDING -> FAILED_VALIDATION
-```
-
-Los cuatro estados de salida son terminales.
-
-#### Estado inicial del baseline
-
-Una sesión se crea como `PENDING` después de construir el recibo. Cuando el shard origen no alcanza quorum, también se crea una sesión y se cambia inmediatamente a `FAILED_VALIDATION`.
-
-#### Transiciones actuales
-
-| Acción Java | Precondición principal | Estado inicial | Estado final |
-|---|---|---|---|
-| `beginAtomicTransfer` | transferencia válida y quorum en origen | no existe sesión | `PENDING` |
-| `commitAtomicTransfer` | sesión pendiente, no vencida, quorum en destino y recibo no consumido | `PENDING` | `COMMITTED` |
-| `abortAtomicTransfer` | sesión existente y no terminal | `PENDING` | `ABORTED` |
-| `timeoutSession` | sesión existente, no terminal y timeout superado | `PENDING` | `TIMED_OUT` |
-| `markFailedValidation` | fallo de quorum o recibo ya consumido | `PENDING` o creación inicial | `FAILED_VALIDATION` |
-
-#### Estados terminales
-
-Una sesión es terminal cuando su estado es:
-
-- `COMMITTED`;
-- `ABORTED`;
-- `TIMED_OUT`;
-- `FAILED_VALIDATION`.
-
-Los métodos de commit y abort rechazan una sesión terminal mediante `isTerminal`.
-
-#### Transiciones prohibidas en el contrato
-
-Aunque el baseline no usa una tabla explícita de transiciones, el contrato del Paper 1 prohíbe:
-
-```text
-COMMITTED -> ABORTED
-COMMITTED -> TIMED_OUT
-ABORTED -> COMMITTED
-ABORTED -> TIMED_OUT
-TIMED_OUT -> COMMITTED
-TIMED_OUT -> ABORTED
-FAILED_VALIDATION -> COMMITTED
-FAILED_VALIDATION -> ABORTED
-```
-
-También se prohíben:
-
-- doble commit;
-- doble abort;
-- timeout repetido;
-- commit de una sesión inexistente;
-- commit después del vencimiento;
-- consumo repetido del mismo recibo.
-
-#### Máquina de estados objetivo
-
-La Fase 2 podrá ampliar el estado agregado `PENDING` a estados intermedios explícitos:
+`CrossShardStatus` contiene:
 
 ```text
 CREATED
@@ -92,35 +20,166 @@ TIMED_OUT
 FAILED_VALIDATION
 ```
 
-Esta ampliación todavía no está implementada. Su finalidad será hacer observables las transiciones necesarias para trazas, model checking y conformidad Java-TLA+.
+Los primeros cinco estados son no terminales. Los cuatro estados restantes son terminales.
 
-#### Tabla objetivo preliminar
+#### Estado inicial
 
-| Estado actual | Acción | Estado siguiente | Condición |
+Una sesión se crea en `CREATED`. El constructor registra un evento inicial con la acción `CREATE_SESSION`, el tiempo lógico de la ronda inicial y un estado anterior nulo.
+
+El constructor no afirma que el UTXO ya fue bloqueado. `ShardManager.beginAtomicTransfer` registra después las acciones reales:
+
+```text
+CREATED
+  -> SOURCE_LOCKED
+  -> RECEIPT_CREATED
+```
+
+Cuando el shard origen no alcanza quorum, la sesión cambia directamente:
+
+```text
+CREATED -> FAILED_VALIDATION
+```
+
+#### Recorrido de commit
+
+El recorrido exitoso completo es:
+
+```text
+CREATED
+  -> SOURCE_LOCKED
+  -> RECEIPT_CREATED
+  -> RECEIPT_DELIVERED
+  -> DESTINATION_PREPARED
+  -> COMMITTED
+```
+
+`ShardManager.commitAtomicTransfer` registra la entrega del recibo antes de consumirlo y registra la preparación del destino después de validar el recibo y el quorum.
+
+#### Tabla de transiciones principales
+
+| Estado actual | Acción | Estado siguiente | Condición runtime |
 |---|---|---|---|
-| `CREATED` | `lockSource` | `SOURCE_LOCKED` | UTXO válido, libre y quorum en origen |
-| `SOURCE_LOCKED` | `createReceipt` | `RECEIPT_CREATED` | bloqueo confirmado |
-| `RECEIPT_CREATED` | `deliverReceipt` | `RECEIPT_DELIVERED` | mensaje entregado antes del timeout |
-| `RECEIPT_DELIVERED` | `prepareDestination` | `DESTINATION_PREPARED` | recibo válido y quorum en destino |
-| `DESTINATION_PREPARED` | `commitDestination` | `COMMITTED` | débito y crédito aplicados atómicamente |
-| cualquier estado no terminal permitido | `abortTransfer` | `ABORTED` | condición de abort válida |
-| cualquier estado no terminal bloqueado | `expireTransfer` | `TIMED_OUT` | timeout alcanzado y fondos liberados |
-| cualquier estado no terminal permitido | `failValidation` | `FAILED_VALIDATION` | validación no recuperable |
+| `CREATED` | `LOCK_SOURCE` | `SOURCE_LOCKED` | UTXO bloqueado con quorum en origen |
+| `SOURCE_LOCKED` | `CREATE_RECEIPT` | `RECEIPT_CREATED` | recibo asociado a la sesión |
+| `RECEIPT_CREATED` | `DELIVER_RECEIPT` | `RECEIPT_DELIVERED` | intento de procesamiento en destino |
+| `RECEIPT_DELIVERED` | `PREPARE_DESTINATION` | `DESTINATION_PREPARED` | quorum y recibo aceptados en destino |
+| `DESTINATION_PREPARED` | `COMMIT_DESTINATION` | `COMMITTED` | aplicación del débito y crédito completada |
 
-#### Invariantes de transición
+#### Transiciones de salida
 
-La futura máquina de estados deberá cumplir:
+`ABORT_TRANSFER` y `FAIL_VALIDATION` se permiten desde cualquier estado no terminal.
 
-1. una sesión tiene exactamente un estado;
-2. una sesión terminal no cambia de estado;
-3. `COMMITTED` requiere crédito en destino y débito definitivo en origen;
-4. `ABORTED` y `TIMED_OUT` requieren que el UTXO origen no permanezca bloqueado;
-5. `FAILED_VALIDATION` no puede dejar un crédito en destino;
-6. un recibo consumido no puede volver a habilitar una transición de commit;
-7. toda transición debe registrar acción, instante lógico, estado anterior y estado posterior.
+`EXPIRE_TRANSFER` se permite desde:
+
+```text
+SOURCE_LOCKED
+RECEIPT_CREATED
+RECEIPT_DELIVERED
+DESTINATION_PREPARED
+```
+
+No se permite timeout desde `CREATED`, porque todavía no existe un bloqueo que liberar.
+
+#### Estados terminales
+
+Una sesión es terminal cuando su estado es:
+
+- `COMMITTED`;
+- `ABORTED`;
+- `TIMED_OUT`;
+- `FAILED_VALIDATION`.
+
+`CrossShardStatus.isTerminal` concentra esta clasificación. `CrossShardSession.isTerminal` delega en el estado y evita repetir comparaciones distribuidas.
+
+Ningún estado terminal tiene transiciones salientes en `TransitionTable`.
+
+#### Transiciones prohibidas
+
+La tabla rechaza, entre otras, las siguientes operaciones:
+
+```text
+COMMITTED -> ABORTED
+TIMED_OUT -> COMMITTED
+ABORTED -> FAILED_VALIDATION
+FAILED_VALIDATION -> SOURCE_LOCKED
+CREATED -> COMMITTED
+CREATED -> TIMED_OUT
+CREATED -> RECEIPT_CREATED
+```
+
+También se rechazan:
+
+- doble commit;
+- doble abort;
+- timeout repetido;
+- acción que no corresponde con el cambio de estado;
+- tiempo lógico menor que el último tiempo registrado;
+- razón nula o vacía;
+- recibo asociado a una transferencia diferente.
+
+#### Historial de eventos
+
+Cada transición produce un `ProtocolEvent` inmutable con:
+
+```text
+sequence
+logicalTime
+transferId
+action
+previousStatus
+nextStatus
+reason
+```
+
+La secuencia inicia en cero con `CREATE_SESSION`. La lista expuesta por `events()` es inmutable y mantiene el orden de ejecución.
+
+`stateVersion()` representa la cantidad de transiciones posteriores a la creación de la sesión.
+
+#### Compatibilidad con la API anterior
+
+Se conservan las firmas:
+
+```java
+markCommitted(int approvals, int validators)
+markAborted(String reason)
+markTimedOut(String reason)
+markFailedValidation(String reason)
+```
+
+Estas firmas delegan en la máquina de estados y usan el último tiempo lógico conocido. También se agregan sobrecargas que reciben el tiempo lógico explícito para que `ShardManager` registre la ronda actual.
+
+El comportamiento externo de `ShardManager` se conserva:
+
+- `commitAtomicTransfer` sigue devolviendo `true` o `false`;
+- `abortAtomicTransfer` sigue devolviendo `true` o `false`;
+- los estados terminales conservan sus nombres anteriores;
+- las métricas agregan todos los estados no terminales como transferencias pendientes.
+
+#### Pruebas agregadas
+
+La Fase 2 incorpora:
+
+```text
+CrossShardStateMachineTest
+TerminalStateTest
+InvalidTransitionTest
+```
+
+Las pruebas se ejecutan sin dependencias externas mediante `scripts/run_tests.sh`.
+
+#### Limitaciones conservadas
+
+La Fase 2 no resuelve todavía:
+
+- rollback de cambios parciales;
+- atomicidad ante excepciones entre débito y crédito;
+- scheduler de mensajes;
+- retraso, duplicación o reordenamiento de red;
+- conformidad automática Java-TLA+;
+- model checking multisesión.
+
+Estas responsabilidades pertenecen a las fases 3, 4, 6 y 7.
 
 #### Relación con TLA+ y Alloy
 
-El modelo TLA+ actual representa el protocolo mediante variables booleanas y tres acciones principales. El modelo Alloy actual representa atributos de una transferencia, pero no una secuencia ordenada de estados.
-
-La Fase 6 deberá adaptar ambos modelos a la máquina de estados objetivo sin cambiar las garantías definidas aquí.
+TLA+ y Alloy todavía representan el modelo anterior. Esta fase no modifica las especificaciones para evitar mezclar la implementación Java con la ampliación formal multisesión prevista para la Fase 6.

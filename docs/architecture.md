@@ -63,13 +63,14 @@ El objetivo no es simular toda la economia de Ethereum o un DEX real. El objetiv
 El paquete `dltlab.sharding` modela transferencias cross-shard con estados visibles:
 
 ```text
-PENDING -> COMMITTED
-PENDING -> TIMED_OUT
-PENDING -> FAILED_VALIDATION
-PENDING -> ABORTED
+CREATED -> SOURCE_LOCKED -> RECEIPT_CREATED
+RECEIPT_CREATED -> RECEIPT_DELIVERED -> DESTINATION_PREPARED -> COMMITTED
+SOURCE_LOCKED o posterior -> TIMED_OUT
+cualquier estado no terminal permitido -> ABORTED
+cualquier estado no terminal permitido -> FAILED_VALIDATION
 ```
 
-Cada shard tiene validadores configurables. La transferencia solo avanza si el origen y el destino alcanzan quorum. Si no se confirma antes del timeout, el UTXO origen se libera.
+Cada shard tiene validadores configurables. La transferencia solo avanza si el origen y el destino alcanzan quorum. Cada sesión conserva eventos de transición con tiempo lógico. Si no se confirma antes del timeout, el UTXO origen se libera.
 
 #### Visualizacion
 

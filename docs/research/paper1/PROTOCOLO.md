@@ -4,7 +4,7 @@
 
 Este documento define el contrato conceptual del protocolo de commit cross-shard que será estudiado en el Paper 1. La definición se deriva del comportamiento actual de `ShardManager`, `CrossShardSession`, `CrossShardStatus`, `Receipt`, `Shard` y las invariantes runtime existentes.
 
-La Fase 1 no modifica el código Java ni las especificaciones TLA+ y Alloy. Su objetivo es fijar un vocabulario único para evitar que las fases posteriores implementen protocolos distintos.
+La Fase 1 fijó el vocabulario del protocolo. La Fase 2 implementa la máquina de estados Java sin modificar todavía las especificaciones TLA+ y Alloy.
 
 #### Participantes
 
@@ -57,20 +57,22 @@ Una transferencia puede iniciarse cuando:
 
 #### Flujo exitoso actual
 
-El flujo exitoso del baseline es:
+El flujo exitoso implementado es:
 
 1. validar la transferencia en el shard origen;
-2. comprobar el quorum del shard origen;
-3. bloquear el UTXO origen;
-4. crear un recibo cross-shard determinista;
-5. registrar una sesión pendiente;
+2. crear una sesión en `CREATED`;
+3. comprobar el quorum del shard origen;
+4. bloquear el UTXO y registrar `SOURCE_LOCKED`;
+5. crear el recibo y registrar `RECEIPT_CREATED`;
 6. comprobar que la sesión no haya vencido;
 7. comprobar el quorum del shard destino;
-8. marcar el recibo como consumido en el shard destino;
-9. debitar el UTXO origen;
-10. crear el UTXO correspondiente en el shard destino;
-11. crear un UTXO de cambio en el shard origen cuando corresponda;
-12. marcar la sesión como `COMMITTED`.
+8. registrar `RECEIPT_DELIVERED`;
+9. marcar el recibo como consumido en el shard destino;
+10. registrar `DESTINATION_PREPARED`;
+11. debitar el UTXO origen;
+12. crear el UTXO correspondiente en el shard destino;
+13. crear un UTXO de cambio en el shard origen cuando corresponda;
+14. marcar la sesión como `COMMITTED`.
 
 #### Flujo de timeout actual
 
@@ -125,17 +127,16 @@ El protocolo pretende preservar:
 
 Estas garantías son objetivos de investigación. La Fase 1 no afirma todavía que estén demostradas para todos los interleavings.
 
-#### Limitaciones del baseline
+#### Limitaciones después de la Fase 2
 
-El baseline presenta las siguientes limitaciones:
+La máquina de estados ya distingue las etapas principales y conserva eventos por sesión. Permanecen las siguientes limitaciones:
 
-- una sesión usa un estado agregado `PENDING` antes de cualquier estado terminal;
 - no existe una cola explícita de mensajes entre shards;
-- la entrega, duplicación, pérdida y reordenamiento de mensajes no están modelados como eventos separados;
+- la pérdida, duplicación y reordenamiento de red no se ejecutan todavía como fallos programables;
 - el commit se ejecuta de forma síncrona dentro de `ShardManager`;
 - no existe rollback explícito ante una excepción intermedia;
-- no existe una traza formal de acciones por sesión;
-- las propiedades de liveness no están expresadas todavía como fórmulas temporales completas;
+- los eventos todavía no se exportan a un formato de conformidad;
+- las propiedades de liveness no están expresadas como fórmulas temporales completas;
 - no existe conformidad automatizada entre Java y TLA+.
 
 #### Regla para fases posteriores
