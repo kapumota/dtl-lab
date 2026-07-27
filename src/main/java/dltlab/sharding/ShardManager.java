@@ -70,6 +70,14 @@ public class ShardManager {
         return currentRound;
     }
 
+    /** Sincroniza el reloj logico sin ejecutar expiraciones automaticas. */
+    public void advanceClockTo(int round) {
+        if (round < currentRound) {
+            throw new IllegalArgumentException("La ronda logica no puede retroceder.");
+        }
+        currentRound = round;
+    }
+
     public CrossShardProtocol getProtocol() {
         return protocol;
     }
@@ -144,6 +152,13 @@ public class ShardManager {
     /** Aborta una sesion mediante el protocolo extraido. */
     public boolean abortAtomicTransfer(String transferId, String reason) {
         ProtocolResult result = protocol.abort(transferId, reason);
+        snapshotMetrics();
+        return result.success();
+    }
+
+    /** Ejecuta un timeout explicito para simulaciones con orden controlado. */
+    public boolean timeoutAtomicTransfer(String transferId) {
+        ProtocolResult result = protocol.timeout(transferId);
         snapshotMetrics();
         return result.success();
     }

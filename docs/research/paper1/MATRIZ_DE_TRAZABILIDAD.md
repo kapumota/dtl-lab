@@ -10,19 +10,19 @@ Esta matriz relaciona las propiedades científicas esperadas con el código, las
 |---|---|---|---|---|
 | Estado de sesión | nueve estados en `CrossShardStatus` y tabla ejecutable en `TransitionTable` | variables booleanas y estado abstracto | falta trasladar los estados Java al modelo formal multisesión | Fase 6 |
 | Historial de sesión | `ProtocolEvent` y `CrossShardSession.events()` | no existe traza formal importable | falta formato común y checker de conformidad | Fase 7 |
-| Bloqueo de origen | `markSourceLocked` y `AtomicCommitProtocol.begin` | `LockOrigin` en TLA+ | falta modelar varias sesiones y conflictos concurrentes | Fases 4 y 6 |
-| Creación y entrega de recibo | `markReceiptCreated` y `markReceiptDelivered` | `CreateReceipt` abstracto | falta una red explícita con entrega, retraso y duplicación | Fases 4 y 6 |
-| Consumo de recibo | `AtomicCommitProtocol.commitReceipt` y `applyCommit` | `receiptUseCount` y `NoReceiptReplay` | falta estudiar consumo entre múltiples shards y sesiones | Fases 4 y 6 |
-| Protección runtime contra replay | `CrossShardReplayAttack` y `NoReceiptReplayInvariant` | `NoReceiptReplay` en TLA+ y Alloy | falta relacionar el ataque con trazas adversariales y mutantes | Fases 4 y 6 |
-| Conservación de valor | `CommitPlan`, `LedgerSnapshot`, `applyCommit` y `rollback` | `NoValueLoss` y `TimeoutReleasesFunds` | rollback probado con fallos controlados; falta exploración multisesión | Fases 4 y 6 |
-| Decisión atómica | `AtomicCommitProtocol`, snapshot restaurable y decisión terminal única | `AtomicCommit` | falta comprobar interleavings concurrentes y relacionarlos con el modelo formal | Fases 4 y 6 |
+| Bloqueo de origen | `markSourceLocked`, `AtomicCommitProtocol.begin` y escenario `S06` | `LockOrigin` en TLA+ | Java explora conflictos deterministas; falta trasladarlos al modelo formal | Fase 6 |
+| Creación y entrega de recibo | `NetworkMessage`, `NetworkFaultModel`, `SEND_RECEIPT` y `DELIVER_RECEIPT` | `CreateReceipt` abstracto | red Java explícita; falta representación formal de mensajes | Fase 6 |
+| Consumo de recibo | `applyCommit`, `DuplicateReceiptModel` y escenario `S03` | `receiptUseCount` y `NoReceiptReplay` | duplicación probada en Java; falta exploración formal multisesión | Fase 6 |
+| Protección runtime contra replay | ataque existente, invariante y traza determinista de `S03` | `NoReceiptReplay` en TLA+ y Alloy | falta relación automática entre traza Java y modelo | Fases 6 y 7 |
+| Conservación de valor | rollback de Fase 3 y escenarios concurrentes `S06`, `S07` y `S10` | `NoValueLoss` y `TimeoutReleasesFunds` | exploración Java acotada; falta model checking multisesión | Fase 6 |
+| Decisión atómica | `AtomicCommitProtocol` y carrera determinista `S05` | `AtomicCommit` | interleavings Java probados; falta equivalencia con acciones formales | Fases 6 y 7 |
 | Irreversibilidad terminal | ausencia de salidas terminales en `TransitionTable` y pruebas específicas | propiedad no separada | falta agregar `TerminalStateIrreversibility` al modelo formal | Fase 6 |
 | Timeout | `EXPIRE_TRANSFER` solo desde estados con bloqueo | `TimeoutOrigin` y `TimeoutReleasesFunds` | falta formalizar liveness y fairness | Fase 6 |
 | Quorum | validación en origen y destino dentro de `AtomicCommitProtocol` | no existe una propiedad formal específica | falta `QuorumRequired` en TLA+ y Alloy | Fase 6 |
-| Fallos de red | disponibilidad de validadores y shard offline | no existe una red explícita de mensajes | faltan retraso, pérdida, duplicación y reordenamiento | Fases 4 y 6 |
+| Fallos de red | seis `NetworkFaultModel`, mensajes y escenarios `S02` a `S05` | no existe una red explícita de mensajes | falta incorporar red y fairness al modelo formal | Fase 6 |
 | Model checking ejecutado | ejecución opcional de TLC en `run_formal_checks.sh` | modelos presentes | el perfil actual puede finalizar sin TLC y no automatiza Alloy | Fase 5 |
 | Conformidad Java-TLA+ | eventos Java ordenados por sesión | modelo abstracto | falta función de abstracción, serialización y checker | Fase 7 |
-| Reproducibilidad científica | pruebas sin dependencias externas y validación general | configuración TLA+ básica | faltan manifiestos, versiones fijadas y resultados estructurados | Fases 5 y 8 |
+| Reproducibilidad científica | seed explícita, traza estable, 100 seeds en CI y runner local de 1000 | configuración TLA+ básica | falta fijar herramientas formales y empaquetar resultados | Fases 5 y 8 |
 
 #### Evidencia agregada en la Fase 2
 
@@ -43,6 +43,17 @@ Esta matriz relaciona las propiedades científicas esperadas con el código, las
 - `ProtocolContext.FailurePoint` hace reproducibles cuatro fallos intermedios.
 - `AtomicCommitRollbackTest` comprueba restauración del origen, eliminación del crédito, recibo y estado.
 - `AtomicCommitProtocolTest` comprueba compatibilidad y una única decisión terminal.
+
+#### Evidencia agregada en la Fase 4
+
+- `SimulationClock` y `EventScheduler` eliminan dependencias del reloj físico y de threads.
+- `EventQueue` ordena por ronda, prioridad y secuencia.
+- `DeterministicRandom` conserva una secuencia estable para cada seed.
+- seis modelos de red cubren entrega normal, pérdida, retraso, duplicación, reordenamiento y carrera de timeout.
+- `ScenarioCatalog` implementa `S01` a `S10`.
+- `SimulationDeterminismTest` compara trazas y hashes de ejecuciones repetidas.
+- `SimulationScenarioMatrixTest` ejecuta 100 seeds por escenario en el runner reducido.
+- `run_simulation_matrix.sh` permite ejecutar 1000 o más seeds por escenario localmente.
 
 #### Regla de actualización
 
