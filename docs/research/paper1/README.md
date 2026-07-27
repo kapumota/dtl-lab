@@ -4,13 +4,14 @@
 
 Este directorio contiene la documentación de investigación del Paper 1 de DLT-Lab.
 
-- Fase actual: Fase 1, contrato del protocolo.
-- Estado: contrato conceptual definido sobre el baseline de la Fase 0.
-- Baseline del repositorio: commit `34f4c088b9f5db3e3b54824de69db8589fd06de3`.
+- Fase actual: Fase 2, máquina de estados Java.
+- Estado: estados intermedios, tabla de transiciones y eventos implementados.
+- Baseline de investigación: commit `34f4c088b9f5db3e3b54824de69db8589fd06de3`.
+- Commit padre de la Fase 2: `db0b55a956b9123fc7658e060114829da80d75a0`.
 - Versión visible del software: `v1.0.1`.
-- Rama de trabajo: `paper1/fase-1-contrato-protocolo`.
+- Rama de trabajo: `paper1/fase-2-maquina-estados`.
 
-La Fase 1 no cambia el comportamiento del software. Su propósito es definir el protocolo, la máquina de estados, las propiedades de seguridad y vivacidad, el modelo de fallos y el mapeo conceptual entre Java y TLA+.
+La Fase 2 convierte `CrossShardSession` en una máquina de estados verificable. La implementación registra transiciones y eventos sin modificar todavía TLA+, Alloy ni la arquitectura de commit que se refactorizará en la Fase 3.
 
 #### Objetivo del Paper 1
 
@@ -89,3 +90,27 @@ La Fase 1 se considera completa cuando:
 5. El mapeo Java-TLA+ identifica correspondencias y brechas sin afirmar refinamiento.
 6. La matriz de trazabilidad se actualiza.
 7. `make validate` continúa pasando después de aplicar el parche.
+
+
+#### Implementación de la Fase 2
+
+- `CrossShardStatus` distingue cinco estados no terminales y cuatro estados terminales.
+- `TransitionTable` concentra las transiciones permitidas.
+- `CrossShardSession.transitionTo` valida estado, acción, razón y tiempo lógico.
+- `ProtocolEvent` conserva una traza inmutable por sesión.
+- `ShardManager` registra bloqueo, creación, entrega, preparación y commit.
+- `NoStuckCrossShardInvariant` usa `isTerminal` para reconocer los nuevos estados intermedios.
+- `scripts/run_tests.sh` ejecuta tres suites específicas de la máquina de estados.
+
+#### Criterios de cierre de la Fase 2
+
+La Fase 2 se considera completa cuando:
+
+1. Todas las transiciones principales permitidas tienen pruebas.
+2. Las transiciones terminales prohibidas generan `InvalidTransitionException`.
+3. El commit directo desde `CREATED` se rechaza.
+4. El timeout antes del bloqueo se rechaza.
+5. El historial de eventos es ordenado e inmutable.
+6. `ShardManager` conserva sus métodos públicos y las pruebas anteriores continúan pasando.
+7. `make validate`, `scripts/run_tests.sh` y las validaciones existentes continúan pasando.
+8. TLA+ y Alloy permanecen sin cambios en esta fase.

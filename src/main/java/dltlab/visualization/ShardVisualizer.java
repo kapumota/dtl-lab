@@ -55,7 +55,8 @@ public class ShardVisualizer {
             String color = switch (session.status()) {
                 case COMMITTED -> "green";
                 case TIMED_OUT, ABORTED, FAILED_VALIDATION -> "red";
-                case PENDING -> "orange";
+                case CREATED, SOURCE_LOCKED, RECEIPT_CREATED, RECEIPT_DELIVERED,
+                        DESTINATION_PREPARED -> "orange";
             };
             sb.append("  shard").append(session.transfer().sourceShardId())
                     .append(" -> shard").append(session.transfer().targetShardId())

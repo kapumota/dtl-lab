@@ -134,7 +134,7 @@ public class ShardManager {
         if (approvals < quorum) {
             CrossShardSession failed = new CrossShardSession(transfer, createReceipt(transfer), currentRound,
                     currentRound + timeoutRounds, approvals, source.getValidators().size());
-            failed.markFailedValidation("El shard origen no alcanzo quorum para bloquear el UTXO.");
+            failed.markFailedValidation("El shard origen no alcanzo quorum para bloquear el UTXO.", currentRound);
             sessions.put(transfer.id(), failed);
             snapshotMetrics();
             return failed;
@@ -145,6 +145,8 @@ public class ShardManager {
         Receipt receipt = createReceipt(transfer);
         CrossShardSession session = new CrossShardSession(transfer, receipt, currentRound,
                 currentRound + timeoutRounds, approvals, source.getValidators().size());
+        session.markSourceLocked(currentRound);
+        session.markReceiptCreated(currentRound);
         sessions.put(transfer.id(), session);
         snapshotMetrics();
         return session;
@@ -164,22 +166,24 @@ public class ShardManager {
         Shard target = getShard(session.transfer().targetShardId());
         int approvals = target.approvingValidators();
         if (approvals < quorum) {
-            session.markFailedValidation("El shard destino no alcanzo quorum para consumir el recibo.");
+            session.markFailedValidation("El shard destino no alcanzo quorum para consumir el recibo.", currentRound);
             getShard(session.transfer().sourceShardId()).unlockUtxo(session.transfer().sourceUtxo().key());
             snapshotMetrics();
             return false;
         }
+        session.markReceiptDelivered(currentRound);
         if (!target.markReceiptConsumed(session.receipt().receiptId())) {
-            session.markFailedValidation("El recibo ya habia sido consumido en el shard destino.");
+            session.markFailedValidation("El recibo ya habia sido consumido en el shard destino.", currentRound);
             getShard(session.transfer().sourceShardId()).unlockUtxo(session.transfer().sourceUtxo().key());
             snapshotMetrics();
             return false;
         }
+        session.markDestinationPrepared(approvals, target.getValidators().size(), currentRound);
         finalizeSourceDebit(session);
         byte[] syntheticTxHash = Hashing.sha256(("atomic-cross-shard:" + session.receipt().receiptId()).getBytes());
         target.getUtxoPool().addUTXO(new UTXO(syntheticTxHash, 0),
                 new Transaction.Output(session.receipt().amount(), session.receipt().recipient()));
-        session.markCommitted(approvals, target.getValidators().size());
+        session.markCommitted(approvals, target.getValidators().size(), currentRound);
         snapshotMetrics();
         return true;
     }
@@ -191,7 +195,7 @@ public class ShardManager {
             return false;
         }
         getShard(session.transfer().sourceShardId()).unlockUtxo(session.transfer().sourceUtxo().key());
-        session.markAborted(reason == null ? "Transferencia abortada manualmente." : reason);
+        session.markAborted(reason == null ? "Transferencia abortada manualmente." : reason, currentRound);
         snapshotMetrics();
         return true;
     }
@@ -219,7 +223,7 @@ public class ShardManager {
 
     private void timeoutSession(CrossShardSession session) {
         getShard(session.transfer().sourceShardId()).unlockUtxo(session.transfer().sourceUtxo().key());
-        session.markTimedOut("La transferencia vencio antes de ser confirmada por el shard destino.");
+        session.markTimedOut("La transferencia vencio antes de ser confirmada por el shard destino.", currentRound);
     }
 
     private void validateSourceTransfer(CrossShardTransfer transfer, Shard source) {
@@ -270,7 +274,6 @@ public class ShardManager {
 
         for (CrossShardSession session : sessions.values()) {
             switch (session.status()) {
-                case PENDING -> pending++;
                 case COMMITTED -> {
                     committed++;
                     moved += session.transfer().amount();
@@ -278,6 +281,7 @@ public class ShardManager {
                 case ABORTED -> aborted++;
                 case TIMED_OUT -> timedOut++;
                 case FAILED_VALIDATION -> failed++;
+                default -> pending++;
             }
         }
         for (Shard shard : shards) {

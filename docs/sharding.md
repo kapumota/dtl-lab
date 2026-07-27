@@ -17,7 +17,11 @@ ShardValidator
   - voto educativo para bloquear o confirmar
 
 CrossShardSession
-  - PENDING
+  - CREATED
+  - SOURCE_LOCKED
+  - RECEIPT_CREATED
+  - RECEIPT_DELIVERED
+  - DESTINATION_PREPARED
   - COMMITTED
   - TIMED_OUT
   - ABORTED
@@ -29,18 +33,36 @@ CrossShardSession
 ```text
 1. beginAtomicTransfer()
    El shard origen valida que el UTXO existe, que el monto es valido y que hay quorum.
-   Luego bloquea el UTXO y crea un recibo.
+   Luego bloquea el UTXO, crea el recibo y registra ambas transiciones.
 
 2. commitAtomicTransfer()
-   El shard destino valida el recibo y confirma si alcanza quorum.
+   El shard destino registra la entrega del recibo y valida el quorum.
+   Si el recibo se acepta, registra la preparacion del destino.
    Si confirma, el UTXO origen se consume y el destino recibe un nuevo UTXO.
 
 3. advanceRound()
-   Avanza la ronda logica y expira transferencias pendientes que pasaron su timeout.
+   Avanza la ronda logica y expira transferencias no terminales que pasaron su timeout.
 
 4. abortAtomicTransfer()
-   Permite abortar manualmente una sesion pendiente y liberar el UTXO origen.
+   Permite abortar manualmente una sesion no terminal y liberar el UTXO origen.
 ```
+
+#### Maquina de estados
+
+Las transiciones principales son:
+
+```text
+CREATED
+  -> SOURCE_LOCKED
+  -> RECEIPT_CREATED
+  -> RECEIPT_DELIVERED
+  -> DESTINATION_PREPARED
+  -> COMMITTED
+```
+
+Los estados `COMMITTED`, `TIMED_OUT`, `ABORTED` y `FAILED_VALIDATION` son terminales e irreversibles.
+
+Cada sesión conserva eventos con tiempo lógico, acción, estado anterior, estado siguiente y razón.
 
 #### Casos incluidos en la demo
 
@@ -57,6 +79,7 @@ FAILED_VALIDATION  Transferencia cuyo shard destino no alcanza quorum.
 - Una sesion terminal no debe dejar UTXOs bloqueados.
 - El timeout libera el UTXO origen.
 - El commit consume el UTXO origen y crea valor en destino.
+- Un estado terminal no puede cambiar a otro estado.
 ```
 
 #### Reportes generados
@@ -69,4 +92,4 @@ reports/shards.dot           Grafo DOT de shards y transferencias.
 
 #### Limitacion intencional
 
-Este no es un protocolo cross-shard productivo. Es una maqueta para visualizar atomicidad, bloqueo, recibos, quorum y fallos. Se podria luego modelar two-phase commit formal, validadores Byzantine, pruebas criptograficas de inclusion y especificaciones TLA+/Alloy.
+Este no es un protocolo cross-shard productivo. Es una maqueta para visualizar atomicidad, bloqueo, recibos, quorum y fallos. La Fase 2 agrega una máquina de estados runtime, pero todavía no implementa rollback, red de mensajes ni conformidad automática con TLA+ y Alloy.
