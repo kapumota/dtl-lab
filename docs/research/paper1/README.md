@@ -4,13 +4,13 @@
 
 Este directorio contiene la documentación de investigación del Paper 1 de DLT-Lab.
 
-- Fase actual: Fase 0, baseline de investigación.
-- Estado: definición inicial.
+- Fase actual: Fase 1, contrato del protocolo.
+- Estado: contrato conceptual definido sobre el baseline de la Fase 0.
 - Baseline del repositorio: commit `34f4c088b9f5db3e3b54824de69db8589fd06de3`.
 - Versión visible del software: `v1.0.1`.
-- Rama de trabajo: `paper1/fase-0-baseline-investigacion`.
+- Rama de trabajo: `paper1/fase-1-contrato-protocolo`.
 
-La Fase 0 no cambia el comportamiento del software. Su propósito es fijar el problema científico, el alcance, los supuestos, el modelo de amenazas y la trazabilidad entre el código Java y las especificaciones formales existentes.
+La Fase 1 no cambia el comportamiento del software. Su propósito es definir el protocolo, la máquina de estados, las propiedades de seguridad y vivacidad, el modelo de fallos y el mapeo conceptual entre Java y TLA+.
 
 #### Objetivo del Paper 1
 
@@ -35,6 +35,15 @@ La contribución esperada no es presentar DLT-Lab completo como un nuevo simulad
 - `HOJA_DE_RUTA.md`: fases técnicas hasta el artefacto reproducible.
 - `MATRIZ_DE_TRAZABILIDAD.md`: relación entre propiedades, código, modelos y pruebas.
 - `GLOSARIO_BILINGUE.md`: terminología española e inglesa utilizada en el paper.
+
+#### Documentos de la Fase 1
+
+- `PROTOCOLO.md`: contrato conceptual del protocolo cross-shard actual.
+- `MAQUINA_DE_ESTADOS.md`: estados y transiciones del baseline y objetivo.
+- `PROPIEDADES_DE_SEGURIDAD.md`: propiedades de safety y su estado actual.
+- `PROPIEDADES_DE_VIVACIDAD.md`: propiedades temporales y supuestos de fairness.
+- `MODELO_DE_FALLOS.md`: clasificación de fallos incluidos y excluidos.
+- `MAPEO_JAVA_TLA.md`: correspondencia conceptual entre Java y TLA+.
 
 #### Relación con la documentación existente
 
@@ -67,4 +76,16 @@ La Fase 0 se considera completa cuando:
 4. Las contribuciones esperadas se distinguen de los resultados ya obtenidos.
 5. La matriz de trazabilidad identifica las brechas entre Java, TLA+, Alloy y pruebas runtime.
 6. No se modifica código de producción ni comportamiento existente.
+7. `make validate` continúa pasando después de aplicar el parche.
+
+#### Criterios de cierre de la Fase 1
+
+La Fase 1 se considera completa cuando:
+
+1. El flujo actual del protocolo está descrito sin alterar el código.
+2. Los estados y transiciones existentes se distinguen de los estados objetivo.
+3. Las propiedades de safety y liveness están separadas.
+4. El modelo de fallos está delimitado.
+5. El mapeo Java-TLA+ identifica correspondencias y brechas sin afirmar refinamiento.
+6. La matriz de trazabilidad se actualiza.
 7. `make validate` continúa pasando después de aplicar el parche.
