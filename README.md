@@ -38,8 +38,6 @@ La validación local también puede ejecutarse con:
 bash scripts/validate.sh
 ```
 
-El objetivo de esta sección es que los badges del README no sean solo decorativos: deben representar una validación ejecutable del software.
-
 #### Estado actual del proyecto
 
 DLT-Lab integra actualmente:
