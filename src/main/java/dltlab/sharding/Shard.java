@@ -48,6 +48,11 @@ public class Shard {
         return consumedReceipts.add(receiptId);
     }
 
+    /** Restaura un recibo como no consumido durante un rollback atomico. */
+    public boolean unmarkReceiptConsumed(String receiptId) {
+        return consumedReceipts.remove(receiptId);
+    }
+
     public Set<String> getConsumedReceipts() {
         return Collections.unmodifiableSet(consumedReceipts);
     }

@@ -91,6 +91,53 @@ public class CrossShardSession {
         return List.copyOf(events);
     }
 
+    public SessionCheckpoint checkpoint() {
+        return new SessionCheckpoint(transfer.id(), targetApprovals, targetValidators, status,
+                reason, lastLogicalTime, nextEventSequence, events);
+    }
+
+    public void restore(SessionCheckpoint checkpoint) {
+        Objects.requireNonNull(checkpoint, "El checkpoint de la sesion es obligatorio.");
+        if (!transfer.id().equals(checkpoint.transferId())) {
+            throw new IllegalArgumentException("El checkpoint pertenece a otra transferencia.");
+        }
+        targetApprovals = checkpoint.targetApprovals();
+        targetValidators = checkpoint.targetValidators();
+        status = checkpoint.status();
+        reason = checkpoint.reason();
+        lastLogicalTime = checkpoint.lastLogicalTime();
+        nextEventSequence = checkpoint.nextEventSequence();
+        events.clear();
+        events.addAll(checkpoint.events());
+    }
+
+    /** Copia inmutable del estado mutable de una sesion para rollback. */
+    public record SessionCheckpoint(
+            String transferId,
+            int targetApprovals,
+            int targetValidators,
+            CrossShardStatus status,
+            String reason,
+            long lastLogicalTime,
+            long nextEventSequence,
+            List<ProtocolEvent> events
+    ) {
+        public SessionCheckpoint {
+            if (transferId == null || transferId.isBlank()) {
+                throw new IllegalArgumentException("El identificador de transferencia es obligatorio.");
+            }
+            status = Objects.requireNonNull(status, "El estado del checkpoint es obligatorio.");
+            if (reason == null || reason.isBlank()) {
+                throw new IllegalArgumentException("La razon del checkpoint es obligatoria.");
+            }
+            if (lastLogicalTime < 0 || nextEventSequence < 1) {
+                throw new IllegalArgumentException("Los contadores del checkpoint son invalidos.");
+            }
+            events = List.copyOf(Objects.requireNonNull(events,
+                    "La lista de eventos del checkpoint es obligatoria."));
+        }
+    }
+
     public void markSourceLocked(long logicalTime) {
         transitionTo(CrossShardStatus.SOURCE_LOCKED, logicalTime, ProtocolAction.LOCK_SOURCE,
                 "UTXO origen bloqueado con quorum suficiente.");

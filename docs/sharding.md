@@ -36,9 +36,10 @@ CrossShardSession
    Luego bloquea el UTXO, crea el recibo y registra ambas transiciones.
 
 2. commitAtomicTransfer()
-   El shard destino registra la entrega del recibo y valida el quorum.
-   Si el recibo se acepta, registra la preparacion del destino.
-   Si confirma, el UTXO origen se consume y el destino recibe un nuevo UTXO.
+   ShardManager delega el commit a AtomicCommitProtocol.
+   El protocolo entrega el recibo, prepara un CommitPlan y captura un LedgerSnapshot.
+   Si confirma, aplica debito, cambio, credito y decision terminal.
+   Si ocurre una excepcion, rollback restaura el estado previo.
 
 3. advanceRound()
    Avanza la ronda logica y expira transferencias no terminales que pasaron su timeout.
@@ -90,6 +91,20 @@ reports/shards.txt           Estado ASCII de shards y sesiones.
 reports/shards.dot           Grafo DOT de shards y transferencias.
 ```
 
+#### Arquitectura del protocolo
+
+```text
+ShardManager
+  -> shards, validadores, sesiones, reloj y metricas
+
+AtomicCommitProtocol
+  -> begin, deliverReceipt, commit, abort y timeout
+  -> prepareCommit, applyCommit y rollback
+
+LedgerSnapshot
+  -> UTXOs, bloqueo, recibo y checkpoint de sesion
+```
+
 #### Limitacion intencional
 
-Este no es un protocolo cross-shard productivo. Es una maqueta para visualizar atomicidad, bloqueo, recibos, quorum y fallos. La Fase 2 agrega una máquina de estados runtime, pero todavía no implementa rollback, red de mensajes ni conformidad automática con TLA+ y Alloy.
+Este no es un protocolo cross-shard productivo. Es una maqueta para visualizar atomicidad, bloqueo, recibos, quorum, fallos y rollback. La Fase 3 no implementa red de mensajes, concurrencia multisesion ni conformidad automática con TLA+ y Alloy.

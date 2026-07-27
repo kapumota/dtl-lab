@@ -4,7 +4,7 @@
 
 Este documento define el contrato conceptual del protocolo de commit cross-shard que será estudiado en el Paper 1. La definición se deriva del comportamiento actual de `ShardManager`, `CrossShardSession`, `CrossShardStatus`, `Receipt`, `Shard` y las invariantes runtime existentes.
 
-La Fase 1 fijó el vocabulario del protocolo. La Fase 2 implementa la máquina de estados Java sin modificar todavía las especificaciones TLA+ y Alloy.
+La Fase 1 fijó el vocabulario del protocolo. La Fase 2 implementó la máquina de estados Java. La Fase 3 extrae la ejecución atómica a `AtomicCommitProtocol` sin modificar todavía TLA+ y Alloy.
 
 #### Participantes
 
@@ -18,7 +18,7 @@ El protocolo considera los siguientes participantes:
 - emisor de la transferencia;
 - receptor de la transferencia.
 
-En el baseline actual, `ShardManager` actúa como coordinador central de la simulación. Esta decisión se conserva como descripción del estado existente y no se presenta como una arquitectura distribuida completa.
+`ShardManager` conserva la administración general de la simulación. `AtomicCommitProtocol` actúa como coordinador de las operaciones cross-shard y recibe sus dependencias mediante `ProtocolContext`. Esta arquitectura sigue siendo centralizada y no se presenta como un protocolo distribuido completo.
 
 #### Activos protegidos
 
@@ -59,20 +59,30 @@ Una transferencia puede iniciarse cuando:
 
 El flujo exitoso implementado es:
 
-1. validar la transferencia en el shard origen;
-2. crear una sesión en `CREATED`;
-3. comprobar el quorum del shard origen;
-4. bloquear el UTXO y registrar `SOURCE_LOCKED`;
-5. crear el recibo y registrar `RECEIPT_CREATED`;
-6. comprobar que la sesión no haya vencido;
-7. comprobar el quorum del shard destino;
-8. registrar `RECEIPT_DELIVERED`;
-9. marcar el recibo como consumido en el shard destino;
-10. registrar `DESTINATION_PREPARED`;
-11. debitar el UTXO origen;
-12. crear el UTXO correspondiente en el shard destino;
-13. crear un UTXO de cambio en el shard origen cuando corresponda;
-14. marcar la sesión como `COMMITTED`.
+1. `ShardManager` delega el inicio a `AtomicCommitProtocol`;
+2. el protocolo valida origen, quorum, bloqueo y creación del recibo;
+3. la sesión queda en `RECEIPT_CREATED`;
+4. `deliverReceipt` registra `RECEIPT_DELIVERED`;
+5. `prepareCommit` valida el destino y construye `CommitPlan`;
+6. el plan captura un `LedgerSnapshot`;
+7. `applyCommit` registra `DESTINATION_PREPARED`;
+8. consume el recibo;
+9. debita el UTXO origen y crea el cambio;
+10. acredita el UTXO destino;
+11. registra `COMMITTED`;
+12. si ocurre una excepción, `rollback` restaura el snapshot antes de propagar `ProtocolException`.
+
+#### Atomicidad de aplicación
+
+La aplicación está separada en:
+
+```text
+prepareCommit
+applyCommit
+rollback
+```
+
+El rollback restaura UTXOs, bloqueo, recibo y checkpoint de sesión. Por tanto, un fallo controlado no deja crédito parcial, débito aislado ni transición terminal falsa.
 
 #### Flujo de timeout actual
 
@@ -127,14 +137,14 @@ El protocolo pretende preservar:
 
 Estas garantías son objetivos de investigación. La Fase 1 no afirma todavía que estén demostradas para todos los interleavings.
 
-#### Limitaciones después de la Fase 2
+#### Limitaciones después de la Fase 3
 
-La máquina de estados ya distingue las etapas principales y conserva eventos por sesión. Permanecen las siguientes limitaciones:
+El protocolo ya está separado de `ShardManager` y dispone de rollback ejecutable. Permanecen las siguientes limitaciones:
 
 - no existe una cola explícita de mensajes entre shards;
-- la pérdida, duplicación y reordenamiento de red no se ejecutan todavía como fallos programables;
-- el commit se ejecuta de forma síncrona dentro de `ShardManager`;
-- no existe rollback explícito ante una excepción intermedia;
+- la pérdida, duplicación y reordenamiento de red todavía no forman un scheduler;
+- el protocolo sigue ejecutándose de forma síncrona;
+- el rollback se evalúa con fallos inyectados y no con todos los interleavings concurrentes;
 - los eventos todavía no se exportan a un formato de conformidad;
 - las propiedades de liveness no están expresadas como fórmulas temporales completas;
 - no existe conformidad automatizada entre Java y TLA+.

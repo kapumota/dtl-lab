@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dltlab</groupId>
     <artifactId>dlt-lab</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0-alpha.1</version>
     <name>DLT-Lab</name>
     <description>Laboratorio educativo de Bitcoin-like DLT, mempool economica, DeFi, MEV, red adversarial, sharding, seguridad y verificacion formal.</description>
 

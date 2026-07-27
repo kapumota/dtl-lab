@@ -72,6 +72,8 @@ cualquier estado no terminal permitido -> FAILED_VALIDATION
 
 Cada shard tiene validadores configurables. La transferencia solo avanza si el origen y el destino alcanzan quorum. Cada sesión conserva eventos de transición con tiempo lógico. Si no se confirma antes del timeout, el UTXO origen se libera.
 
+`ShardManager` administra shards, validadores, reloj y métricas. `AtomicCommitProtocol` concentra inicio, entrega, preparación, commit, abort, timeout y rollback. `CommitPlan` calcula las mutaciones y `LedgerSnapshot` permite restaurar el ledger si ocurre una excepción intermedia.
+
 #### Visualizacion
 
 La visualizacion tiene dos formatos:

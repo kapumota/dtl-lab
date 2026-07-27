@@ -53,7 +53,7 @@ CREATED
   -> COMMITTED
 ```
 
-`ShardManager.commitAtomicTransfer` registra la entrega del recibo antes de consumirlo y registra la preparación del destino después de validar el recibo y el quorum.
+`AtomicCommitProtocol.commit` registra la entrega cuando es necesaria. `prepareCommit` valida el destino y `applyCommit` registra preparación y commit. Si la aplicación falla, el checkpoint restaura la sesión a `RECEIPT_DELIVERED`.
 
 #### Tabla de transiciones principales
 
@@ -135,6 +135,13 @@ La secuencia inicia en cero con `CREATE_SESSION`. La lista expuesta por `events(
 
 `stateVersion()` representa la cantidad de transiciones posteriores a la creación de la sesión.
 
+
+#### Checkpoint y rollback de sesión
+
+`CrossShardSession.checkpoint()` captura los campos mutables y la lista de eventos. `restore()` recupera ese estado cuando `AtomicCommitProtocol.rollback` revierte un commit interrumpido.
+
+El rollback no crea una transición inversa en `TransitionTable`. Restaura el checkpoint previo porque representa la cancelación de una aplicación incompleta, no una nueva decisión del protocolo.
+
 #### Compatibilidad con la API anterior
 
 Se conservan las firmas:
@@ -146,7 +153,7 @@ markTimedOut(String reason)
 markFailedValidation(String reason)
 ```
 
-Estas firmas delegan en la máquina de estados y usan el último tiempo lógico conocido. También se agregan sobrecargas que reciben el tiempo lógico explícito para que `ShardManager` registre la ronda actual.
+Estas firmas delegan en la máquina de estados y usan el último tiempo lógico conocido. Las sobrecargas con tiempo explícito son utilizadas por `AtomicCommitProtocol`.
 
 El comportamiento externo de `ShardManager` se conserva:
 
@@ -171,14 +178,12 @@ Las pruebas se ejecutan sin dependencias externas mediante `scripts/run_tests.sh
 
 La Fase 2 no resuelve todavía:
 
-- rollback de cambios parciales;
-- atomicidad ante excepciones entre débito y crédito;
 - scheduler de mensajes;
 - retraso, duplicación o reordenamiento de red;
 - conformidad automática Java-TLA+;
 - model checking multisesión.
 
-Estas responsabilidades pertenecen a las fases 3, 4, 6 y 7.
+La Fase 3 ya implementa rollback de cambios parciales. Las responsabilidades restantes pertenecen a las fases 4, 6 y 7.
 
 #### Relación con TLA+ y Alloy
 

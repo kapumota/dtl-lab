@@ -4,14 +4,14 @@
 
 Este directorio contiene la documentación de investigación del Paper 1 de DLT-Lab.
 
-- Fase actual: Fase 2, máquina de estados Java.
-- Estado: estados intermedios, tabla de transiciones y eventos implementados.
+- Fase actual: Fase 3, protocolo atómico extraído.
+- Estado: commit separado de `ShardManager` con snapshot y rollback ejecutable.
 - Baseline de investigación: commit `34f4c088b9f5db3e3b54824de69db8589fd06de3`.
-- Commit padre de la Fase 2: `db0b55a956b9123fc7658e060114829da80d75a0`.
-- Versión visible del software: `v1.0.1`.
-- Rama de trabajo: `paper1/fase-2-maquina-estados`.
+- Commit padre de la Fase 3: `a0b10bb67a5e54ca574d4aa960c12ddb5b3db6e5`.
+- Versión visible del software: `v1.1.0-alpha.1`.
+- Rama de trabajo: `paper1/fase-3-protocolo-atomico`.
 
-La Fase 2 convierte `CrossShardSession` en una máquina de estados verificable. La implementación registra transiciones y eventos sin modificar todavía TLA+, Alloy ni la arquitectura de commit que se refactorizará en la Fase 3.
+La Fase 3 extrae la lógica de commit desde `ShardManager` hacia `AtomicCommitProtocol`. La aplicación usa `CommitPlan`, `LedgerSnapshot` y rollback ante excepciones controladas. TLA+ y Alloy permanecen sin cambios.
 
 #### Objetivo del Paper 1
 
@@ -45,6 +45,11 @@ La contribución esperada no es presentar DLT-Lab completo como un nuevo simulad
 - `PROPIEDADES_DE_VIVACIDAD.md`: propiedades temporales y supuestos de fairness.
 - `MODELO_DE_FALLOS.md`: clasificación de fallos incluidos y excluidos.
 - `MAPEO_JAVA_TLA.md`: correspondencia conceptual entre Java y TLA+.
+
+
+#### Documento de la Fase 3
+
+- `ARQUITECTURA_PROTOCOLO_ATOMICO.md`: separación de responsabilidades, plan de commit, snapshot, puntos de fallo y rollback.
 
 #### Relación con la documentación existente
 
@@ -114,3 +119,30 @@ La Fase 2 se considera completa cuando:
 6. `ShardManager` conserva sus métodos públicos y las pruebas anteriores continúan pasando.
 7. `make validate`, `scripts/run_tests.sh` y las validaciones existentes continúan pasando.
 8. TLA+ y Alloy permanecen sin cambios en esta fase.
+
+
+#### Implementación de la Fase 3
+
+- `CrossShardProtocol` define la API del protocolo extraído.
+- `AtomicCommitProtocol` controla inicio, entrega, commit, abort, timeout y rollback.
+- `ProtocolContext` separa dependencias de ledger, quorum y tiempo lógico.
+- `CommitPlan` calcula las mutaciones antes de aplicarlas.
+- `LedgerSnapshot` conserva el estado necesario para restauración exacta.
+- `CrossShardSession.SessionCheckpoint` restaura estado, razón y eventos.
+- `Shard.unmarkReceiptConsumed` revierte el consumo parcial de un recibo.
+- `ShardManager` conserva administración y métricas, pero delega la lógica del protocolo.
+
+#### Criterios de cierre de la Fase 3
+
+La Fase 3 se considera completa cuando:
+
+1. `ShardManager` no contiene el algoritmo detallado del commit.
+2. El protocolo separa preparación, aplicación y rollback.
+3. Un fallo después de consumir el recibo restaura el recibo.
+4. Un fallo entre débito y crédito restaura el UTXO origen.
+5. Un fallo durante o después del crédito elimina el UTXO parcial.
+6. El checkpoint de sesión evita estados y eventos parciales.
+7. Un commit exitoso produce una única decisión terminal.
+8. Las pruebas de Fase 2 y las invariantes runtime continúan pasando.
+9. TLA+ y Alloy permanecen sin cambios.
+10. El commit fusionado puede etiquetarse como `v1.1.0-alpha.1`.
