@@ -1,88 +1,100 @@
-### Fase 4: Verificacion formal de commit cross-shard
+### Verificación formal de commit cross-shard
 
-#### Proposito
+#### Propósito
 
-La Fase 4 agrega especificaciones formales para el componente mas delicado del proyecto: el commit cross-shard. Las fases anteriores validan ejecuciones concretas mediante pruebas, simulaciones, ataques e invariantes runtime. Esta fase agrega una capa complementaria: modelar estados y transiciones para explorar interleavings posibles con herramientas de model checking.
+DLT-Lab combina especificaciones TLA+ y Alloy para estudiar propiedades del commit cross-shard. La verificación formal complementa las pruebas Java, los escenarios deterministas y las invariantes runtime.
 
-#### Alcance
-
-La especificacion formal no reemplaza al codigo Java. Su objetivo es capturar el protocolo de alto nivel:
-
-```text
-1. El shard origen bloquea o debita un UTXO.
-2. Se crea un recibo cross-shard.
-3. El shard destino consume el recibo y acredita valor.
-4. Si la operacion vence, el origen libera los fondos.
-5. Una sesion no puede quedar confirmada y abortada a la vez.
-```
-
-#### Archivos agregados
+#### Modelos
 
 ```text
 specs/tla/CrossShardCommit.tla
 specs/tla/CrossShardCommit.cfg
-specs/tla/README.md
 specs/alloy/CrossShardCommit.als
-scripts/run_formal_checks.sh
-docs/formal-verification.md
 ```
 
-#### Invariantes centrales
+Los modelos comprueban:
 
-##### NoDoubleMint
+- `NoDoubleMint`;
+- `NoValueLoss`;
+- `NoReceiptReplay`;
+- `AtomicCommit`;
+- `TimeoutReleasesFunds`.
 
-El destino no puede crear valor sin un recibo valido. En el modelo, si `destinationCredited` es verdadero, entonces `receiptCreated` debe ser verdadero y el recibo debe haberse consumido exactamente una vez.
+#### Perfil educativo
 
-##### NoValueLoss
+```bash
+make validate
+```
 
-Si una sesion termina y el origen ya debito fondos, entonces el valor debe aparecer en el destino o debe liberarse en el origen. Esto evita terminales donde el sistema destruye valor.
-
-##### NoReceiptReplay
-
-Un recibo cross-shard no puede consumirse mas de una vez. Esta propiedad modela la defensa contra replay de recibos.
-
-##### AtomicCommit
-
-Una transferencia no puede quedar simultaneamente confirmada y abortada. Esta invariante preserva una unica decision final.
-
-##### TimeoutReleasesFunds
-
-Toda sesion vencida debe liberar los fondos bloqueados del origen.
-
-#### Ejecucion
-
-Verificacion estructural y ejecucion opcional con TLC:
+Este perfil valida la estructura del repositorio y no requiere descargar herramientas formales. La comprobación se ejecuta mediante:
 
 ```bash
 bash scripts/run_formal_checks.sh
 ```
 
-El script valida que existan las especificaciones y que contengan las invariantes esperadas. Si encuentra `tools/tla2tools.jar` o la variable `TLA_TOOLS_JAR`, ejecuta TLC sobre `CrossShardCommit.tla`.
+El resultado de este perfil no debe describirse como model checking ejecutado.
 
-#### Instalacion opcional de herramientas
-
-Para ejecutar TLC de forma local, descarga `tla2tools.jar` y colocalo en:
-
-```text
-tools/tla2tools.jar
-```
-
-Tambien puedes definir:
+#### Perfil científico
 
 ```bash
-export TLA_TOOLS_JAR=/ruta/a/tla2tools.jar
+make formal-research
 ```
 
-Para Alloy, abre el archivo siguiente con Alloy Analyzer:
+Este perfil requiere TLC y Alloy. Falla si falta una herramienta, si no puede identificarse su versión, si una propiedad válida falla o si no se genera un reporte estructurado.
+
+Instalación local:
+
+```bash
+bash scripts/formal/install_tla_tools.sh
+bash scripts/formal/install_alloy.sh
+```
+
+Las versiones fijadas se encuentran en:
 
 ```text
-specs/alloy/CrossShardCommit.als
+scripts/formal/tool_versions.env
 ```
 
-#### Relacion con el codigo Java
+#### Resultados estructurados
 
-La especificacion se alinea con el modulo `sharding`. En Java, el sistema maneja sesiones, recibos, estados, quorum y timeouts. En TLA+ y Alloy se abstraen detalles criptograficos y de implementacion para concentrarse en las propiedades atomicas del protocolo.
+```text
+results/formal/
+├── tool_versions.txt
+├── environment.json
+├── tla_runs.csv
+├── alloy_runs.csv
+├── execution_manifest.json
+└── logs/
+```
 
-#### Limitacion honesta
+TLC registra estados generados, estados distintos, profundidad, tiempo, memoria y resultado de cada invariante.
 
-Esta fase no demuestra que toda la implementacion Java sea correcta. Demuestra que el protocolo abstracto modelado mantiene las invariantes bajo el espacio de estados configurado. Para una garantia mas fuerte, el siguiente paso seria instrumentar trazas del codigo Java y compararlas contra las acciones formales del modelo.
+Alloy registra solver, alcance, contraejemplos, duración, tiempo total, memoria y resultado de cada assertion. Las métricas de estados y profundidad no aplican directamente a Alloy y quedan vacías en su CSV.
+
+#### Integración continua
+
+El workflow científico es:
+
+```text
+.github/workflows/formal-verification.yml
+```
+
+El workflow instala versiones concretas, ejecuta modelos válidos, ejecuta controles negativos temporales, valida los reportes y publica `results/formal/` como artefacto.
+
+La validación general existente continúa publicando `reports/`. Los dos workflows tienen responsabilidades distintas.
+
+#### Controles negativos
+
+La Fase 5 genera copias temporales defectuosas de `AtomicCommit` para confirmar que TLC y Alloy rechacen una propiedad inválida.
+
+Estos controles no son el catálogo de mutantes científicos. El modelo multisesión, los operadores de mutación y los contraejemplos versionados corresponden a la Fase 6.
+
+#### Relación con Java
+
+TLA+ y Alloy modelan el protocolo abstracto. No ejecutan el código Java ni demuestran por sí solos su conformidad.
+
+La Fase 4 proporciona interleavings Java reproducibles. La Fase 6 ampliará los modelos formales y la Fase 7 relacionará trazas Java con acciones TLA+.
+
+#### Limitación
+
+Un check exitoso significa que no se encontró un contraejemplo dentro del alcance y configuración ejecutados. No significa verificación ilimitada ni equivalencia automática con toda la implementación Java.

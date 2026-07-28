@@ -20,9 +20,9 @@ Esta matriz relaciona las propiedades científicas esperadas con el código, las
 | Timeout | `EXPIRE_TRANSFER` solo desde estados con bloqueo | `TimeoutOrigin` y `TimeoutReleasesFunds` | falta formalizar liveness y fairness | Fase 6 |
 | Quorum | validación en origen y destino dentro de `AtomicCommitProtocol` | no existe una propiedad formal específica | falta `QuorumRequired` en TLA+ y Alloy | Fase 6 |
 | Fallos de red | seis `NetworkFaultModel`, mensajes y escenarios `S02` a `S05` | no existe una red explícita de mensajes | falta incorporar red y fairness al modelo formal | Fase 6 |
-| Model checking ejecutado | ejecución opcional de TLC en `run_formal_checks.sh` | modelos presentes | el perfil actual puede finalizar sin TLC y no automatiza Alloy | Fase 5 |
+| Model checking ejecutado | `make formal-research`, parsers y workflow obligatorio | TLC y Alloy ejecutados con versiones fijadas | falta ampliar el modelo a múltiples sesiones y fallos de red | Fase 6 |
 | Conformidad Java-TLA+ | eventos Java ordenados por sesión | modelo abstracto | falta función de abstracción, serialización y checker | Fase 7 |
-| Reproducibilidad científica | seed explícita, traza estable, 100 seeds en CI y runner local de 1000 | configuración TLA+ básica | falta fijar herramientas formales y empaquetar resultados | Fases 5 y 8 |
+| Reproducibilidad científica | seeds explícitas y herramientas formales fijadas | CSV, JSON, logs, versiones y ambiente | falta congelar la matriz experimental y preparar el snapshot del envío | Fase 8 |
 
 #### Evidencia agregada en la Fase 2
 
@@ -54,6 +54,19 @@ Esta matriz relaciona las propiedades científicas esperadas con el código, las
 - `SimulationDeterminismTest` compara trazas y hashes de ejecuciones repetidas.
 - `SimulationScenarioMatrixTest` ejecuta 100 seeds por escenario en el runner reducido.
 - `run_simulation_matrix.sh` permite ejecutar 1000 o más seeds por escenario localmente.
+
+
+#### Evidencia agregada en la Fase 5
+
+- el perfil educativo comprueba estructura sin afirmar ejecución formal;
+- el perfil científico falla si falta TLC o Alloy;
+- TLA+ Tools 1.7.4 y Alloy 6.2.0 están fijados;
+- TLC registra estados generados, estados distintos, profundidad, tiempo y memoria;
+- Alloy registra solver, alcance, contraejemplos, tiempo y memoria;
+- cada propiedad genera una fila estructurada;
+- controles negativos temporales comprueban que el pipeline detecta violaciones;
+- `formal-verification.yml` publica `results/formal/`;
+- los mutantes científicos y el modelo multisesión permanecen asignados a la Fase 6.
 
 #### Regla de actualización
 

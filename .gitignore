@@ -42,3 +42,8 @@ Thumbs.db
 
 # Backups locales generados por scripts
 *.bak-badges-validation
+
+# Herramientas formales descargadas y resultados generados
+.formal-tools/
+results/formal/*
+!results/formal/README.md
