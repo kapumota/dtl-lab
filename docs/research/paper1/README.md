@@ -2,14 +2,15 @@
 
 #### Estado
 
-- Fase actual: Fase 7B, función de abstracción Java-TLA+.
-- Fases 0 a 7B: cerradas.
-- Próxima fase: Fase 7C, replay formal con TLC.
+- Fase actual: Fase 7C, replay formal con TLC.
+- Fases 0 a 7C: cerradas.
+- Próxima fase: Fase 7D, corpus de trazas corruptas.
 - Versión visible: `v1.1.0-beta.2`.
 - Verificación: acotada, reproducible y con mutantes científicos.
 - Trazas Java: JSONL versionado, determinista y reproducible.
-- Abstracción Java-TLA+: ejecutable, tipada y sin evaluación de `Next`.
-- Conformidad Java-TLA+: todavía pendiente.
+- Abstracción Java-TLA+: ejecutable y tipada.
+- Replay TLC: ejecutable sobre el catálogo válido.
+- Conformidad Java-TLA+: acotada a escenarios y seeds declaradas.
 
 #### Objetivo
 
@@ -36,7 +37,8 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 - `MODELO_MULTISESION_MUTANTES.md`;
 - `CIERRE_CIENTIFICO_FASE_6.md`;
 - `FORMATO_DE_TRAZAS.md`;
-- `FUNCION_DE_ABSTRACCION.md`.
+- `FUNCION_DE_ABSTRACCION.md`;
+- `REPLAY_TLC.md`.
 
 #### Reglas de redacción
 
@@ -50,4 +52,4 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 
 #### Gate actual
 
-La Fase 7B proyecta trazas concretas en estados y acciones TLA+ sin duplicar las guardas de `Next`. La Fase 7C debe usar TLC como oráculo para aceptar o rechazar cada transición abstracta.
+La Fase 7C usa TLC como oráculo sobre módulos de replay generados y conserva el paso rechazado. La Fase 7D debe agregar mutaciones controladas sin cambiar el catálogo válido.

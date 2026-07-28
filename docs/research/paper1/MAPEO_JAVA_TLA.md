@@ -4,7 +4,7 @@
 
 Este documento describe la función de abstracción implementada en la Fase 7B. La función proyecta objetos `TraceExecution` de la Fase 7A en acciones y estados con el vocabulario de `CrossShardCommit.tla`.
 
-Todavía no constituye un checker de conformidad ni una prueba de refinamiento. La validez de cada transición será evaluada por TLC en la Fase 7C.
+El mapeo no constituye por sí solo una prueba de refinamiento. La Fase 7C evalúa cada transición con TLC mediante un módulo de replay generado.
 
 #### Implementación
 
@@ -121,6 +121,18 @@ Al finalizar, la función comprueba que cada estado Java tenga la proyección es
 - causa concreta de una decisión terminal sin commit.
 
 La omisión es explícita y permanece visible en la documentación y en la justificación de cada `AbstractAction`.
+
+#### Replay formal
+
+La Fase 7C convierte cada `AbstractTrace` en un módulo que:
+
+- usa `Init` para el estado inicial;
+- invoca la acción abstracta declarada;
+- fija el estado posterior esperado;
+- exige avanzar hasta el último paso;
+- conserva `transferId`, shard y procedencia concreta.
+
+TLC, y no Java, decide si la acción está habilitada y si su efecto coincide con el estado proyectado.
 
 #### Restricción de redacción
 

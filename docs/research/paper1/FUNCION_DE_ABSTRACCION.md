@@ -6,7 +6,7 @@ La Fase 7B implementa una proyección determinista desde `TraceExecution` hacia 
 
 La función consume directamente los objetos de trazas definidos en la Fase 7A. No modifica el esquema JSONL, no vuelve a ejecutar el protocolo y no analiza texto libre para inventar datos ausentes.
 
-El resultado todavía no afirma conformidad. La Fase 7C usará TLC para decidir si cada paso abstracto pertenece a `Next`.
+El resultado por sí solo no afirma conformidad. La Fase 7C consume `AbstractTrace` y usa TLC para decidir si cada paso pertenece a los operadores de `Next`.
 
 #### Archivos principales
 
@@ -170,4 +170,10 @@ La fase queda cerrada cuando:
 
 La función implementada es una función de abstracción propuesta y ejecutable. Su existencia no demuestra que todas las trazas producidas por Java sean aceptadas por TLA+.
 
-La aceptación o el rechazo corresponde a la Fase 7C mediante replay formal con TLC.
+La aceptación o el rechazo se implementa en la Fase 7C mediante replay formal con TLC.
+
+#### Integración con Fase 7C
+
+`TlcTraceReplayGenerator` serializa el estado inicial, cada acción abstracta y su estado posterior. El generador invoca los operadores de `CrossShardCommit.tla` y no usa los métodos internos de `JavaToTlaStateMapper` como sustituto de `Next`.
+
+`TraceConformanceChecker` conserva la procedencia de `AbstractTraceStep` para asociar una violación TLC con el paso concreto original.

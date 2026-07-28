@@ -4,7 +4,16 @@ Todos los cambios importantes de este proyecto se documentan en este archivo.
 
 El proyecto sigue una evolución por fases y usa tags versionados para preservar hitos técnicos. El formato está inspirado en Keep a Changelog y el versionado sigue una lógica compatible con Semantic Versioning.
 
-#### [Unreleased] - Fases 7A y 7B: trazas y función de abstracción
+#### [Unreleased] - Fases 7A, 7B y 7C: conformidad basada en trazas
+
+#### Fase 7C
+
+* Agrega generación determinista de módulos TLA+ para replay.
+* Ejecuta TLC como oráculo sobre los operadores reales de `CrossShardCommit`.
+* Agrega diagnóstico estructurado de paso, acción y transferencia rechazada.
+* Agrega catálogo de replay para los diez escenarios válidos.
+* Agrega `make conformance-replay` y resultados reproducibles.
+* Mantiene fuera de alcance las mutaciones negativas de Fase 7D.
 
 #### Fase 7B
 
@@ -31,7 +40,7 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 * Reutiliza `CrossShardSession.events()` para las transiciones reales del protocolo.
 * Consume `TraceExecution` sin modificar el contrato JSONL de Fase 7A.
 * No modifica `AtomicCommitProtocol`, `CrossShardSession`, TLA+ ni Alloy.
-* Mantiene fuera de alcance el replay TLC.
+* Integra trazas concretas, abstracción y replay sin modificar el protocolo ni el modelo formal.
 
 #### [1.1.0-beta.2] - Cierre científico de la Fase 6
 
