@@ -114,4 +114,4 @@ La fase queda cerrada cuando:
 
 El corpus demuestra capacidad de detección para las mutaciones declaradas y las seeds ejecutadas. No demuestra completitud frente a todas las corrupciones posibles ni una relación general de refinamiento.
 
-La Fase 7E integrará el catálogo válido, el corpus negativo, CI y los resultados científicos de conformidad.
+La Fase 7E integra el catálogo válido, el corpus negativo, CI y los resultados científicos de conformidad.

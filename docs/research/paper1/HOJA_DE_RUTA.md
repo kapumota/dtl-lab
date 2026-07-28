@@ -18,6 +18,7 @@ Cada fase se desarrolla en una rama corta creada desde `main` actualizado y se i
 - Fase 7B: función de abstracción Java-TLA+.
 - Fase 7C: replay formal con TLC.
 - Fase 7D: corpus negativo de trazas.
+- Fase 7E: integración y cierre de conformidad.
 
 #### Fase 6.1: cierre científico
 
@@ -127,18 +128,25 @@ Gate:
 
 #### Fase 7E: integración de conformidad
 
-Rama prevista: `paper1/fase-7e-integracion-conformidad`
+Rama: `paper1/fase-7e-integracion-conformidad`
 
-Objetivos:
+Objetivos cerrados:
 
-- agregar comando científico;
-- integrar CI;
-- publicar resultados;
-- cerrar RQ3 como conformidad acotada basada en trazas.
+- ejecutar catálogo válido y corpus negativo con una misma seed;
+- generar un manifiesto científico con procedencia y hashes;
+- publicar resumen y matriz de conformidad;
+- integrar `make conformance-research` en CI;
+- publicar el artefacto de conformidad;
+- cerrar RQ3 con afirmaciones acotadas.
 
 Gate Q3:
 
-- modelo formal relacionado y contrastado con la implementación ejecutable.
+- TLC acepta diez escenarios válidos;
+- TLC rechaza diez trazas corruptas;
+- los diez diagnósticos coinciden con su objetivo;
+- la procedencia identifica commit fuente y commit ejecutado;
+- el workflow publica el artefacto integrado;
+- TLA+, Alloy, JSONL, abstracción, replay y mutaciones no cambian de semántica.
 
 #### Fase 8: evaluación y artefacto
 

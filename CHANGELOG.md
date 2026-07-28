@@ -4,7 +4,16 @@ Todos los cambios importantes de este proyecto se documentan en este archivo.
 
 El proyecto sigue una evolución por fases y usa tags versionados para preservar hitos técnicos. El formato está inspirado en Keep a Changelog y el versionado sigue una lógica compatible con Semantic Versioning.
 
-#### [Unreleased] - Fases 7A a 7D: conformidad basada en trazas
+#### [1.1.0-rc.1] - Fase 7: conformidad acotada basada en trazas
+
+#### Fase 7E
+
+* Agrega `make conformance-research` como perfil científico único.
+* Integra los catálogos válido y negativo con una misma seed.
+* Genera manifiesto, resumen y matriz reproducibles.
+* Registra procedencia Git, versión de TLC y hashes de entrada.
+* Publica resultados de conformidad como artefacto de GitHub Actions.
+* Cierra RQ3 como conformidad acotada basada en trazas.
 
 #### Fase 7D
 

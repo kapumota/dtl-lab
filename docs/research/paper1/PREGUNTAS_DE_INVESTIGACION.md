@@ -41,16 +41,15 @@ Cada mutante declara una propiedad objetivo. La ejecución solo se considera cor
 
 ¿Las trazas observables producidas por la implementación Java corresponden a secuencias de acciones admitidas por el modelo TLA+ dentro de los escenarios y bounds evaluados?
 
-Resultados previstos:
+Resultados observables:
 
-- cantidad de trazas Java evaluadas;
-- trazas aceptadas;
-- trazas rechazadas;
-- causa y paso del rechazo;
-- cobertura de acciones;
-- seeds y configuraciones.
+- diez escenarios válidos evaluados y aceptados por TLC;
+- diez trazas corruptas evaluadas y rechazadas;
+- diez diagnósticos coincidentes con paso, acción y transferencia;
+- seed, configuración y herramienta fijadas;
+- manifiesto integrado con procedencia y hashes.
 
-RQ3 permanece pendiente hasta completar la Fase 7. La respuesta se presentará como `bounded implementation-model trace conformance`, no como prueba general de refinamiento.
+RQ3 queda respondida afirmativamente dentro de los escenarios, bounds, seed y mutaciones declarados. La respuesta se presenta como `bounded implementation-model trace conformance`, no como prueba general de refinamiento.
 
 #### Pregunta secundaria de escalabilidad
 

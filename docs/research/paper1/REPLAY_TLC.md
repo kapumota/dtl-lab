@@ -113,4 +113,4 @@ La fase queda cerrada cuando:
 
 La aceptación demuestra conformidad acotada para el catálogo y las seeds ejecutadas. No demuestra equivalencia total entre Java y TLA+, ni refinamiento completo de todas las ejecuciones posibles.
 
-La Fase 7D agrega trazas negativas y mutaciones controladas sin cambiar este oráculo. La Fase 7E integrará el perfil científico, CI y resultados finales de conformidad.
+La Fase 7D agrega trazas negativas y mutaciones controladas sin cambiar este oráculo. La Fase 7E integra el perfil científico, CI y los resultados finales de conformidad.

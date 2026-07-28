@@ -4,22 +4,22 @@
 
 | Propiedad o elemento | Evidencia Java | Evidencia formal | Brecha restante | Fase |
 |---|---|---|---|---|
-| estado de sesión | `CrossShardStatus`, `TransitionTable`, eventos | `status[t]`, `terminalStatus[t]`, estados Alloy | función de abstracción ejecutable | 7B |
-| historial de sesión | `ProtocolEvent` ordenado | secuencia abstracta de estados | formato común de trazas | 7A |
-| bloqueo de origen | protocolo atómico y escenarios concurrentes | `locked[t]`, `LockTransfer` | relacionar snapshot Java con estado abstracto | 7B |
-| recibos | creación, entrega, consumo y replay | `receiptOwner`, `receiptUseCount`, mensajes | mapear eventos y copias de recibo | 7B |
-| crédito destino | UTXO destino creado por commit | `destinationCredit[t]` | definir observación estable del crédito | 7B |
-| votos y quorum | validadores disponibles y quorum | `votes[t]`, `QuorumRequired` | exportar votos observables | 7A y 7B |
-| conservación de valor | commit, timeout y rollback | `NoValueLossAtTermination` | conformidad de trazas | 7C |
-| decisión terminal | tabla Java e irreversibilidad | `TerminalStateIrreversibility` | replay formal de transiciones | 7C |
-| replay | ataque runtime y escenario S03 | `NoReceiptReplay`, mutante | relacionar rechazo Java con acción formal | 7C y 7D |
+| estado de sesión | `CrossShardStatus`, `TransitionTable`, eventos | `status[t]`, `terminalStatus[t]`, estados Alloy | cerrada mediante abstracción tipada | 7B |
+| historial de sesión | `ProtocolEvent` ordenado | secuencia abstracta de estados | cerrada mediante JSONL determinista | 7A |
+| bloqueo de origen | protocolo atómico y escenarios concurrentes | `locked[t]`, `LockTransfer` | cerrada mediante mapeo y replay | 7B y 7C |
+| recibos | creación, entrega, consumo y replay | `receiptOwner`, `receiptUseCount`, mensajes | cerrada con copia canónica documentada | 7B |
+| crédito destino | UTXO destino creado por commit | `destinationCredit[t]` | cerrada mediante estado abstracto tipado | 7B |
+| votos y quorum | validadores disponibles y quorum | `votes[t]`, `QuorumRequired` | cerrada mediante votos canónicos y mutación | 7B y 7D |
+| conservación de valor | commit, timeout y rollback | `NoValueLossAtTermination` | contrastada mediante replay y corpus negativo | 7C y 7D |
+| decisión terminal | tabla Java e irreversibilidad | `TerminalStateIrreversibility` | contrastada mediante replay y commit tras abort | 7C y 7D |
+| replay | ataque runtime y escenario S03 | `NoReceiptReplay`, mutante | cerrada con consumo repetido rechazado por TLC | 7D |
 | timeout | ronda lógica y liberación | invariante acotada de liberación | liveness general fuera del alcance | trabajo futuro |
 | model checking | ejecución reproducible | diecisiete runs y diez mutantes | tablas finales | 8 |
-| procedencia | seed y commit Java | commit fuente y commit ejecutado | unificar con manifiesto de conformidad | 7E |
-| conformidad Java-TLA+ | pendiente | modelo abstracto vigente | trazas, abstracción, checker y corpus negativo | 7 |
-| artefacto reproducible | scripts y workflows | resultados raw y checksums | comando final y snapshot | 8 |
+| procedencia | seed y commit Java | commit fuente y commit ejecutado | cerrada con manifiesto y hashes integrados | 7E |
+| conformidad Java-TLA+ | diez escenarios válidos | replay TLC y diez mutaciones rechazadas | cerrada dentro del catálogo declarado | 7A a 7E |
+| artefacto reproducible | scripts y workflows | manifiesto, resumen, matriz y artefacto CI | snapshot editorial pendiente | 8 |
 
-#### Evidencia cerrada hasta Fase 6.1
+#### Evidencia cerrada hasta Fase 7E
 
 - máquina de estados Java;
 - protocolo atómico y rollback;
@@ -29,7 +29,11 @@
 - cinco mutantes por herramienta;
 - contraejemplos almacenados;
 - propiedad objetivo validada en Alloy;
-- procedencia de resultados.
+- procedencia de resultados;
+- JSONL determinista y función de abstracción;
+- replay TLC de diez escenarios válidos;
+- corpus de diez trazas corruptas;
+- manifiesto científico integrado y artefacto CI.
 
 #### Regla de actualización
 
