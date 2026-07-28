@@ -2,10 +2,10 @@
 
 #### Estado
 
-- Fase actual: Fase 7D, corpus negativo de trazas.
-- Fases 0 a 7D: cerradas.
-- Próxima fase: Fase 7E, integración de conformidad.
-- Versión visible: `v1.1.0-beta.2`.
+- Fase actual: Fase 7E, integración y cierre de conformidad.
+- Fases 0 a 7E: cerradas.
+- Próxima fase: Fase 8, evaluación y artefacto de envío.
+- Versión visible: `v1.1.0-rc.1`.
 - Verificación: acotada, reproducible y con mutantes científicos.
 - Trazas Java: JSONL versionado, determinista y reproducible.
 - Abstracción Java-TLA+: ejecutable y tipada.
@@ -40,7 +40,8 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 - `FORMATO_DE_TRAZAS.md`;
 - `FUNCION_DE_ABSTRACCION.md`;
 - `REPLAY_TLC.md`;
-- `CORPUS_NEGATIVO_TRAZAS.md`.
+- `CORPUS_NEGATIVO_TRAZAS.md`;
+- `CIERRE_CONFORMIDAD_FASE_7.md`.
 
 #### Reglas de redacción
 
@@ -54,4 +55,4 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 
 #### Gate actual
 
-La Fase 7D demuestra que TLC rechaza las diez mutaciones declaradas y conserva su procedencia. La Fase 7E debe integrar catálogo válido, corpus negativo, CI y resultados científicos.
+La Fase 7 queda cerrada con diez escenarios válidos aceptados, diez trazas corruptas rechazadas, diagnósticos coincidentes y un artefacto integrado de CI. La Fase 8 realizará la evaluación y congelará el snapshot de envío.

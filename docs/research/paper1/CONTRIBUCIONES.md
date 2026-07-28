@@ -30,23 +30,25 @@ La comparación cuantitativa final entre herramientas corresponde a la Fase 8.
 
 #### C3: conformidad acotada Java-TLA+
 
-Estado: pendiente.
+Estado: alcanzada para el catálogo declarado.
 
-Condiciones:
+Evidencia:
 
-- formato estable de trazas;
+- formato JSONL estable y determinista;
 - función de abstracción documentada y ejecutable;
-- checker que use el modelo formal como oráculo;
-- escenarios válidos y trazas corruptas;
-- resultados reproducibles.
+- TLC usado como oráculo sobre operadores reales;
+- diez escenarios válidos aceptados;
+- diez trazas corruptas rechazadas;
+- diagnósticos de paso, acción y transferencia;
+- manifiesto integrado reproducible.
 
-La denominación prevista es `bounded implementation-model trace conformance`.
+La denominación usada es `bounded implementation-model trace conformance`.
 
 #### C4: artefacto reproducible
 
-Estado: parcial.
+Estado: alcanzada para el perfil de conformidad.
 
-Ya existen herramientas fijadas, comandos reproducibles, resultados raw y artefactos de CI. Faltan la generación de trazas, la conformidad, las tablas del paper y el snapshot final de la Fase 8.
+Existen herramientas fijadas, comandos reproducibles, resultados raw, manifiestos con procedencia y artefactos de CI. Las tablas finales del paper y el snapshot editorial corresponden a la Fase 8.
 
 #### Contribuciones no reclamadas
 

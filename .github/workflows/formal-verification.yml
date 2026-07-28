@@ -18,7 +18,7 @@ env:
 jobs:
   formal-research:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
 
     steps:
       - name: Descargar repositorio
@@ -86,11 +86,54 @@ jobs:
               raise SystemExit("Un mutante Alloy no violó su propiedad objetivo.")
           PY
 
+      - name: Ejecutar conformidad científica basada en trazas
+        run: make conformance-research
+
+      - name: Verificar resultados de conformidad
+        run: |
+          test -s results/conformance/research-v1/manifest.json
+          test -s results/conformance/research-v1/summary.json
+          test -s results/conformance/research-v1/summary.md
+          test -s results/conformance/research-v1/conformance_matrix.csv
+          python3 -m json.tool results/conformance/research-v1/manifest.json >/dev/null
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path("results/conformance/research-v1/manifest.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          if manifest.get("schema_version") != 1:
+              raise SystemExit("El manifiesto de conformidad debe usar schema_version 1.")
+          if manifest.get("phase") != "7E":
+              raise SystemExit("El manifiesto debe declarar la Fase 7E.")
+          if manifest.get("source_commit") != "${{ env.FORMAL_SOURCE_COMMIT }}":
+              raise SystemExit("El manifiesto no conserva el commit fuente.")
+          counts = manifest.get("counts", {})
+          if counts.get("valid_accepted") != 10:
+              raise SystemExit("No se aceptaron los diez escenarios válidos.")
+          if counts.get("negative_rejected") != 10:
+              raise SystemExit("No se rechazaron las diez trazas corruptas.")
+          if counts.get("diagnostics_matching") != 10:
+              raise SystemExit("No coinciden los diez diagnósticos negativos.")
+          PY
+
       - name: Publicar resultados formales
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dtl-lab-formal-results
           path: results/formal/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publicar resultados de conformidad
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dtl-lab-conformance-results
+          path: results/conformance/research-v1/
           if-no-files-found: error
           retention-days: 30
