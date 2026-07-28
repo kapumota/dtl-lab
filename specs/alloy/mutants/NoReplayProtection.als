@@ -223,8 +223,22 @@ assert QuorumRequired {
   all s: State, t: Transfer |
     s.status[t] = Committed implies #s.votes[t] >= 2
 }
+assert NoValueLossAtTermination {
+  all s: State, t: Transfer |
+    (s.status[t] = Committed implies t in s.destinationCredit) and
+    (s.status[t] = Aborted implies t in s.fundsReleased)
+}
+
+assert TerminalStateIrreversibility {
+  all s: State - last, t: Transfer |
+    s.status[t] in Committed + Aborted implies
+      s.next.status[t] = s.status[t]
+}
+
 check NoReceiptReplay for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 1
 check DestinationCreditRequiresValidReceipt for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check DecisionConsistency for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check EventuallyReleasedAfterTimeout for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check QuorumRequired for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
+check NoValueLossAtTermination for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
+check TerminalStateIrreversibility for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0

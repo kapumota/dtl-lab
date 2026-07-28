@@ -455,6 +455,8 @@ public class TestRunner {
                 "NoReceiptReplay",
                 "DestinationCreditRequiresValidReceipt",
                 "DecisionConsistency",
+                "NoValueLossAtTermination",
+                "TerminalStateIrreversibility",
                 "EventuallyReleasedAfterTimeout",
                 "QuorumRequired"
         );
@@ -482,6 +484,7 @@ public class TestRunner {
 
         for (String variable : List.of(
                 "status",
+                "terminalStatus",
                 "sourceShard",
                 "targetShard",
                 "locked",
@@ -592,6 +595,17 @@ public class TestRunner {
             );
         }
 
+        String commitAfterAbortConfig = readFile(
+                Path.of(
+                        "specs", "tla", "configs", "mutants",
+                        "commit-after-abort.cfg"
+                )
+        );
+        assertTrue(
+                commitAfterAbortConfig.contains("TerminalStateIrreversibility"),
+                "El mutante CommitAfterAbort debe evaluar irreversibilidad terminal."
+        );
+
         for (Path mutant : alloyMutants) {
             assertTrue(
                     Files.exists(mutant),
@@ -604,6 +618,15 @@ public class TestRunner {
                     "El mutante Alloy debe conservar estados ordenados: "
                             + mutant
             );
+            for (String property : properties) {
+                assertTrue(
+                        mutantText.contains(property),
+                        "El mutante Alloy debe conservar la propiedad "
+                                + property
+                                + ": "
+                                + mutant
+                );
+            }
         }
     }
 

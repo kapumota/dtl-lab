@@ -11,6 +11,10 @@ on:
 permissions:
   contents: read
 
+env:
+  FORMAL_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+  FORMAL_SOURCE_REF: ${{ github.head_ref || github.ref_name }}
+
 jobs:
   formal-research:
     runs-on: ubuntu-latest
@@ -58,6 +62,29 @@ jobs:
           grep -q ",mutant," results/formal/alloy_runs.csv
           test "$(find results/formal/counterexamples -type f | wc -l)" -ge 10
           python3 -m json.tool results/formal/execution_manifest.json >/dev/null
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path("results/formal/execution_manifest.json").read_text(encoding="utf-8")
+          )
+          if manifest.get("schema_version") != 3:
+              raise SystemExit("El manifiesto formal debe usar schema_version 3.")
+          if manifest.get("source_commit") != "${{ env.FORMAL_SOURCE_COMMIT }}":
+              raise SystemExit("El manifiesto no conserva el commit fuente.")
+          if manifest.get("run_counts", {}).get("total_runs") != 17:
+              raise SystemExit("El manifiesto no registra las diecisiete ejecuciones.")
+          alloy_mutants = [
+              run
+              for run in manifest.get("runs", [])
+              if run.get("tool") == "Alloy" and run.get("kind") == "mutant"
+          ]
+          if len(alloy_mutants) != 5:
+              raise SystemExit("Faltan reportes de mutantes Alloy.")
+          if not all(run.get("target_property_failed") for run in alloy_mutants):
+              raise SystemExit("Un mutante Alloy no violó su propiedad objetivo.")
+          PY
 
       - name: Publicar resultados formales
         if: always()

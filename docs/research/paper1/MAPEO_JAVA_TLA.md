@@ -2,107 +2,76 @@
 
 #### Propósito
 
-Este documento registra la correspondencia conceptual actual entre la implementación Java y `CrossShardCommit.tla`. No constituye todavía una prueba de refinamiento ni un checker de conformidad.
+Este documento define el contrato conceptual que deberá usar la Fase 7 para construir la función de abstracción. Todavía no constituye un checker de conformidad ni una prueba de refinamiento.
 
-#### Alcance del mapeo
+#### Correspondencia de estados
 
-El mapeo incluye:
+| Estado Java | Estado TLA+ | Observación |
+|---|---|---|
+| `CREATED` | `status[t] = "Pending"` | sesión creada sin bloqueo |
+| `SOURCE_LOCKED` | `status[t] = "Locked"` | origen bloqueado |
+| `RECEIPT_CREATED` | `status[t] = "Locked"` | detalle concreto incluido en `LockTransfer` |
+| `RECEIPT_DELIVERED` | `status[t] = "Locked"` | mensaje disponible antes del consumo |
+| `DESTINATION_PREPARED` | `status[t] = "Prepared"` | recibo consumido y destino preparado |
+| `COMMITTED` | `status[t] = "Committed"` | decisión terminal de commit |
+| `ABORTED` | `status[t] = "Aborted"` | decisión terminal de abort |
+| `TIMED_OUT` | `status[t] = "Aborted"` | la causa se conserva en la acción `TimeoutTransfer` |
+| `FAILED_VALIDATION` | `status[t] = "Aborted"` | abstracción de una decisión no commit |
 
-- estado de una sesión;
-- bloqueo y débito del origen;
-- creación y consumo del recibo;
-- crédito del destino;
-- commit;
-- abort;
-- timeout;
-- liberación de fondos.
+#### Correspondencia de variables
 
-#### Correspondencia de estado
-
-| Concepto | Evidencia Java | Evidencia TLA+ actual | Observación |
-|---|---|---|---|
-| Sesión iniciada | `CrossShardStatus.CREATED` y evento `CREATE_SESSION` | estado posterior a `Init` | TLA+ no tiene identificadores de múltiples sesiones |
-| Origen bloqueado o debitado | `SOURCE_LOCKED`, `CommitPlan` y `AtomicCommitProtocol.applyCommit` | `originDebited` | TLA+ combina bloqueo y débito en una variable abstracta |
-| Recibo creado | `RECEIPT_CREATED` y acción `CREATE_RECEIPT` | `receiptCreated` | Java conserva identidad, contenido y evento del recibo |
-| Recibo entregado y consumido | `RECEIPT_DELIVERED`, `applyCommit` y `DESTINATION_PREPARED` | `receiptUseCount` | TLA+ no separa entrega, validación y preparación |
-| Destino acreditado | `CommitPlan.targetUtxo` y `applyCommit` | `destinationCredited` | Java conserva monto, receptor e identificador sintético |
-| Commit | `CrossShardStatus.COMMITTED` | `committed` | Java usa un enum y TLA+ una variable booleana |
-| Abort | `CrossShardStatus.ABORTED` | `aborted` | Java distingue también timeout y fallo de validación |
-| Timeout | `CrossShardStatus.TIMED_OUT` y ronda límite | `expired` y acción `TimeoutOrigin` | el reloj y la ronda no están modelados explícitamente en TLA+ |
-| Fondos liberados | `unlockUtxo` sin eliminar el UTXO | `fundsReleased` | falta identidad explícita del UTXO en TLA+ |
+| Evidencia Java | Variable TLA+ |
+|---|---|
+| identificador de sesión | índice `t` de `Transfers` |
+| shard origen | `sourceShard[t]` |
+| shard destino | `targetShard[t]` |
+| UTXO origen bloqueado | `locked[t]` |
+| propiedad del recibo | `receiptOwner[t]` |
+| recibo consumido | `receiptUseCount[t]` |
+| crédito destino observable | `destinationCredit[t]` |
+| fondos devueltos al origen | `fundsReleased[t]` |
+| mensajes de red | `messages` |
+| validadores que votaron | `votes[t]` |
+| primera decisión terminal | `terminalStatus[t]` |
 
 #### Correspondencia de acciones
 
-| Acción TLA+ actual | Operación Java aproximada | Diferencia principal |
-|---|---|---|
-| `LockOrigin` | `AtomicCommitProtocol.begin`, `LOCK_SOURCE` y `CREATE_RECEIPT` | Java separa estados y dependencias mediante `ProtocolContext` |
-| `CommitDestination` | `prepareCommit`, `applyCommit`, `PREPARE_DESTINATION` y `COMMIT_DESTINATION` | Java incluye snapshot y rollback que el modelo actual no representa |
-| `TimeoutOrigin` | `advanceRound` y `AtomicCommitProtocol.timeout` | Java usa rondas lógicas y TLA+ solo una transición habilitada |
-| `Stutter` | ausencia de acción observable | Java no registra stutter como evento |
+| Evento o grupo Java | Acción TLA+ |
+|---|---|
+| crear sesión | `Init` o detalle previo no observable |
+| bloquear origen y crear recibo | `LockTransfer` |
+| hacer disponible un recibo retrasado | `ReleaseDelayedReceipt` |
+| validar y consumir recibo | `ConsumeReceipt` |
+| registrar voto | `CastVote` |
+| completar commit | `CommitTransfer` |
+| expirar y liberar origen | `TimeoutTransfer` |
+| evento concreto sin cambio abstracto | `Stutter` |
 
-#### Abstracciones actuales
+#### Reglas de abstracción
 
-El modelo TLA+ omite deliberadamente:
+La futura función deberá:
+
+1. conservar `transferId` como índice estable;
+2. proyectar varios estados Java al mismo estado abstracto cuando TLA+ omite detalles;
+3. representar eventos omitidos mediante `Stutter` o agrupación documentada;
+4. conservar orden lógico, seed, escenario y shards;
+5. separar acción observada de estado abstracto resultante;
+6. rechazar cambios de identidad o topología dentro de una sesión.
+
+#### Detalles omitidos por TLA+
 
 - criptografía;
-- estructura completa de UTXO;
-- identidad de validadores;
-- contenido del recibo;
+- estructura completa del UTXO;
 - monto y cambio;
-- múltiples shards;
-- múltiples transferencias;
-- red de mensajes;
-- excepciones de implementación y rollback;
-- estados intermedios de la sesión.
+- contenido completo del recibo;
+- snapshot y rollback interno;
+- excepciones concretas;
+- nombres de clases Java.
 
-#### Brechas para conformidad
+La omisión debe ser explícita y no puede usarse para aceptar una transición abstracta inválida.
 
-Para construir conformidad Java-TLA+ se necesitarán:
+#### Restricción de redacción
 
-1. identificadores estables de transferencia y recibo en el modelo;
-2. múltiples sesiones representadas mediante funciones;
-3. serialización estable de los eventos Java ya implementados;
-4. una función de abstracción de estado Java a estado TLA+;
-5. un checker que valide cada transición observable;
-6. reglas para omitir detalles concretos no modelados;
-7. escenarios válidos e inválidos de prueba.
+Hasta cerrar la Fase 7 se usarán expresiones como `mapeo conceptual`, `función de abstracción propuesta` y `conformidad acotada pendiente`.
 
-#### Función de abstracción preliminar
-
-La futura función de abstracción podrá adoptar la forma:
-
-```text
-abstractState(javaState) -> tlaState
-```
-
-Ejemplos preliminares:
-
-```text
-session.status == COMMITTED
-    -> committed[transfer] = TRUE
-
-receiptId in target.consumedReceipts
-    -> receiptUseCount[receipt] = 1
-
-sourceUtxo not in source.lockedUtxos
-and session.status == TIMED_OUT
-    -> fundsReleased[transfer] = TRUE
-```
-
-Estas reglas son preliminares. La extracción Java está completada, pero TLA+ todavía no modela `CommitPlan`, `LedgerSnapshot` ni rollback. La revisión formal corresponde a la Fase 6.
-
-#### Restricción de redacción científica
-
-Hasta completar la Fase 7, la documentación y el paper deben usar expresiones como:
-
-- alineación conceptual;
-- correspondencia preliminar;
-- mapeo de estados;
-- conformidad propuesta.
-
-No deben usar:
-
-- implementación formalmente refinada;
-- prueba de refinamiento;
-- conformidad demostrada;
-- equivalencia Java-TLA+.
+No se usarán `refinamiento demostrado`, `equivalencia Java-TLA+` ni `verificación completa de la implementación`.

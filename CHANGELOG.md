@@ -4,9 +4,45 @@ Todos los cambios importantes de este proyecto se documentan en este archivo.
 
 El proyecto sigue una evolución por fases y usa tags versionados para preservar hitos técnicos. El formato está inspirado en Keep a Changelog y el versionado sigue una lógica compatible con Semantic Versioning.
 
+#### [1.1.0-beta.2] - Cierre científico de la Fase 6
+
+#### Agregado
+
+* Agrega `NoValueLossAtTermination` en TLA+ y Alloy.
+* Agrega seguimiento de decisión terminal en TLA+.
+* Agrega `TerminalStateIrreversibility` en TLA+ y Alloy.
+* Registra la propiedad objetivo de cada mutante Alloy.
+* Registra commit fuente, commit ejecutado, referencia y contexto de GitHub Actions.
+* Agrega documentación de cierre científico previa a la conformidad Java-TLA+.
+
+#### Corregido
+
+* Impide que un mutante Alloy sea aceptado por violar una propiedad distinta de su objetivo.
+* Completa `violated_properties` desde los resultados del solver.
+* Alinea preguntas, contribuciones, propiedades y mapeo Java-TLA+ con el modelo multisesión vigente.
+* Aclara que la liberación posterior a timeout es una invariante acotada de estado y no una prueba general de vivacidad.
+
+#### [1.1.0-beta.1] - Fase 6: modelo multisesión y mutantes científicos
+
+#### Agregado
+
+* Agrega seis configuraciones TLA+ válidas.
+* Agrega estados ordenados en Alloy.
+* Agrega cinco mutantes TLA+ y cinco mutantes Alloy.
+* Agrega diecisiete ejecuciones formales y diez contraejemplos.
+* Publica la matriz formal como artefacto de GitHub Actions.
+
+#### [1.1.0-alpha.1] - Fases 2 y 3 del Paper 1
+
+#### Agregado
+
+* Agrega la máquina de estados cross-shard.
+* Extrae el protocolo atómico de `ShardManager`.
+* Agrega preparación, aplicación, snapshot y rollback reproducible.
+
 #### [1.0.0] - Fase 4: Verificación formal cross-shard
 
-##### Agregado
+#### Agregado
 
 * Agrega especificación formal TLA+ para el protocolo de commit cross-shard.
 * Agrega configuración TLC en `specs/tla/CrossShardCommit.cfg`.
@@ -15,7 +51,7 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 * Agrega script `scripts/run_formal_checks.sh`.
 * Agrega validación estructural de especificaciones formales en `TestRunner`.
 
-##### Invariantes modeladas
+#### Invariantes modeladas
 
 * `NoDoubleMint`: el destino no puede crear valor sin recibo válido.
 * `NoValueLoss`: si el origen debitó fondos, el destino confirma o el origen libera.
@@ -23,7 +59,7 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 * `AtomicCommit`: una transferencia no puede quedar simultáneamente abortada y confirmada.
 * `TimeoutReleasesFunds`: toda sesión vencida libera el UTXO bloqueado del origen.
 
-##### Impacto
+#### Impacto
 
 * El proyecto pasa de simulación ejecutable a una arquitectura con especificación formal.
 * El protocolo cross-shard puede analizarse mediante model checking.
@@ -31,7 +67,7 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 
 #### [0.9.0] - Fase 3: Resiliencia de red y consenso adversarial
 
-##### Agregado
+#### Agregado
 
 * Agrega módulo `dltlab.pow` para simulación de selfish mining.
 * Agrega `HashPowerDistribution`, `SelfishMiningState`, `SelfishMiningStrategy`, `SelfishMiningSimulator` y `MiningRewardMetrics`.
@@ -41,7 +77,7 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 * Agrega `SignedConsensusMessage`, `EquivocationEvidence`, `ReputationScore`, `ReputationWeightedConsensus`, `SlashingEvent` y `ReputationConsensusResult`.
 * Agrega demo adversarial mediante `scripts/run_adversarial_demo.sh`.
 
-##### Impacto
+#### Impacto
 
 * El proyecto deja de modelar solo nodos honestos o maliciosos de forma abstracta.
 * La red ahora puede representar aislamiento, censura, control de peers y particiones.
@@ -49,7 +85,7 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 
 #### [0.8.0] - Fase 2: DeFi y MEV con AMM constante
 
-##### Agregado
+#### Agregado
 
 * Agrega módulo `dltlab.defi`.
 * Agrega `Token`, `AmmPool`, `SwapOrder`, `SwapResult`, `ConstantProductMarketMaker`, `SlippageCalculator` y `ArbitrageScenario`.
@@ -59,7 +95,7 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 * Agrega `DeFiMEVScenario`, `SandwichAttackResult` y `BackrunArbitrageResult`.
 * Agrega demo DeFi MEV mediante `scripts/run_defi_mev_demo.sh`.
 
-##### Impacto
+#### Impacto
 
 * El MEV deja de ser solo reordenamiento abstracto de transacciones.
 * El valor extraíble se calcula desde un mercado simulado.
@@ -67,7 +103,7 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 
 #### [0.7.0] - Fase 1: Realismo económico de mempool
 
-##### Agregado
+#### Agregado
 
 * Agrega tamaño virtual de transacciones en vBytes.
 * Agrega cálculo de fee rate en sats/vByte.
@@ -80,7 +116,7 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 * Extiende `PackageAwarePolicy` para soportar CPFP con límites de vBytes.
 * Agrega demo específica mediante `scripts/run_mempool_demo.sh`.
 
-##### Impacto
+#### Impacto
 
 * La mempool deja de comportarse como una cola simple.
 * La selección de transacciones pasa de fee absoluto o cantidad de transacciones a densidad económica.
@@ -89,7 +125,7 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 
 #### [0.6.0] - Base previa a las fases
 
-##### Existente
+#### Existente
 
 * Simulación base de blockchain.
 * Wallets, transacciones y UTXO.
@@ -101,7 +137,7 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 * Seguridad runtime e invariantes ejecutables.
 * Exportación de métricas y reportes.
 
-##### Limitación
+#### Limitación
 
 * El MEV no estaba conectado todavía a mercados DeFi reales.
 * La mempool todavía no modelaba completamente fee rate, RBF, CPFP y eviction.

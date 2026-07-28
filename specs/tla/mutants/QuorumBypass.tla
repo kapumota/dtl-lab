@@ -18,9 +18,11 @@ CONSTANTS Shards,
 MutationMode == "QuorumBypass"
 
 StatusValues == {"Pending", "Locked", "Prepared", "Committed", "Aborted"}
+TerminalStatusValues == {"None", "Committed", "Aborted"}
 ShardOrNone == Shards \cup {"None"}
 
 VARIABLES status,
+          terminalStatus,
           sourceShard,
           targetShard,
           locked,
@@ -32,6 +34,7 @@ VARIABLES status,
           votes
 
 vars == << status,
+          terminalStatus,
           sourceShard,
           targetShard,
           locked,
@@ -56,6 +59,7 @@ MessagesFor(t) ==
 
 Init ==
     /\ status = [t \in Transfers |-> "Pending"]
+    /\ terminalStatus = [t \in Transfers |-> "None"]
     /\ sourceShard \in [Transfers -> Shards]
     /\ targetShard \in [Transfers -> Shards]
     /\ \A t \in Transfers : sourceShard[t] # targetShard[t]
@@ -75,7 +79,8 @@ LockTransfer(t) ==
     /\ messages' = messages \cup
           { ReceiptMessage(t, copy, copy \in DelayedCopies) :
               copy \in 1..ReceiptCopies }
-    /\ UNCHANGED << sourceShard,
+    /\ UNCHANGED << terminalStatus,
+                    sourceShard,
                     targetShard,
                     receiptOwner,
                     receiptUseCount,
@@ -90,6 +95,7 @@ ReleaseDelayedReceipt(t, copy) ==
     /\ delayedMessage \in messages
     /\ messages' = (messages \ {delayedMessage}) \cup {readyMessage}
     /\ UNCHANGED << status,
+                    terminalStatus,
                     sourceShard,
                     targetShard,
                     locked,
@@ -119,7 +125,8 @@ ConsumeReceipt(t, copy) ==
     /\ status' = [status EXCEPT
           ![t] = IF @ = "Committed" THEN "Committed" ELSE "Prepared"]
     /\ messages' = messages \ {readyMessage}
-    /\ UNCHANGED << sourceShard,
+    /\ UNCHANGED << terminalStatus,
+                    sourceShard,
                     targetShard,
                     locked,
                     fundsReleased,
@@ -131,7 +138,8 @@ CreditBeforeReceipt(t) ==
     /\ receiptUseCount[t] = 0
     /\ destinationCredit' = [destinationCredit EXCEPT ![t] = TRUE]
     /\ status' = [status EXCEPT ![t] = "Prepared"]
-    /\ UNCHANGED << sourceShard,
+    /\ UNCHANGED << terminalStatus,
+                    sourceShard,
                     targetShard,
                     locked,
                     receiptOwner,
@@ -145,6 +153,7 @@ CastVote(t, validator) ==
     /\ validator \notin votes[t]
     /\ votes' = [votes EXCEPT ![t] = @ \cup {validator}]
     /\ UNCHANGED << status,
+                    terminalStatus,
                     sourceShard,
                     targetShard,
                     locked,
@@ -164,6 +173,7 @@ CanCommit(t) ==
 CommitTransfer(t) ==
     /\ CanCommit(t)
     /\ status' = [status EXCEPT ![t] = "Committed"]
+    /\ terminalStatus' = [terminalStatus EXCEPT ![t] = "Committed"]
     /\ UNCHANGED << sourceShard,
                     targetShard,
                     locked,
@@ -179,6 +189,7 @@ TimeoutTransfer(t) ==
     /\ status[t] = "Locked"
     /\ ~destinationCredit[t]
     /\ status' = [status EXCEPT ![t] = "Aborted"]
+    /\ terminalStatus' = [terminalStatus EXCEPT ![t] = "Aborted"]
     /\ locked' = [locked EXCEPT ![t] = FALSE]
     /\ fundsReleased' =
           IF MutationMode = "TimeoutWithoutRelease"
@@ -196,7 +207,8 @@ CommitAfterAbort(t) ==
     /\ MutationMode = "CommitAfterAbort"
     /\ status[t] = "Aborted"
     /\ status' = [status EXCEPT ![t] = "Committed"]
-    /\ UNCHANGED << sourceShard,
+    /\ UNCHANGED << terminalStatus,
+                    sourceShard,
                     targetShard,
                     locked,
                     receiptOwner,
@@ -228,6 +240,7 @@ Spec ==
 
 TypeOK ==
     /\ status \in [Transfers -> StatusValues]
+    /\ terminalStatus \in [Transfers -> TerminalStatusValues]
     /\ sourceShard \in [Transfers -> Shards]
     /\ targetShard \in [Transfers -> Shards]
     /\ locked \in [Transfers -> BOOLEAN]
@@ -264,7 +277,7 @@ QuorumRequired ==
     \A t \in Transfers :
         status[t] = "Committed" => Cardinality(votes[t]) >= Quorum
 
-NoValueLoss ==
+NoValueLossAtTermination ==
     \A t \in Transfers :
         \/ status[t] = "Pending"
         \/ status[t] = "Locked"
@@ -273,6 +286,18 @@ NoValueLoss ==
              /\ destinationCredit[t]
         \/ /\ status[t] = "Aborted"
              /\ fundsReleased[t]
+
+TerminalStateIrreversibility ==
+    \A t \in Transfers :
+        \/ /\ terminalStatus[t] = "None"
+             /\ status[t] \in {"Pending", "Locked", "Prepared"}
+        \/ /\ terminalStatus[t] = "Committed"
+             /\ status[t] = "Committed"
+        \/ /\ terminalStatus[t] = "Aborted"
+             /\ status[t] = "Aborted"
+
+NoValueLoss ==
+    NoValueLossAtTermination
 
 NoDoubleMint ==
     NoReceiptReplay /\ DestinationCreditRequiresValidReceipt
