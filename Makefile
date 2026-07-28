@@ -1,5 +1,5 @@
-# Makefile principal para ai-code-triage: orquesta validación, pruebas, demostraciones y verificación de seguridad/formal
-.PHONY: validate test demo demo-mempool demo-defi demo-adversarial security formal clean
+# Makefile principal de DLT-Lab para validacion, pruebas, demostraciones y verificacion.
+.PHONY: validate test demo demo-mempool demo-defi demo-adversarial security formal formal-research clean
 
 validate:
 	bash scripts/validate.sh
@@ -24,6 +24,9 @@ security:
 
 formal:
 	bash scripts/run_formal_checks.sh
+
+formal-research:
+	bash scripts/formal/run_formal_research.sh
 
 clean:
 	rm -rf build target out

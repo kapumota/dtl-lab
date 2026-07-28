@@ -1,0 +1,66 @@
+# Model checking obligatorio para el perfil científico del Paper 1.
+name: formal-verification
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  formal-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restaurar cache de herramientas formales
+        uses: actions/cache@v4
+        with:
+          path: .formal-tools
+          key: formal-tools-${{ runner.os }}-${{ hashFiles('scripts/formal/tool_versions.env') }}
+
+      - name: Instalar TLC versionado
+        run: bash scripts/formal/install_tla_tools.sh
+
+      - name: Instalar Alloy versionado
+        run: bash scripts/formal/install_alloy.sh
+
+      - name: Ejecutar modelos y controles negativos
+        run: make formal-research
+
+      - name: Verificar resultados estructurados
+        run: |
+          test -s results/formal/tool_versions.txt
+          test -s results/formal/environment.json
+          test -s results/formal/tla_runs.csv
+          test -s results/formal/alloy_runs.csv
+          test -s results/formal/execution_manifest.json
+          grep -q "negative-control" results/formal/tla_runs.csv
+          grep -q "negative-control" results/formal/alloy_runs.csv
+
+      - name: Publicar resultados formales
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dtl-lab-formal-results
+          path: results/formal/
+          if-no-files-found: error
+          retention-days: 30

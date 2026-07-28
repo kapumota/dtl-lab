@@ -22,10 +22,15 @@ sig Transfer {
 pred wellFormed[t: Transfer] {
   t.destinationCredited = Yes implies t.originDebited = Yes
   t.destinationCredited = Yes implies t.receiptCreated = Yes
+  t.destinationCredited = Yes implies #t.receiptUse = 1
+  #t.receiptUse <= 1
   t.fundsReleased = Yes implies t.originDebited = Yes
   t.committed = Yes implies t.destinationCredited = Yes
+  t.committed = Yes implies t.aborted = No
   t.aborted = Yes implies t.destinationCredited = No
+  (t.aborted = Yes and t.originDebited = Yes) implies t.fundsReleased = Yes
   t.expired = Yes implies t.aborted = Yes
+  t.expired = Yes implies t.fundsReleased = Yes
 }
 
 assert NoDoubleMint {
@@ -37,7 +42,7 @@ assert NoDoubleMint {
 assert NoValueLoss {
   all t: Transfer |
     wellFormed[t] implies
-      ((t.committed = Yes or t.aborted = Yes) and t.originDebited = Yes implies
+      (((t.committed = Yes or t.aborted = Yes) and t.originDebited = Yes) implies
         (t.destinationCredited = Yes or t.fundsReleased = Yes))
 }
 
@@ -56,8 +61,8 @@ assert TimeoutReleasesFunds {
     wellFormed[t] implies (t.expired = Yes implies t.fundsReleased = Yes)
 }
 
-check NoDoubleMint for 5 Transfer, 5 Receipt
-check NoValueLoss for 5 Transfer, 5 Receipt
-check NoReceiptReplay for 5 Transfer, 5 Receipt
-check AtomicCommit for 5 Transfer, 5 Receipt
-check TimeoutReleasesFunds for 5 Transfer, 5 Receipt
+check NoDoubleMint for 5 Transfer, 5 Receipt expect 0
+check NoValueLoss for 5 Transfer, 5 Receipt expect 0
+check NoReceiptReplay for 5 Transfer, 5 Receipt expect 0
+check AtomicCommit for 5 Transfer, 5 Receipt expect 0
+check TimeoutReleasesFunds for 5 Transfer, 5 Receipt expect 0

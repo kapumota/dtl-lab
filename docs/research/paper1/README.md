@@ -4,14 +4,14 @@
 
 Este directorio contiene la documentación de investigación del Paper 1 de DLT-Lab.
 
-- Fase actual: Fase 4, interleavings y simulación determinista.
-- Estado: scheduler discreto, red reproducible y diez escenarios ejecutables.
+- Fase actual: Fase 5, model checking ejecutable.
+- Estado: TLC y Alloy obligatorios en el perfil científico con resultados estructurados.
 - Baseline de investigación: commit `34f4c088b9f5db3e3b54824de69db8589fd06de3`.
-- Commit padre de la Fase 4: `d9658d1`.
+- Commit padre de la Fase 5: `b6bd6f3`.
 - Versión visible del software: `v1.1.0-alpha.1`.
-- Rama de trabajo: `paper1/fase-4-interleavings-deterministas`.
+- Rama de trabajo: `paper1/fase-5-model-checking-ejecutable`.
 
-La Fase 4 agrega simulación discreta sobre el protocolo extraído. El scheduler controla ronda, prioridad, entrega, pérdida, duplicación, retraso y reordenamiento sin threads reales. TLA+ y Alloy permanecen sin cambios.
+La Fase 5 separa la validación educativa de la validación científica. El perfil científico instala versiones fijadas, ejecuta TLC y Alloy, comprueba controles negativos temporales y publica resultados estructurados.
 
 #### Objetivo del Paper 1
 
@@ -47,10 +47,11 @@ La contribución esperada no es presentar DLT-Lab completo como un nuevo simulad
 - `MAPEO_JAVA_TLA.md`: correspondencia conceptual entre Java y TLA+.
 
 
-#### Documentos de las Fases 3 y 4
+#### Documentos de las Fases 3, 4 y 5
 
 - `ARQUITECTURA_PROTOCOLO_ATOMICO.md`: separación de responsabilidades, plan de commit, snapshot, puntos de fallo y rollback.
 - `SIMULACION_DETERMINISTA.md`: reloj lógico, scheduler, red, modelos de fallos, escenarios y matriz de seeds.
+- `MODEL_CHECKING_EJECUTABLE.md`: perfiles, herramientas fijadas, ejecución estricta, métricas, resultados y controles negativos.
 
 #### Relación con la documentación existente
 
@@ -174,3 +175,31 @@ La Fase 4 se considera completa cuando:
 8. El runner local ejecuta al menos 1000 seeds por escenario.
 9. Las pruebas e invariantes de las fases anteriores continúan pasando.
 10. TLA+ y Alloy permanecen sin cambios.
+
+
+#### Implementación de la Fase 5
+
+- `check_structure.sh` conserva el perfil educativo sin descargas obligatorias.
+- `install_tla_tools.sh` instala TLA+ Tools 1.7.4 con checksum verificado.
+- `install_alloy.sh` instala Alloy 6.2.0 desde Maven Central.
+- `run_tlc.sh` ejecuta TLC con un worker y captura estados, profundidad, tiempo y memoria.
+- `run_alloy.sh` ejecuta todos los checks mediante la interfaz CLI y conserva `receipt.json`.
+- los parsers Python generan CSV y resúmenes JSON.
+- `run_formal_research.sh` ejecuta modelos válidos y controles negativos temporales.
+- `formal-verification.yml` publica `results/formal/`.
+
+#### Criterios de cierre de la Fase 5
+
+La Fase 5 se considera completa cuando:
+
+1. `make formal-research` falla si falta TLC o Alloy.
+2. las versiones de ambas herramientas pueden identificarse.
+3. los modelos válidos se ejecutan realmente.
+4. una violación de propiedad produce fallo.
+5. cada ejecución genera un reporte estructurado.
+6. TLC registra estados generados, estados distintos, profundidad, tiempo y memoria.
+7. Alloy registra solver, alcance, contraejemplos, tiempo y memoria.
+8. los controles negativos temporales son detectados.
+9. GitHub Actions publica `results/formal/`.
+10. `make validate` conserva el perfil educativo estructural.
+11. no se agregan todavía sesiones múltiples ni mutantes científicos versionados.
