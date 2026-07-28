@@ -2,12 +2,13 @@
 
 #### Estado
 
-- Fase actual: Fase 7A, exportación determinista de trazas.
-- Fases 0 a 7A: cerradas.
-- Próxima fase: Fase 7B, función de abstracción Java-TLA+.
+- Fase actual: Fase 7B, función de abstracción Java-TLA+.
+- Fases 0 a 7B: cerradas.
+- Próxima fase: Fase 7C, replay formal con TLC.
 - Versión visible: `v1.1.0-beta.2`.
 - Verificación: acotada, reproducible y con mutantes científicos.
 - Trazas Java: JSONL versionado, determinista y reproducible.
+- Abstracción Java-TLA+: ejecutable, tipada y sin evaluación de `Next`.
 - Conformidad Java-TLA+: todavía pendiente.
 
 #### Objetivo
@@ -34,7 +35,8 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 - `MODEL_CHECKING_EJECUTABLE.md`;
 - `MODELO_MULTISESION_MUTANTES.md`;
 - `CIERRE_CIENTIFICO_FASE_6.md`;
-- `FORMATO_DE_TRAZAS.md`.
+- `FORMATO_DE_TRAZAS.md`;
+- `FUNCION_DE_ABSTRACCION.md`.
 
 #### Reglas de redacción
 
@@ -48,4 +50,4 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 
 #### Gate actual
 
-La Fase 7A conserva el orden global del simulador, las transiciones reales del protocolo y las observaciones de red en JSONL determinista. La Fase 7B debe definir una función de abstracción explícita sin modificar el contrato concreto de trazas.
+La Fase 7B proyecta trazas concretas en estados y acciones TLA+ sin duplicar las guardas de `Next`. La Fase 7C debe usar TLC como oráculo para aceptar o rechazar cada transición abstracta.

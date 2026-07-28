@@ -4,7 +4,7 @@
 
 La Fase 7A define una representación JSONL versionada de ejecuciones concretas del protocolo cross-shard. Este formato conserva el orden lógico del simulador, las transiciones ya registradas por `CrossShardSession` y las observaciones de red necesarias para reproducir cada escenario.
 
-El formato no incluye acciones TLA+, estados abstractos, resultados TLC ni decisiones de conformidad. Esos elementos pertenecen a las Fases 7B y 7C.
+El formato no incluye acciones TLA+, estados abstractos, resultados TLC ni decisiones de conformidad. La Fase 7B consume este contrato sin agregar campos al JSONL y la Fase 7C incorporará el replay formal.
 
 #### Integración con el código existente
 
@@ -147,4 +147,4 @@ La prueba `TraceExportTest` ejecuta los diez escenarios deterministas y verifica
 
 La Fase 7A demuestra exportación concreta, determinista y reproducible. No demuestra que una traza sea aceptada por la especificación formal.
 
-La Fase 7B definirá la función de abstracción. La Fase 7C realizará replay con TLC.
+La Fase 7B implementa la función de abstracción sobre los objetos tipados de este contrato, sin modificar sus bytes ni su esquema. La Fase 7C realizará replay con TLC.

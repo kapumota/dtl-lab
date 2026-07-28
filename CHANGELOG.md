@@ -4,9 +4,19 @@ Todos los cambios importantes de este proyecto se documentan en este archivo.
 
 El proyecto sigue una evolución por fases y usa tags versionados para preservar hitos técnicos. El formato está inspirado en Keep a Changelog y el versionado sigue una lógica compatible con Semantic Versioning.
 
-#### [Unreleased] - Fase 7A: exportación determinista de trazas
+#### [Unreleased] - Fases 7A y 7B: trazas y función de abstracción
 
-#### Agregado
+#### Fase 7B
+
+* Agrega el módulo `dltlab.conformance` para proyectar trazas concretas.
+* Agrega estados tipados para las variables del modelo TLA+.
+* Agrega acciones abstractas con procedencia y justificación.
+* Expande la preparación del destino en consumo de recibo y votos canónicos.
+* Rechaza cambios de identidad o topología dentro de una transferencia.
+* Agrega pruebas sobre los diez escenarios deterministas.
+* Mantiene fuera de alcance la evaluación de `Next`, TLC y la decisión de conformidad.
+
+#### Fase 7A
 
 * Agrega el módulo `dltlab.trace` para registrar y exportar ejecuciones concretas.
 * Agrega JSONL versionado con configuración, eventos y estados finales.
@@ -19,8 +29,9 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 
 * Reutiliza `SimulationRun.trace()` para el orden global y las observaciones de red.
 * Reutiliza `CrossShardSession.events()` para las transiciones reales del protocolo.
+* Consume `TraceExecution` sin modificar el contrato JSONL de Fase 7A.
 * No modifica `AtomicCommitProtocol`, `CrossShardSession`, TLA+ ni Alloy.
-* Mantiene fuera de alcance la función de abstracción y el replay TLC.
+* Mantiene fuera de alcance el replay TLC.
 
 #### [1.1.0-beta.2] - Cierre científico de la Fase 6
 
