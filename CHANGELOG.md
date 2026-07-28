@@ -4,6 +4,24 @@ Todos los cambios importantes de este proyecto se documentan en este archivo.
 
 El proyecto sigue una evolución por fases y usa tags versionados para preservar hitos técnicos. El formato está inspirado en Keep a Changelog y el versionado sigue una lógica compatible con Semantic Versioning.
 
+#### [Unreleased] - Fase 7A: exportación determinista de trazas
+
+#### Agregado
+
+* Agrega el módulo `dltlab.trace` para registrar y exportar ejecuciones concretas.
+* Agrega JSONL versionado con configuración, eventos y estados finales.
+* Agrega el esquema `specs/trace/trace-schema-v1.json`.
+* Agrega exportación reproducible del catálogo de diez escenarios.
+* Agrega hashes separados para contenido y archivo completo.
+* Agrega pruebas de determinismo, cobertura de red y ausencia de campos formales.
+
+#### Integración
+
+* Reutiliza `SimulationRun.trace()` para el orden global y las observaciones de red.
+* Reutiliza `CrossShardSession.events()` para las transiciones reales del protocolo.
+* No modifica `AtomicCommitProtocol`, `CrossShardSession`, TLA+ ni Alloy.
+* Mantiene fuera de alcance la función de abstracción y el replay TLC.
+
 #### [1.1.0-beta.2] - Cierre científico de la Fase 6
 
 #### Agregado

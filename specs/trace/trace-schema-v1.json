@@ -1,0 +1,386 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kapumota/dtl-lab/specs/trace/trace-schema-v1.json",
+  "title": "Esquema de trazas deterministas DLT-Lab v1",
+  "description": "Contrato JSONL de la Fase 7A para configuracion, eventos concretos y resultado.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/configuration"
+    },
+    {
+      "$ref": "#/$defs/event"
+    },
+    {
+      "$ref": "#/$defs/result"
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "CREATED",
+        "SOURCE_LOCKED",
+        "RECEIPT_CREATED",
+        "RECEIPT_DELIVERED",
+        "DESTINATION_PREPARED",
+        "COMMITTED",
+        "ABORTED",
+        "TIMED_OUT",
+        "FAILED_VALIDATION"
+      ]
+    },
+    "protocolAction": {
+      "type": "string",
+      "enum": [
+        "CREATE_SESSION",
+        "LOCK_SOURCE",
+        "CREATE_RECEIPT",
+        "DELIVER_RECEIPT",
+        "PREPARE_DESTINATION",
+        "COMMIT_DESTINATION",
+        "ABORT_TRANSFER",
+        "EXPIRE_TRANSFER",
+        "FAIL_VALIDATION"
+      ]
+    },
+    "simulationEventType": {
+      "type": "string",
+      "enum": [
+        "BEGIN_TRANSFER",
+        "LOCK_SOURCE",
+        "CREATE_RECEIPT",
+        "SEND_RECEIPT",
+        "DELIVER_RECEIPT",
+        "PREPARE_DESTINATION",
+        "COMMIT_DESTINATION",
+        "EXPIRE_TRANSFER",
+        "RELEASE_SOURCE",
+        "ABORT_TRANSFER",
+        "DUPLICATE_MESSAGE",
+        "DROP_MESSAGE",
+        "DELAY_MESSAGE",
+        "FAIL_VALIDATION",
+        "SHARD_OFFLINE",
+        "SHARD_ONLINE"
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recordType",
+        "schemaVersion",
+        "scenarioId",
+        "seed",
+        "shardCount",
+        "quorum",
+        "simulationTraceHash"
+      ],
+      "properties": {
+        "recordType": {
+          "const": "configuracion"
+        },
+        "schemaVersion": {
+          "const": 1
+        },
+        "scenarioId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "shardCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "quorum": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "simulationTraceHash": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recordType",
+        "schemaVersion",
+        "step",
+        "simulationSequence",
+        "sessionSequence",
+        "logicalRound",
+        "kind",
+        "subjectId",
+        "transferId",
+        "simulationEventType",
+        "outcome",
+        "javaAction",
+        "previousStatus",
+        "nextStatus",
+        "sourceShard",
+        "targetShard",
+        "sourceUtxoKey",
+        "receiptId",
+        "amount",
+        "sourceApprovals",
+        "sourceValidators",
+        "targetApprovals",
+        "targetValidators",
+        "detail"
+      ],
+      "properties": {
+        "recordType": {
+          "const": "evento"
+        },
+        "schemaVersion": {
+          "const": 1
+        },
+        "step": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "simulationSequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sessionSequence": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "logicalRound": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "SIMULATION_EVENT",
+            "PROTOCOL_TRANSITION"
+          ]
+        },
+        "subjectId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "transferId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "simulationEventType": {
+          "$ref": "#/$defs/simulationEventType"
+        },
+        "outcome": {
+          "type": "string",
+          "minLength": 1
+        },
+        "javaAction": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/protocolAction"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "previousStatus": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/status"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nextStatus": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/status"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceShard": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "targetShard": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "sourceUtxoKey": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "receiptId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "amount": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "sourceApprovals": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "sourceValidators": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "targetApprovals": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "targetValidators": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "PROTOCOL_TRANSITION"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "sessionSequence": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "transferId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "javaAction": {
+                "$ref": "#/$defs/protocolAction"
+              },
+              "nextStatus": {
+                "$ref": "#/$defs/status"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "SIMULATION_EVENT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "sessionSequence": {
+                "type": "null"
+              },
+              "javaAction": {
+                "type": "null"
+              },
+              "previousStatus": {
+                "type": "null"
+              },
+              "nextStatus": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recordType",
+        "schemaVersion",
+        "scenarioId",
+        "seed",
+        "eventCount",
+        "finalStates",
+        "contentHash"
+      ],
+      "properties": {
+        "recordType": {
+          "const": "resultado"
+        },
+        "schemaVersion": {
+          "const": 1
+        },
+        "scenarioId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "eventCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "finalStates": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/status"
+          }
+        },
+        "contentHash": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    }
+  }
+}

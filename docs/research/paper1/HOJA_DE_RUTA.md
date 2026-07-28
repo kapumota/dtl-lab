@@ -14,6 +14,7 @@ Cada fase se desarrolla en una rama corta creada desde `main` actualizado y se i
 - Fase 5: model checking ejecutable.
 - Fase 6: modelo multisesión y mutantes.
 - Fase 6.1: cierre científico y documental.
+- Fase 7A: exportación determinista de trazas.
 
 #### Fase 6.1: cierre científico
 
@@ -34,14 +35,25 @@ Gate:
 
 #### Fase 7A: exportación de trazas
 
-Rama prevista: `paper1/fase-7a-exportacion-trazas`
+Rama: `paper1/fase-7a-exportacion-trazas`
 
-Objetivos:
+Objetivos cerrados:
 
 - definir JSONL versionado;
-- exportar configuración, seed, eventos y estado final;
-- garantizar serialización y hash deterministas;
-- no implementar todavía replay TLC.
+- exportar configuración, seed, observaciones y estados finales;
+- conservar transiciones reales sin duplicar la máquina de estados;
+- conservar pérdida, retraso, duplicación, rechazo y disponibilidad de shards;
+- garantizar serialización y hashes deterministas;
+- mantener fuera de alcance la abstracción TLA+ y el replay TLC.
+
+Gate:
+
+- los diez escenarios deterministas exportan JSONL;
+- la misma seed produce los mismos bytes;
+- `contentHash` y `fileHash` son reproducibles;
+- el esquema `trace-schema-v1.json` describe los tres tipos de registro;
+- `TraceExportTest` verifica eventos de protocolo y observaciones de simulación;
+- las pruebas previas permanecen en el mismo runner.
 
 #### Fase 7B: función de abstracción
 
@@ -51,7 +63,8 @@ Objetivos:
 
 - mapear estados Java a estados TLA+;
 - mapear eventos a acciones formales o `Stutter`;
-- conservar identidades de transferencia y shard.
+- conservar identidades de transferencia y shard;
+- consumir el contrato de Fase 7A sin modificarlo.
 
 #### Fase 7C: replay formal con TLC
 
