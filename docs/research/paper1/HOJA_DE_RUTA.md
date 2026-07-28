@@ -15,6 +15,7 @@ Cada fase se desarrolla en una rama corta creada desde `main` actualizado y se i
 - Fase 6: modelo multisesión y mutantes.
 - Fase 6.1: cierre científico y documental.
 - Fase 7A: exportación determinista de trazas.
+- Fase 7B: función de abstracción Java-TLA+.
 
 #### Fase 6.1: cierre científico
 
@@ -57,14 +58,26 @@ Gate:
 
 #### Fase 7B: función de abstracción
 
-Rama prevista: `paper1/fase-7b-funcion-abstraccion`
+Rama: `paper1/fase-7b-funcion-abstraccion`
 
-Objetivos:
+Objetivos cerrados:
 
-- mapear estados Java a estados TLA+;
-- mapear eventos a acciones formales o `Stutter`;
-- conservar identidades de transferencia y shard;
-- consumir el contrato de Fase 7A sin modificarlo.
+- mapear estados Java al vocabulario de `CrossShardCommit.tla`;
+- mapear cada evento a una o más acciones formales;
+- expandir `targetApprovals` en votos canónicos y reproducibles;
+- conservar identidades de transferencia, shard, UTXO y recibo;
+- consumir el contrato de Fase 7A sin modificar JSONL;
+- mantener fuera de alcance la evaluación de `Next` y TLC.
+
+Gate:
+
+- los diez escenarios generan abstracciones deterministas;
+- cada evento concreto produce al menos un paso abstracto;
+- la preparación se expande en consumo y votos;
+- commit, timeout y fallo de quorum conservan su efecto abstracto;
+- los eventos de red se proyectan como `Stutter`;
+- los cambios de identidad o topología son rechazados;
+- no se generan decisiones de conformidad.
 
 #### Fase 7C: replay formal con TLC
 
