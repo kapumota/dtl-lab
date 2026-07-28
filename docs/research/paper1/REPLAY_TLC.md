@@ -4,7 +4,7 @@
 
 La Fase 7C ejecuta las trazas abstractas producidas por la Fase 7B contra los operadores reales de `CrossShardCommit.tla`. TLC actúa como oráculo para decidir si cada acción observada está habilitada y si produce exactamente el estado abstracto esperado.
 
-Esta fase no modifica el modelo formal, no reimplementa `Next` en Java y no introduce todavía el corpus de trazas corruptas de la Fase 7D.
+Esta fase no modifica el modelo formal y no reimplementa `Next` en Java. La Fase 7D reutiliza este mismo replay para ejecutar un corpus separado de trazas corruptas.
 
 #### Flujo
 
@@ -113,4 +113,4 @@ La fase queda cerrada cuando:
 
 La aceptación demuestra conformidad acotada para el catálogo y las seeds ejecutadas. No demuestra equivalencia total entre Java y TLA+, ni refinamiento completo de todas las ejecuciones posibles.
 
-La Fase 7D agregará trazas negativas y mutaciones controladas. La Fase 7E integrará el perfil científico, CI y resultados finales de conformidad.
+La Fase 7D agrega trazas negativas y mutaciones controladas sin cambiar este oráculo. La Fase 7E integrará el perfil científico, CI y resultados finales de conformidad.
