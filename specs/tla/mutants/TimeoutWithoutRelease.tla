@@ -1,4 +1,4 @@
----- MODULE CrossShardCommit ----
+---- MODULE TimeoutWithoutRelease ----
 EXTENDS Naturals, FiniteSets, TLC
 
 (***************************************************************************)
@@ -15,7 +15,7 @@ CONSTANTS Shards,
           DelayedCopies,
           EnableTimeout
 
-MutationMode == "Correct"
+MutationMode == "TimeoutWithoutRelease"
 
 StatusValues == {"Pending", "Locked", "Prepared", "Committed", "Aborted"}
 ShardOrNone == Shards \cup {"None"}

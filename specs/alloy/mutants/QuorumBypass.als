@@ -1,4 +1,4 @@
-module CrossShardCommit
+module mutants/QuorumBypass
 
 // Modelo multisesion acotado del commit cross-shard de DLT-Lab.
 // Los estados ordenados representan una traza finita del protocolo.
@@ -132,7 +132,7 @@ pred castVote[s, nextState: State, t: Transfer, v: Validator] {
 pred commitTransfer[s, nextState: State, t: Transfer] {
   s.status[t] = Prepared
   t in s.destinationCredit
-  #s.votes[t] >= 2
+  #s.votes[t] < 2
 
   nextState.status = s.status ++ t->Committed
   nextState.locked = s.locked
@@ -208,4 +208,4 @@ check NoReceiptReplay for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, 
 check DestinationCreditRequiresValidReceipt for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check DecisionConsistency for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check EventuallyReleasedAfterTimeout for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
-check QuorumRequired for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
+check QuorumRequired for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 1

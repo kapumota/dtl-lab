@@ -4,14 +4,14 @@
 
 Este directorio contiene la documentación de investigación del Paper 1 de DLT-Lab.
 
-- Fase actual: Fase 5, model checking ejecutable.
-- Estado: TLC y Alloy obligatorios en el perfil científico con resultados estructurados.
+- Fase actual: Fase 6, modelo multisesión y mutantes científicos.
+- Estado: configuraciones concurrentes y mutantes TLA+/Alloy con contraejemplos almacenados.
 - Baseline de investigación: commit `34f4c088b9f5db3e3b54824de69db8589fd06de3`.
 - Commit padre de la Fase 5: `b6bd6f3`.
-- Versión visible del software: `v1.1.0-alpha.1`.
-- Rama de trabajo: `paper1/fase-5-model-checking-ejecutable`.
+- Versión visible del software: `v1.1.0-beta.1`.
+- Rama de trabajo: `paper1/fase-6-modelo-multisesion-mutantes`.
 
-La Fase 5 separa la validación educativa de la validación científica. El perfil científico instala versiones fijadas, ejecuta TLC y Alloy, comprueba controles negativos temporales y publica resultados estructurados.
+La Fase 6 reemplaza los controles temporales por configuraciones concurrentes y mutantes científicos versionados. La Fase 5 separa la validación educativa de la validación científica. El perfil científico instala versiones fijadas, ejecuta TLC y Alloy, comprueba controles negativos temporales y publica resultados estructurados.
 
 #### Objetivo del Paper 1
 
@@ -47,11 +47,12 @@ La contribución esperada no es presentar DLT-Lab completo como un nuevo simulad
 - `MAPEO_JAVA_TLA.md`: correspondencia conceptual entre Java y TLA+.
 
 
-#### Documentos de las Fases 3, 4 y 5
+#### Documentos de las Fases 3, 4, 5 y 6
 
 - `ARQUITECTURA_PROTOCOLO_ATOMICO.md`: separación de responsabilidades, plan de commit, snapshot, puntos de fallo y rollback.
 - `SIMULACION_DETERMINISTA.md`: reloj lógico, scheduler, red, modelos de fallos, escenarios y matriz de seeds.
 - `MODEL_CHECKING_EJECUTABLE.md`: perfiles, herramientas fijadas, ejecución estricta, métricas, resultados y controles negativos.
+- `MODELO_MULTISESION_MUTANTES.md`: configuraciones concurrentes, bounds, propiedades, mutantes y criterio de cierre.
 
 #### Relación con la documentación existente
 
@@ -203,3 +204,28 @@ La Fase 5 se considera completa cuando:
 9. GitHub Actions publica `results/formal/`.
 10. `make validate` conserva el perfil educativo estructural.
 11. no se agregan todavía sesiones múltiples ni mutantes científicos versionados.
+
+
+#### Implementación de la Fase 6
+
+- TLA+ usa funciones indexadas por transferencia para representar sesiones concurrentes.
+- seis configuraciones cubren una, dos y tres transferencias, duplicación, retraso y timeout.
+- Alloy usa estados ordenados y firmas explícitas para transferencias, recibos, shards, validadores y mensajes.
+- cinco mutantes TLA+ y cinco mutantes Alloy sustituyen los controles temporales de la Fase 5.
+- los contraejemplos se almacenan en `results/formal/counterexamples/`.
+- `execution_manifest.json` registra bounds, configuraciones y mutantes ejecutados.
+
+#### Criterios de cierre de la Fase 6
+
+La Fase 6 se considera completa cuando:
+
+1. las configuraciones TLA+ válidas no producen violaciones;
+2. el modelo Alloy válido no produce contraejemplos;
+3. cada mutante viola su propiedad objetivo;
+4. cada mutante conserva al menos un contraejemplo;
+5. el manifiesto registra diecisiete ejecuciones;
+6. `make validate` continúa pasando;
+7. `make formal-research` termina correctamente;
+8. GitHub Actions publica resultados y contraejemplos;
+9. la documentación declara que la verificación es acotada;
+10. el commit fusionado puede etiquetarse como `v1.1.0-beta.1`.

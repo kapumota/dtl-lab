@@ -382,19 +382,228 @@ public class TestRunner {
 
     private static void testFormalSpecificationFiles() {
         Path tla = Path.of("specs", "tla", "CrossShardCommit.tla");
-        Path cfg = Path.of("specs", "tla", "CrossShardCommit.cfg");
+        Path defaultCfg = Path.of("specs", "tla", "CrossShardCommit.cfg");
         Path alloy = Path.of("specs", "alloy", "CrossShardCommit.als");
-        assertTrue(Files.exists(tla), "La especificacion TLA+ debe existir.");
-        assertTrue(Files.exists(cfg), "La configuracion TLC debe existir.");
-        assertTrue(Files.exists(alloy), "El modelo Alloy debe existir.");
+        Path alloyBounds = Path.of(
+                "specs", "alloy", "scopes", "bounds.json"
+        );
+
+        List<Path> validConfigs = List.of(
+                Path.of("specs", "tla", "configs", "2shards-1transfer.cfg"),
+                Path.of("specs", "tla", "configs", "2shards-2transfers.cfg"),
+                Path.of("specs", "tla", "configs", "3shards-3transfers.cfg"),
+                Path.of("specs", "tla", "configs", "duplicate-receipt.cfg"),
+                Path.of("specs", "tla", "configs", "delayed-message.cfg"),
+                Path.of("specs", "tla", "configs", "timeout-race.cfg")
+        );
+
+        List<Path> tlaMutants = List.of(
+                Path.of("specs", "tla", "mutants", "NoReplayProtection.tla"),
+                Path.of("specs", "tla", "mutants", "CreditBeforeReceipt.tla"),
+                Path.of("specs", "tla", "mutants", "CommitAfterAbort.tla"),
+                Path.of("specs", "tla", "mutants", "TimeoutWithoutRelease.tla"),
+                Path.of("specs", "tla", "mutants", "QuorumBypass.tla")
+        );
+
+        List<Path> tlaMutantConfigs = List.of(
+                Path.of(
+                        "specs", "tla", "configs", "mutants",
+                        "no-replay-protection.cfg"
+                ),
+                Path.of(
+                        "specs", "tla", "configs", "mutants",
+                        "credit-before-receipt.cfg"
+                ),
+                Path.of(
+                        "specs", "tla", "configs", "mutants",
+                        "commit-after-abort.cfg"
+                ),
+                Path.of(
+                        "specs", "tla", "configs", "mutants",
+                        "timeout-without-release.cfg"
+                ),
+                Path.of(
+                        "specs", "tla", "configs", "mutants",
+                        "quorum-bypass.cfg"
+                )
+        );
+
+        List<Path> alloyMutants = List.of(
+                Path.of(
+                        "specs", "alloy", "mutants",
+                        "NoReplayProtection.als"
+                ),
+                Path.of(
+                        "specs", "alloy", "mutants",
+                        "CreditBeforeReceipt.als"
+                ),
+                Path.of(
+                        "specs", "alloy", "mutants",
+                        "CommitAfterAbort.als"
+                ),
+                Path.of(
+                        "specs", "alloy", "mutants",
+                        "TimeoutWithoutRelease.als"
+                ),
+                Path.of(
+                        "specs", "alloy", "mutants",
+                        "QuorumBypass.als"
+                )
+        );
+
+        List<String> properties = List.of(
+                "NoReceiptReplay",
+                "DestinationCreditRequiresValidReceipt",
+                "DecisionConsistency",
+                "EventuallyReleasedAfterTimeout",
+                "QuorumRequired"
+        );
+
+        assertTrue(
+                Files.exists(tla),
+                "La especificacion TLA+ multisesion debe existir."
+        );
+        assertTrue(
+                Files.exists(defaultCfg),
+                "La configuracion TLC principal debe existir."
+        );
+        assertTrue(
+                Files.exists(alloy),
+                "El modelo Alloy multisesion debe existir."
+        );
+        assertTrue(
+                Files.exists(alloyBounds),
+                "Los bounds documentados de Alloy deben existir."
+        );
+
         String tlaText = readFile(tla);
-        String cfgText = readFile(cfg);
+        String defaultCfgText = readFile(defaultCfg);
         String alloyText = readFile(alloy);
-        for (String invariant : List.of("NoDoubleMint", "NoValueLoss", "NoReceiptReplay",
-                "AtomicCommit", "TimeoutReleasesFunds")) {
-            assertTrue(tlaText.contains(invariant), "TLA+ debe declarar " + invariant);
-            assertTrue(cfgText.contains(invariant), "TLC debe revisar " + invariant);
-            assertTrue(alloyText.contains(invariant), "Alloy debe revisar " + invariant);
+
+        for (String variable : List.of(
+                "status",
+                "sourceShard",
+                "targetShard",
+                "locked",
+                "receiptOwner",
+                "receiptUseCount",
+                "destinationCredit",
+                "fundsReleased",
+                "messages",
+                "votes"
+        )) {
+            assertTrue(
+                    tlaText.contains(variable),
+                    "TLA+ debe declarar la variable " + variable
+            );
+        }
+
+        assertTrue(
+                tlaText.contains("Stutter =="),
+                "TLA+ debe declarar una accion Stutter."
+        );
+        assertTrue(
+                tlaText.contains("\\/ Stutter"),
+                "Next debe permitir stuttering explicito."
+        );
+
+        assertTrue(
+                tlaText.contains("TypeOK"),
+                "TLA+ debe declarar TypeOK."
+        );
+        assertTrue(
+                defaultCfgText.contains("INVARIANT TypeOK"),
+                "La configuracion principal debe revisar TypeOK."
+        );
+
+        for (String property : properties) {
+            assertTrue(
+                    tlaText.contains(property),
+                    "TLA+ debe declarar " + property
+            );
+            assertTrue(
+                    defaultCfgText.contains(property),
+                    "La configuracion principal debe revisar " + property
+            );
+            assertTrue(
+                    alloyText.contains(property),
+                    "Alloy debe revisar " + property
+            );
+        }
+
+        assertTrue(
+                alloyText.contains("open util/ordering[State]"),
+                "Alloy debe usar estados ordenados."
+        );
+
+        for (String signature : List.of(
+                "State",
+                "Transfer",
+                "Receipt",
+                "Shard",
+                "Validator",
+                "Message"
+        )) {
+            assertTrue(
+                    alloyText.contains("sig " + signature),
+                    "Alloy debe declarar la firma " + signature
+            );
+        }
+
+        for (Path config : validConfigs) {
+            assertTrue(
+                    Files.exists(config),
+                    "Debe existir la configuracion valida " + config
+            );
+
+            String configText = readFile(config);
+
+            assertTrue(
+                    configText.contains("SPECIFICATION Spec"),
+                    "La configuracion debe ejecutar Spec: " + config
+            );
+            assertTrue(
+                    configText.contains("INVARIANT TypeOK"),
+                    "La configuracion debe revisar TypeOK: " + config
+            );
+
+            for (String property : properties) {
+                assertTrue(
+                        configText.contains(property),
+                        "La configuracion debe revisar "
+                                + property
+                                + ": "
+                                + config
+                );
+            }
+        }
+
+        for (Path mutant : tlaMutants) {
+            assertTrue(
+                    Files.exists(mutant),
+                    "Debe existir el mutante TLA+ " + mutant
+            );
+        }
+
+        for (Path config : tlaMutantConfigs) {
+            assertTrue(
+                    Files.exists(config),
+                    "Debe existir la configuracion del mutante " + config
+            );
+        }
+
+        for (Path mutant : alloyMutants) {
+            assertTrue(
+                    Files.exists(mutant),
+                    "Debe existir el mutante Alloy " + mutant
+            );
+
+            String mutantText = readFile(mutant);
+            assertTrue(
+                    mutantText.contains("open util/ordering[State]"),
+                    "El mutante Alloy debe conservar estados ordenados: "
+                            + mutant
+            );
         }
     }
 

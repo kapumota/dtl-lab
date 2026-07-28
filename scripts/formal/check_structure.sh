@@ -41,6 +41,7 @@ requireFile "$ALLOY_SPEC"
 requireFile "$VERSION_FILE"
 requireFile "$ROOT_DIR/.github/workflows/formal-verification.yml"
 requireFile "$ROOT_DIR/results/formal/README.md"
+requireFile "$ROOT_DIR/docs/research/paper1/MODELO_MULTISESION_MUTANTES.md"
 requireText "$ROOT_DIR/Makefile" "formal-research:"
 
 for script in \
@@ -56,15 +57,72 @@ done
 requireFile "$ROOT_DIR/scripts/formal/parse_tlc_results.py"
 requireFile "$ROOT_DIR/scripts/formal/parse_alloy_results.py"
 
-for invariant in NoDoubleMint NoValueLoss NoReceiptReplay AtomicCommit TimeoutReleasesFunds; do
-  requireText "$TLA_SPEC" "$invariant"
-  requireText "$TLA_CFG" "$invariant"
-  requireText "$ALLOY_SPEC" "$invariant"
+for config in \
+  2shards-1transfer.cfg \
+  2shards-2transfers.cfg \
+  3shards-3transfers.cfg \
+  duplicate-receipt.cfg \
+  delayed-message.cfg \
+  timeout-race.cfg; do
+  requireFile "$ROOT_DIR/specs/tla/configs/$config"
 done
 
+for config in \
+  no-replay-protection.cfg \
+  credit-before-receipt.cfg \
+  commit-after-abort.cfg \
+  timeout-without-release.cfg \
+  quorum-bypass.cfg; do
+  requireFile "$ROOT_DIR/specs/tla/configs/mutants/$config"
+done
+
+for mutant in \
+  NoReplayProtection \
+  CreditBeforeReceipt \
+  CommitAfterAbort \
+  TimeoutWithoutRelease \
+  QuorumBypass; do
+  requireFile "$ROOT_DIR/specs/tla/mutants/$mutant.tla"
+  requireFile "$ROOT_DIR/specs/alloy/mutants/$mutant.als"
+done
+
+requireFile "$ROOT_DIR/specs/alloy/scopes/bounds.json"
+requireFile "$ROOT_DIR/specs/alloy/scopes/README.md"
+
+for property in \
+  NoReceiptReplay \
+  DestinationCreditRequiresValidReceipt \
+  DecisionConsistency \
+  EventuallyReleasedAfterTimeout \
+  QuorumRequired; do
+  requireText "$TLA_SPEC" "$property"
+  requireText "$TLA_CFG" "$property"
+  requireText "$ALLOY_SPEC" "$property"
+done
+
+for variable in \
+  status \
+  sourceShard \
+  targetShard \
+  locked \
+  receiptOwner \
+  receiptUseCount \
+  destinationCredit \
+  fundsReleased \
+  messages \
+  votes; do
+  requireText "$TLA_SPEC" "$variable"
+done
+
+for signature in State Transfer Receipt Shard Validator Message; do
+  requireText "$ALLOY_SPEC" "sig $signature"
+done
+
+requireText "$TLA_SPEC" "Stutter =="
+requireText "$TLA_SPEC" "\\/ Stutter"
 requireText "$TLA_SPEC" "Spec =="
 requireText "$TLA_CFG" "SPECIFICATION Spec"
-requireText "$ALLOY_SPEC" "module CrossShardCommit"
+requireText "$ALLOY_SPEC" "open util/ordering[State]"
 requireText "$VERSION_FILE" "TLA_TOOLS_VERSION="
 requireText "$VERSION_FILE" "ALLOY_VERSION="
 requireText "$VERSION_FILE" "JAVA_REQUIRED_MAJOR="
