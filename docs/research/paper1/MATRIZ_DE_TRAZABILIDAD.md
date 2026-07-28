@@ -1,99 +1,36 @@
-### Matriz de trazabilidad inicial
+### Matriz de trazabilidad
 
-#### Propósito
+#### Matriz principal
 
-Esta matriz relaciona las propiedades científicas esperadas con el código, las especificaciones formales y las brechas que deben cerrarse.
-
-#### Matriz
-
-| Propiedad o elemento | Evidencia Java actual | Evidencia formal actual | Brecha identificada | Fase prevista |
+| Propiedad o elemento | Evidencia Java | Evidencia formal | Brecha restante | Fase |
 |---|---|---|---|---|
-| Estado de sesión | nueve estados en `CrossShardStatus` y tabla ejecutable en `TransitionTable` | funciones TLA+ por transferencia y secuencia Alloy de `State` | falta comprobar conformidad automática con Java | Fase 7 |
-| Historial de sesión | `ProtocolEvent` y `CrossShardSession.events()` | no existe traza formal importable | falta formato común y checker de conformidad | Fase 7 |
-| Bloqueo de origen | `markSourceLocked`, `AtomicCommitProtocol.begin` y escenario `S06` | `LockOrigin` en TLA+ | Java explora conflictos deterministas; falta trasladarlos al modelo formal | Fase 6 |
-| Creación y entrega de recibo | `NetworkMessage`, `NetworkFaultModel`, `SEND_RECEIPT` y `DELIVER_RECEIPT` | mensajes y recibos explícitos en TLA+ y Alloy | falta relacionar eventos Java con mensajes formales | Fase 7 |
-| Consumo de recibo | `applyCommit`, `DuplicateReceiptModel` y escenario `S03` | configuración duplicada y mutante `NoReplayProtection` | falta conformidad entre trazas Java y contraejemplos formales | Fase 7 |
-| Protección runtime contra replay | ataque existente, invariante y traza determinista de `S03` | `NoReceiptReplay` en TLA+ y Alloy | falta relación automática entre traza Java y modelo | Fases 6 y 7 |
-| Conservación de valor | rollback de Fase 3 y escenarios concurrentes `S06`, `S07` y `S10` | `NoValueLoss` y `TimeoutReleasesFunds` | exploración Java acotada; falta model checking multisesión | Fase 6 |
-| Decisión atómica | `AtomicCommitProtocol` y carrera determinista `S05` | `AtomicCommit` | interleavings Java probados; falta equivalencia con acciones formales | Fases 6 y 7 |
-| Irreversibilidad terminal | ausencia de salidas terminales en `TransitionTable` y pruebas específicas | propiedad no separada | falta agregar `TerminalStateIrreversibility` al modelo formal | Fase 6 |
-| Timeout | `EXPIRE_TRANSFER` solo desde estados con bloqueo | `TimeoutOrigin` y `TimeoutReleasesFunds` | falta formalizar liveness y fairness | Fase 6 |
-| Quorum | validación en origen y destino dentro de `AtomicCommitProtocol` | `QuorumRequired` y mutante `QuorumBypass` en TLA+ y Alloy | falta correspondencia automática con votos Java | Fase 7 |
-| Fallos de red | seis `NetworkFaultModel`, mensajes y escenarios `S02` a `S05` | mensajes acotados, duplicación, retraso y carrera de timeout | fairness y pérdidas no acotadas permanecen fuera del alcance | Trabajo futuro |
-| Model checking ejecutado | `make formal-research`, parsers y workflow obligatorio | seis configuraciones TLA+, modelo Alloy y diez mutantes versionados | falta congelar resultados para el envío | Fase 8 |
-| Conformidad Java-TLA+ | eventos Java ordenados por sesión | modelo abstracto | falta función de abstracción, serialización y checker | Fase 7 |
-| Reproducibilidad científica | seeds explícitas y herramientas formales fijadas | CSV, JSON, logs, versiones y ambiente | falta congelar la matriz experimental y preparar el snapshot del envío | Fase 8 |
+| estado de sesión | `CrossShardStatus`, `TransitionTable`, eventos | `status[t]`, `terminalStatus[t]`, estados Alloy | función de abstracción ejecutable | 7B |
+| historial de sesión | `ProtocolEvent` ordenado | secuencia abstracta de estados | formato común de trazas | 7A |
+| bloqueo de origen | protocolo atómico y escenarios concurrentes | `locked[t]`, `LockTransfer` | relacionar snapshot Java con estado abstracto | 7B |
+| recibos | creación, entrega, consumo y replay | `receiptOwner`, `receiptUseCount`, mensajes | mapear eventos y copias de recibo | 7B |
+| crédito destino | UTXO destino creado por commit | `destinationCredit[t]` | definir observación estable del crédito | 7B |
+| votos y quorum | validadores disponibles y quorum | `votes[t]`, `QuorumRequired` | exportar votos observables | 7A y 7B |
+| conservación de valor | commit, timeout y rollback | `NoValueLossAtTermination` | conformidad de trazas | 7C |
+| decisión terminal | tabla Java e irreversibilidad | `TerminalStateIrreversibility` | replay formal de transiciones | 7C |
+| replay | ataque runtime y escenario S03 | `NoReceiptReplay`, mutante | relacionar rechazo Java con acción formal | 7C y 7D |
+| timeout | ronda lógica y liberación | invariante acotada de liberación | liveness general fuera del alcance | trabajo futuro |
+| model checking | ejecución reproducible | diecisiete runs y diez mutantes | tablas finales | 8 |
+| procedencia | seed y commit Java | commit fuente y commit ejecutado | unificar con manifiesto de conformidad | 7E |
+| conformidad Java-TLA+ | pendiente | modelo abstracto vigente | trazas, abstracción, checker y corpus negativo | 7 |
+| artefacto reproducible | scripts y workflows | resultados raw y checksums | comando final y snapshot | 8 |
 
-#### Evidencia agregada en la Fase 2
+#### Evidencia cerrada hasta Fase 6.1
 
-- `CrossShardSession` inicia en `CREATED` y conserva un historial inmutable.
-- `TransitionTable` relaciona estado anterior, acción y estado siguiente.
-- `InvalidTransitionException` informa la transición rechazada.
-- `CrossShardStatus.isTerminal` centraliza la clasificación de estados terminales.
-- `ShardManager` registra las transiciones intermedias sin cambiar sus métodos públicos.
-- `NoStuckCrossShardInvariant` ignora todos los estados no terminales mediante `isTerminal`.
-- tres suites verifican recorridos permitidos, irreversibilidad terminal y transiciones inválidas.
-
-#### Evidencia agregada en la Fase 3
-
-- `ShardManager` delega inicio, entrega, commit, abort y timeout.
-- `CommitPlan` separa cálculo de mutaciones y aplicación.
-- `LedgerSnapshot` conserva ledger, bloqueo, recibo y checkpoint de sesión.
-- `rollback` restaura el estado aunque el fallo ocurra después del crédito destino.
-- `ProtocolContext.FailurePoint` hace reproducibles cuatro fallos intermedios.
-- `AtomicCommitRollbackTest` comprueba restauración del origen, eliminación del crédito, recibo y estado.
-- `AtomicCommitProtocolTest` comprueba compatibilidad y una única decisión terminal.
-
-#### Evidencia agregada en la Fase 4
-
-- `SimulationClock` y `EventScheduler` eliminan dependencias del reloj físico y de threads.
-- `EventQueue` ordena por ronda, prioridad y secuencia.
-- `DeterministicRandom` conserva una secuencia estable para cada seed.
-- seis modelos de red cubren entrega normal, pérdida, retraso, duplicación, reordenamiento y carrera de timeout.
-- `ScenarioCatalog` implementa `S01` a `S10`.
-- `SimulationDeterminismTest` compara trazas y hashes de ejecuciones repetidas.
-- `SimulationScenarioMatrixTest` ejecuta 100 seeds por escenario en el runner reducido.
-- `run_simulation_matrix.sh` permite ejecutar 1000 o más seeds por escenario localmente.
-
-
-#### Evidencia agregada en la Fase 5
-
-- el perfil educativo comprueba estructura sin afirmar ejecución formal;
-- el perfil científico falla si falta TLC o Alloy;
-- TLA+ Tools 1.7.4 y Alloy 6.2.0 están fijados;
-- TLC registra estados generados, estados distintos, profundidad, tiempo y memoria;
-- Alloy registra solver, alcance, contraejemplos, tiempo y memoria;
-- cada propiedad genera una fila estructurada;
-- controles negativos temporales comprueban que el pipeline detecta violaciones;
-- `formal-verification.yml` publica `results/formal/`;
-- los mutantes científicos y el modelo multisesión permanecen asignados a la Fase 6.
-
-#### Evidencia agregada en la Fase 6
-
-- TLA+ representa varias transferencias mediante funciones indexadas;
-- seis configuraciones exploran topologías, duplicación, retraso y timeout;
-- Alloy representa una secuencia finita mediante `open util/ordering[State]`;
-- cinco propiedades nuevas se verifican en ambos lenguajes;
-- cinco mutantes TLA+ y cinco mutantes Alloy producen defectos específicos;
-- cada mutante almacena al menos un contraejemplo;
-- `mutant_matrix.csv` y `execution_manifest.json` registran la matriz experimental;
-- la documentación limita las afirmaciones a los bounds declarados.
+- máquina de estados Java;
+- protocolo atómico y rollback;
+- simulación determinista S01 a S10;
+- TLA+ y Alloy multisesión;
+- siete propiedades ejecutadas;
+- cinco mutantes por herramienta;
+- contraejemplos almacenados;
+- propiedad objetivo validada en Alloy;
+- procedencia de resultados.
 
 #### Regla de actualización
 
-Cada Pull Request del Paper 1 deberá actualizar esta matriz cuando:
-
-- agregue o cambie una propiedad;
-- cambie una transición Java;
-- modifique TLA+ o Alloy;
-- agregue un ataque o mutante;
-- agregue resultados o herramientas de verificación.
-
-#### Aportes documentales de la Fase 1
-
-- `PROTOCOLO.md` fija precondiciones, flujos y garantías esperadas.
-- `MAQUINA_DE_ESTADOS.md` definió los estados intermedios implementados en la Fase 2.
-- `PROPIEDADES_DE_SEGURIDAD.md` define diez propiedades y su nivel de evidencia.
-- `PROPIEDADES_DE_VIVACIDAD.md` separa invariantes de estado y propiedades temporales.
-- `MODELO_DE_FALLOS.md` delimita fallos de red, validadores e implementación.
-- `MAPEO_JAVA_TLA.md` registra correspondencias conceptuales y brechas de conformidad.
+Cada PR del Paper 1 actualizará esta matriz cuando cambie una propiedad, transición, función de abstracción, mutante, formato de traza o resultado experimental.

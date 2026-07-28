@@ -1,35 +1,33 @@
 ### Preguntas de investigación
 
-#### Propósito
-
-Las preguntas de investigación delimitan qué debe demostrar el Paper 1. En la Fase 0 se definen preguntas y observables. Todavía no se registran respuestas ni conclusiones.
-
 #### RQ1: preservación de propiedades de seguridad
 
-¿El protocolo de commit cross-shard preserva atomicidad, conservación de valor y no reutilización de recibos bajo todos los interleavings explorados dentro de los bounds documentados?
+¿El protocolo de commit cross-shard preserva las propiedades declaradas bajo los interleavings explorados dentro de los bounds documentados?
+
+Propiedades observadas:
+
+- `NoReceiptReplay`;
+- `DestinationCreditRequiresValidReceipt`;
+- `DecisionConsistency`;
+- `NoValueLossAtTermination`;
+- `TerminalStateIrreversibility`;
+- `EventuallyReleasedAfterTimeout` como invariante acotada de estado;
+- `QuorumRequired`.
 
 Resultados observables:
 
-- resultado de cada invariante en TLC;
-- resultado de cada assertion en Alloy;
-- cantidad de estados generados y estados distintos;
-- profundidad o diámetro del espacio explorado;
-- contraejemplos encontrados;
-- configuración exacta de shards, transferencias, recibos y fallos.
-
-Propiedades iniciales relacionadas:
-
-- `NoDoubleMint`;
-- `NoValueLoss`;
-- `NoReceiptReplay`;
-- `AtomicCommit`;
-- `TimeoutReleasesFunds`.
+- resultado por propiedad y herramienta;
+- estados generados y estados distintos en TLC;
+- profundidad explorada;
+- tiempo y memoria;
+- configuración exacta;
+- contraejemplos.
 
 #### RQ2: capacidad de detección de defectos
 
-¿TLC, Alloy y las invariantes runtime detectan mutaciones realistas que eliminan controles del protocolo cross-shard?
+¿TLC y Alloy detectan mutaciones realistas que eliminan controles del protocolo cross-shard?
 
-Mutaciones previstas:
+Mutaciones evaluadas:
 
 - ausencia de protección contra replay;
 - crédito en destino sin recibo válido;
@@ -37,53 +35,29 @@ Mutaciones previstas:
 - timeout sin liberación de fondos;
 - aceptación sin quorum suficiente.
 
-Resultados observables:
-
-- propiedad violada;
-- herramienta que detecta la violación;
-- contraejemplo mínimo;
-- tiempo de detección;
-- tamaño del espacio explorado;
-- diferencia entre el protocolo correcto y el mutante.
+Cada mutante declara una propiedad objetivo. La ejecución solo se considera correcta cuando esa propiedad produce la violación esperada.
 
 #### RQ3: conformidad entre implementación y modelo
 
 ¿Las trazas observables producidas por la implementación Java corresponden a secuencias de acciones admitidas por el modelo TLA+ dentro de los escenarios y bounds evaluados?
 
-Resultados observables:
+Resultados previstos:
 
 - cantidad de trazas Java evaluadas;
-- trazas aceptadas por el verificador de conformidad;
+- trazas aceptadas;
 - trazas rechazadas;
-- causa del rechazo;
-- cobertura de acciones del protocolo;
-- seeds y configuraciones utilizadas.
+- causa y paso del rechazo;
+- cobertura de acciones;
+- seeds y configuraciones.
 
-La respuesta a esta pregunta se presentará como conformidad acotada basada en trazas. No se reclamará una prueba general de refinamiento mientras no exista una demostración formal suficiente.
+RQ3 permanece pendiente hasta completar la Fase 7. La respuesta se presentará como `bounded implementation-model trace conformance`, no como prueba general de refinamiento.
 
 #### Pregunta secundaria de escalabilidad
 
-¿Cómo crece el costo del model checking al aumentar la cantidad de shards, transferencias concurrentes, recibos y fallos habilitados?
+¿Cómo crece el costo del model checking al aumentar shards, transferencias, recibos y fallos habilitados?
 
-Resultados observables:
+Esta pregunta se evaluará en la Fase 8 mediante tablas generadas desde los resultados raw.
 
-- estados generados;
-- estados distintos;
-- tiempo de ejecución;
-- memoria utilizada;
-- configuraciones que producen explosión de estados.
+#### Exclusiones
 
-Esta pregunta es secundaria. No reemplaza las preguntas sobre seguridad y conformidad.
-
-#### Exclusión del Paper 2
-
-Las siguientes preguntas no pertenecen al Paper 1:
-
-- comparación de TPS con BlockEmulator;
-- latencia p50, p95 o p99;
-- extracción de MEV cross-shard;
-- políticas de ordenamiento económico;
-- comparación con Shadow o Ethshadow;
-- workloads históricos de Ethereum.
-
-Esos temas corresponden al futuro Paper 2.
+El Paper 1 no estudia TPS frente a otros simuladores, latencias p50 o p99, MEV cross-shard, workloads históricos de Ethereum ni superioridad de rendimiento. Esos temas permanecen fuera del alcance.

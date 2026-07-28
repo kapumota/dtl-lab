@@ -2,134 +2,109 @@
 
 #### Principio de integración
 
-Cada fase se desarrolla en una rama corta creada desde `main` actualizado. La fase se integra mediante Pull Request antes de crear la siguiente rama.
+Cada fase se desarrolla en una rama corta creada desde `main` actualizado y se integra mediante Pull Request antes de abrir la siguiente.
 
-No se mantienen ramas de fases futuras abiertas de forma simultánea.
+#### Fases cerradas
 
-#### Fase 0: baseline de investigación
+- Fase 0: baseline de investigación.
+- Fase 1: contrato del protocolo.
+- Fase 2: máquina de estados Java.
+- Fase 3: protocolo atómico y rollback.
+- Fase 4: interleavings deterministas.
+- Fase 5: model checking ejecutable.
+- Fase 6: modelo multisesión y mutantes.
+- Fase 6.1: cierre científico y documental.
 
-Rama: `paper1/fase-0-baseline-investigacion`
+#### Fase 6.1: cierre científico
 
-Objetivos:
-
-- fijar preguntas de investigación;
-- definir alcance y exclusiones;
-- documentar supuestos;
-- documentar el modelo de amenazas;
-- identificar contribuciones esperadas;
-- construir la matriz de trazabilidad;
-- conservar intacto el comportamiento del software.
-
-Salida esperada:
-
-- documentación en `docs/research/paper1/`;
-- orientación para `results/` y `experiments/`;
-- parche sin cambios de código.
-
-#### Fase 1: contrato del protocolo
-
-Rama prevista: `paper1/fase-1-contrato-protocolo`
+Rama: `paper1/fase-6-1-cierre-cientifico`
 
 Objetivos:
 
-- definir acciones y precondiciones;
-- separar safety y liveness;
-- definir estados y transiciones permitidas;
-- definir la relación inicial Java-TLA+.
+- alinear RQ1 con las propiedades ejecutadas;
+- agregar conservación de valor e irreversibilidad terminal;
+- exigir propiedad objetivo en mutantes Alloy;
+- registrar procedencia inequívoca;
+- actualizar documentación y versión;
+- evitar componentes de conformidad.
 
-#### Fase 2: máquina de estados Java
+Gate:
 
-Rama prevista: `paper1/fase-2-maquina-estados`
+- baseline `v1.1.0-beta.2` listo para iniciar trazas.
 
-Objetivos:
+#### Fase 7A: exportación de trazas
 
-- ampliar los estados observables;
-- validar transiciones;
-- impedir cambios desde estados terminales;
-- registrar historial de transición.
-
-#### Fase 3: protocolo atómico separado
-
-Rama prevista: `paper1/fase-3-protocolo-atomico`
+Rama prevista: `paper1/fase-7a-exportacion-trazas`
 
 Objetivos:
 
-- extraer la lógica cross-shard de `ShardManager`;
-- separar prepare, validate, apply y rollback;
-- impedir estados parciales observables.
+- definir JSONL versionado;
+- exportar configuración, seed, eventos y estado final;
+- garantizar serialización y hash deterministas;
+- no implementar todavía replay TLC.
 
-#### Fase 4: interleavings deterministas
+#### Fase 7B: función de abstracción
 
-Rama prevista: `paper1/fase-4-interleavings-deterministas`
-
-Objetivos:
-
-- crear reloj lógico y cola de eventos;
-- modelar retraso, duplicación, pérdida y reordenamiento;
-- ejecutar escenarios reproducibles por seed.
-
-#### Fase 5: model checking ejecutable
-
-Rama prevista: `paper1/fase-5-model-checking-ejecutable`
+Rama prevista: `paper1/fase-7b-funcion-abstraccion`
 
 Objetivos:
 
-- hacer TLC obligatorio en el perfil de investigación;
-- ejecutar Alloy automáticamente;
-- fijar versiones de herramientas;
-- generar resultados estructurados.
+- mapear estados Java a estados TLA+;
+- mapear eventos a acciones formales o `Stutter`;
+- conservar identidades de transferencia y shard.
 
-#### Fase 6: modelo multisesión y mutantes
+#### Fase 7C: replay formal con TLC
 
-Rama prevista: `paper1/fase-6-modelo-multisesion-mutantes`
-
-Objetivos:
-
-- representar múltiples transferencias;
-- representar mensajes y fallos;
-- crear mutantes formales;
-- almacenar contraejemplos.
-
-Gate esperado:
-
-- mínimo técnico para preparar un envío Q4.
-
-#### Fase 7: conformidad Java-TLA+
-
-Rama prevista: `paper1/fase-7-conformidad-java-tla`
+Rama prevista: `paper1/fase-7c-replay-tlc`
 
 Objetivos:
 
-- exportar trazas Java;
-- definir una función de abstracción;
-- aceptar trazas válidas;
-- rechazar trazas corruptas.
+- convertir trazas abstractas en restricciones formales;
+- usar TLC como oráculo;
+- aceptar trazas conformantes;
+- localizar transiciones rechazadas.
 
-Gate esperado:
+#### Fase 7D: corpus negativo
 
-- diferenciación principal para un envío Q3.
+Rama prevista: `paper1/fase-7d-trazas-corruptas`
+
+Objetivos:
+
+- generar mutaciones de trazas;
+- rechazar commit después de abort, replay, crédito sin recibo y commit sin quorum;
+- reportar paso, transferencia y causa.
+
+#### Fase 7E: integración de conformidad
+
+Rama prevista: `paper1/fase-7e-integracion-conformidad`
+
+Objetivos:
+
+- agregar comando científico;
+- integrar CI;
+- publicar resultados;
+- cerrar RQ3 como conformidad acotada basada en trazas.
+
+Gate Q3:
+
+- modelo formal relacionado y contrastado con la implementación ejecutable.
 
 #### Fase 8: evaluación y artefacto
-
-Rama prevista: `paper1/fase-8-evaluacion-artefacto`
 
 Objetivos:
 
 - ejecutar la matriz experimental;
 - generar tablas y figuras;
 - congelar configuraciones;
-- crear un comando de reproducción;
 - preparar release y snapshot del envío.
 
-#### Fase 9 opcional: fortalecimiento teórico
+#### Fase 9 opcional
 
-Rama prevista: `paper1/fase-9-prueba-inductiva-liveness`
-
-Objetivos opcionales:
+Objetivos:
 
 - invariantes inductivas;
 - fairness explícita;
-- prueba asistida;
+- liveness temporal;
 - relación de refinamiento más fuerte.
 
 Esta fase no debe retrasar el primer envío Q3 o Q4.

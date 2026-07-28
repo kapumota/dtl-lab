@@ -48,9 +48,10 @@ runAlloy() {
   local kind="$2"
   local spec_path="$3"
   local expectation="$4"
+  local expected_property="$5"
 
   bash "$ROOT_DIR/scripts/formal/run_alloy.sh" \
-    "$run_id" "$kind" "$spec_path" "$expectation"
+    "$run_id" "$kind" "$spec_path" "$expectation" "$expected_property"
 }
 
 requireCommand java
@@ -96,7 +97,7 @@ run_id,kind,model,property,result,expected_outcome,tool_exit_code,states_generat
 CSV
 
 cat > "$RESULT_DIR/alloy_runs.csv" <<'CSV'
-run_id,kind,model,property,command_type,result,expected_outcome,tool_exit_code,solver,scope,counterexamples,solve_duration_ms,elapsed_seconds,max_memory_kb,states_generated,distinct_states,depth,receipt_path
+run_id,kind,model,property,expected_property,command_type,result,expected_outcome,tool_exit_code,solver,scope,counterexamples,solve_duration_ms,elapsed_seconds,max_memory_kb,states_generated,distinct_states,depth,receipt_path
 CSV
 
 cat > "$RESULT_DIR/mutant_matrix.csv" <<'CSV'
@@ -108,14 +109,16 @@ TLC,tla-mutant-timeout-without-release,TimeoutWithoutRelease,EventuallyReleasedA
 TLC,tla-mutant-quorum-bypass,QuorumBypass,QuorumRequired,specs/tla/mutants/QuorumBypass.tla,specs/tla/configs/mutants/quorum-bypass.cfg
 Alloy,alloy-mutant-no-replay,NoReplayProtection,NoReceiptReplay,specs/alloy/mutants/NoReplayProtection.als,
 Alloy,alloy-mutant-credit-before-receipt,CreditBeforeReceipt,DestinationCreditRequiresValidReceipt,specs/alloy/mutants/CreditBeforeReceipt.als,
-Alloy,alloy-mutant-commit-after-abort,CommitAfterAbort,DecisionConsistency,specs/alloy/mutants/CommitAfterAbort.als,
+Alloy,alloy-mutant-commit-after-abort,CommitAfterAbort,TerminalStateIrreversibility,specs/alloy/mutants/CommitAfterAbort.als,
 Alloy,alloy-mutant-timeout-without-release,TimeoutWithoutRelease,EventuallyReleasedAfterTimeout,specs/alloy/mutants/TimeoutWithoutRelease.als,
 Alloy,alloy-mutant-quorum-bypass,QuorumBypass,QuorumRequired,specs/alloy/mutants/QuorumBypass.als,
 CSV
 
 java_version_full="$(java -version 2>&1 | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')"
 python_version="$(python3 --version 2>&1)"
-git_commit="$(git -C "$ROOT_DIR" rev-parse HEAD 2>/dev/null || printf 'desconocido')"
+checked_out_commit="$(git -C "$ROOT_DIR" rev-parse HEAD 2>/dev/null || printf 'desconocido')"
+source_commit="${FORMAL_SOURCE_COMMIT:-$checked_out_commit}"
+source_ref="${FORMAL_SOURCE_REF:-$(git -C "$ROOT_DIR" branch --show-current 2>/dev/null || printf 'desconocida')}"
 
 cat > "$RESULT_DIR/tool_versions.txt" <<EOF_VERSIONS
 TLA_TOOLS_DISTRIBUTION=$TLA_TOOLS_VERSION
@@ -128,7 +131,7 @@ JAVA=$java_version_full
 PYTHON=$python_version
 EOF_VERSIONS
 
-python3 - "$RESULT_DIR/environment.json" "$git_commit" "$java_version_full" "$python_version" <<'PY'
+python3 - "$RESULT_DIR/environment.json" "$source_commit" "$checked_out_commit" "$source_ref" "$java_version_full" "$python_version" <<'PY'
 import json
 import os
 import platform
@@ -141,15 +144,22 @@ data = {
     "schema_version": 1,
     "generated_at_utc": datetime.now(timezone.utc).isoformat(),
     "git_commit": sys.argv[2],
-    "java": sys.argv[3],
-    "python": sys.argv[4],
+    "source_commit": sys.argv[2],
+    "checked_out_commit": sys.argv[3],
+    "source_ref": sys.argv[4],
+    "java": sys.argv[5],
+    "python": sys.argv[6],
     "operating_system": platform.platform(),
     "architecture": platform.machine(),
     "processor": platform.processor(),
     "cpu_count": os.cpu_count(),
     "github_actions": os.environ.get("GITHUB_ACTIONS", "false"),
+    "github_event_name": os.environ.get("GITHUB_EVENT_NAME"),
     "github_run_id": os.environ.get("GITHUB_RUN_ID"),
     "github_sha": os.environ.get("GITHUB_SHA"),
+    "github_ref": os.environ.get("GITHUB_REF"),
+    "github_head_ref": os.environ.get("GITHUB_HEAD_REF"),
+    "github_base_ref": os.environ.get("GITHUB_BASE_REF"),
 }
 output.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 PY
@@ -189,19 +199,19 @@ runTla "tla-mutant-quorum-bypass" "mutant" \
   "$TLA_MUTANT_DIR/QuorumBypass.tla" \
   "$TLA_CONFIG_DIR/mutants/quorum-bypass.cfg" "failure"
 
-runAlloy "alloy-valid-multisession" "valid" "$ALLOY_SPEC" "success"
+runAlloy "alloy-valid-multisession" "valid" "$ALLOY_SPEC" "success" ""
 runAlloy "alloy-mutant-no-replay" "mutant" \
-  "$ALLOY_MUTANT_DIR/NoReplayProtection.als" "failure"
+  "$ALLOY_MUTANT_DIR/NoReplayProtection.als" "failure" "NoReceiptReplay"
 runAlloy "alloy-mutant-credit-before-receipt" "mutant" \
-  "$ALLOY_MUTANT_DIR/CreditBeforeReceipt.als" "failure"
+  "$ALLOY_MUTANT_DIR/CreditBeforeReceipt.als" "failure" "DestinationCreditRequiresValidReceipt"
 runAlloy "alloy-mutant-commit-after-abort" "mutant" \
-  "$ALLOY_MUTANT_DIR/CommitAfterAbort.als" "failure"
+  "$ALLOY_MUTANT_DIR/CommitAfterAbort.als" "failure" "TerminalStateIrreversibility"
 runAlloy "alloy-mutant-timeout-without-release" "mutant" \
-  "$ALLOY_MUTANT_DIR/TimeoutWithoutRelease.als" "failure"
+  "$ALLOY_MUTANT_DIR/TimeoutWithoutRelease.als" "failure" "EventuallyReleasedAfterTimeout"
 runAlloy "alloy-mutant-quorum-bypass" "mutant" \
-  "$ALLOY_MUTANT_DIR/QuorumBypass.als" "failure"
+  "$ALLOY_MUTANT_DIR/QuorumBypass.als" "failure" "QuorumRequired"
 
-python3 - "$RESULT_DIR" "$git_commit" <<'PY'
+python3 - "$RESULT_DIR" "$source_commit" "$checked_out_commit" "$source_ref" <<'PY'
 import json
 import sys
 from datetime import datetime, timezone
@@ -231,6 +241,16 @@ if len(mutant_runs) != 10:
 if not all(item.get("actual_outcome") == "failure" for item in mutant_runs):
     raise SystemExit("Al menos un mutante no produjo una violacion detectable.")
 
+alloy_mutant_runs = [
+    item
+    for item in mutant_runs
+    if item.get("tool") == "Alloy"
+]
+if len(alloy_mutant_runs) != 5:
+    raise SystemExit("No se generaron los cinco reportes de mutantes Alloy esperados.")
+if not all(item.get("target_property_failed") for item in alloy_mutant_runs):
+    raise SystemExit("Al menos un mutante Alloy no violo su propiedad objetivo.")
+
 counterexamples = sorted(
     str(path.relative_to(result_dir))
     for path in (result_dir / "counterexamples").glob("*")
@@ -240,14 +260,32 @@ if len(counterexamples) < 10:
     raise SystemExit("No se almacenaron los diez contraejemplos esperados.")
 
 manifest = {
-    "schema_version": 2,
+    "schema_version": 3,
     "profile": "formal-research",
-    "phase": 6,
+    "phase": "6.1",
+    "release_version": "v1.1.0-beta.2",
     "status": "passed",
     "generated_at_utc": datetime.now(timezone.utc).isoformat(),
     "git_commit": sys.argv[2],
+    "source_commit": sys.argv[2],
+    "checked_out_commit": sys.argv[3],
+    "source_ref": sys.argv[4],
     "bounded_verification": True,
-    "valid_configurations": 7,
+    "run_counts": {
+        "valid_tla_configurations": 6,
+        "valid_alloy_models": 1,
+        "mutant_runs": 10,
+        "total_runs": 17,
+    },
+    "formal_properties": [
+        "NoReceiptReplay",
+        "DestinationCreditRequiresValidReceipt",
+        "DecisionConsistency",
+        "NoValueLossAtTermination",
+        "TerminalStateIrreversibility",
+        "EventuallyReleasedAfterTimeout",
+        "QuorumRequired",
+    ],
     "scientific_mutants": {
         "total": 10,
         "tla": 5,

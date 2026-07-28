@@ -18,7 +18,7 @@ requireFile() {
 requireText() {
   local path="$1"
   local text="$2"
-  if ! grep -Fq "$text" "$path"; then
+  if ! grep -Fq -- "$text" "$path"; then
     echo "No se encontro '$text' en $path" >&2
     exit 1
   fi
@@ -42,6 +42,7 @@ requireFile "$VERSION_FILE"
 requireFile "$ROOT_DIR/.github/workflows/formal-verification.yml"
 requireFile "$ROOT_DIR/results/formal/README.md"
 requireFile "$ROOT_DIR/docs/research/paper1/MODELO_MULTISESION_MUTANTES.md"
+requireFile "$ROOT_DIR/docs/research/paper1/CIERRE_CIENTIFICO_FASE_6.md"
 requireText "$ROOT_DIR/Makefile" "formal-research:"
 
 for script in \
@@ -93,6 +94,8 @@ for property in \
   NoReceiptReplay \
   DestinationCreditRequiresValidReceipt \
   DecisionConsistency \
+  NoValueLossAtTermination \
+  TerminalStateIrreversibility \
   EventuallyReleasedAfterTimeout \
   QuorumRequired; do
   requireText "$TLA_SPEC" "$property"
@@ -102,6 +105,7 @@ done
 
 for variable in \
   status \
+  terminalStatus \
   sourceShard \
   targetShard \
   locked \
@@ -126,6 +130,9 @@ requireText "$ALLOY_SPEC" "open util/ordering[State]"
 requireText "$VERSION_FILE" "TLA_TOOLS_VERSION="
 requireText "$VERSION_FILE" "ALLOY_VERSION="
 requireText "$VERSION_FILE" "JAVA_REQUIRED_MAJOR="
+requireText "$ROOT_DIR/scripts/formal/parse_alloy_results.py" "--expected-property"
+requireText "$ROOT_DIR/scripts/formal/run_alloy.sh" "EXPECTED_PROPERTY"
+requireText "$ROOT_DIR/scripts/formal/run_formal_research.sh" "target_property_failed"
 
 if LC_ALL=C grep -RInE $'\xE2\x80\x93|\xE2\x80\x94' "$ROOT_DIR/scripts/formal" >/dev/null 2>&1; then
   echo "Los scripts formales contienen guiones tipograficos no permitidos." >&2

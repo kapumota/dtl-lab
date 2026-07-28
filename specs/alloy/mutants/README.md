@@ -2,12 +2,16 @@
 
 #### Propósito
 
-Cada modelo introduce una transición defectuosa y configura `expect 1` únicamente para la propiedad objetivo.
+Cada modelo introduce una transición defectuosa. El pipeline registra una propiedad objetivo y exige un contraejemplo para esa propiedad.
 
 #### Catálogo
 
-- `NoReplayProtection.als`;
-- `CreditBeforeReceipt.als`;
-- `CommitAfterAbort.als`;
-- `TimeoutWithoutRelease.als`;
-- `QuorumBypass.als`.
+| Mutante | Propiedad objetivo |
+|---|---|
+| `NoReplayProtection.als` | `NoReceiptReplay` |
+| `CreditBeforeReceipt.als` | `DestinationCreditRequiresValidReceipt` |
+| `CommitAfterAbort.als` | `TerminalStateIrreversibility` |
+| `TimeoutWithoutRelease.als` | `EventuallyReleasedAfterTimeout` |
+| `QuorumBypass.als` | `QuorumRequired` |
+
+Un modelo puede producir contraejemplos adicionales. Esas violaciones se registran, pero no reemplazan la propiedad objetivo.

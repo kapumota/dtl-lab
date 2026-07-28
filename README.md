@@ -2,7 +2,8 @@
 
 [![CI](https://github.com/kapumota/dtl-lab/actions/workflows/java-ci.yml/badge.svg?branch=main)](https://github.com/kapumota/dtl-lab/actions/workflows/java-ci.yml)
 [![validation](https://github.com/kapumota/dtl-lab/actions/workflows/validation.yml/badge.svg?branch=main)](https://github.com/kapumota/dtl-lab/actions/workflows/validation.yml)
-![version](https://img.shields.io/badge/version-v1.0.1-orange)
+[![formal-verification](https://github.com/kapumota/dtl-lab/actions/workflows/formal-verification.yml/badge.svg?branch=main)](https://github.com/kapumota/dtl-lab/actions/workflows/formal-verification.yml)
+![version](https://img.shields.io/badge/version-v1.1.0--beta.2-orange)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENCE)
 ![Java](https://img.shields.io/badge/Java-17%2B-blue?logo=openjdk)
 ![tests](https://img.shields.io/badge/tests-custom%20runner-brightgreen)
@@ -14,12 +15,16 @@
 
 El proyecto está diseñado como un **simulador modular**, no como una criptomoneda de producción. Su objetivo es mostrar de forma ejecutable cómo interactúan los componentes principales de una infraestructura blockchain moderna: validación de transacciones, construcción de bloques, estrategias de mempool, ordenamiento económico de transacciones, mercados AMM simulados, consenso distribuido, ataques de red, sharding, invariantes runtime y especificaciones formales.
 
-DLT-Lab llega a una versión `1.0.0` después de cuatro fases principales:
+DLT-Lab conserva sus cuatro fases funcionales históricas y desarrolla el Paper 1 como una línea de investigación separada sobre commit cross-shard.
 
-* Fase 1: realismo económico de mempool.
-* Fase 2: DeFi y MEV con AMM constante.
-* Fase 3: resiliencia de red y consenso adversarial.
-* Fase 4: verificación formal de commit cross-shard.
+El baseline científico `v1.1.0-beta.2` incluye:
+
+* máquina de estados Java y protocolo atómico con rollback;
+* simulación determinista de interleavings y fallos de red;
+* model checking multisesión con TLA+ y Alloy;
+* diez mutantes científicos con contraejemplos almacenados;
+* propiedades explícitas de conservación de valor e irreversibilidad terminal;
+* resultados estructurados con procedencia de commit y contexto de CI.
 
 
 #### Validación reproducible del software
@@ -56,7 +61,7 @@ DLT-Lab integra actualmente:
 * Consenso ponderado por reputación y evidencia explícita de equivocación.
 * Sharding con recibos cross-shard, quorum, timeout y protección contra replay.
 * Seguridad runtime con ataques e invariantes ejecutables.
-* Especificaciones TLA+ y Alloy para commit cross-shard.
+* Especificaciones TLA+ y Alloy multisesión para commit cross-shard.
 * Reportes CSV, TXT, DOT y visualizaciones ASCII.
 
 #### Arquitectura general del sistema

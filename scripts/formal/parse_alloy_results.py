@@ -72,9 +72,11 @@ def main() -> int:
     parser.add_argument("--time-log", required=True, type=Path)
     parser.add_argument("--exit-code", required=True, type=int)
     parser.add_argument("--expect", choices=("success", "failure"), required=True)
+    parser.add_argument("--expected-property", default="")
     parser.add_argument("--rows", required=True, type=Path)
     parser.add_argument("--summary", required=True, type=Path)
     args = parser.parse_args()
+    expected_property = args.expected_property.strip()
 
     stdout = args.stdout.read_text(encoding="utf-8", errors="replace") if args.stdout.exists() else ""
     stderr = args.stderr.read_text(encoding="utf-8", errors="replace") if args.stderr.exists() else ""
@@ -128,6 +130,7 @@ def main() -> int:
                     "kind": args.kind,
                     "model": args.spec.name,
                     "property": label,
+                    "expected_property": expected_property,
                     "command_type": command_type,
                     "result": result,
                     "expected_outcome": args.expect,
@@ -158,6 +161,7 @@ def main() -> int:
                     "kind": args.kind,
                     "model": args.spec.name,
                     "property": label,
+                    "expected_property": expected_property,
                     "command_type": "check",
                     "result": "FAIL" if is_violated else "NOT_EVALUATED",
                     "expected_outcome": args.expect,
@@ -185,10 +189,35 @@ def main() -> int:
             and expectation_violations
         )
     )
+    violated_properties = list(
+        dict.fromkeys(
+            [
+                str(row["property"])
+                for row in rows
+                if row.get("result") == "FAIL"
+            ]
+            + expectation_violations
+        )
+    )
+    target_property_failed = bool(
+        expected_property and expected_property in violated_properties
+    )
+    unexpected_violated_properties = [
+        property_name
+        for property_name in violated_properties
+        if property_name != expected_property
+    ]
     actual_success = bool(
         args.exit_code == 0 and rows and all(row["result"] == "PASS" for row in rows)
     )
-    expectation_met = bool(actual_success) if args.expect == "success" else not bool(actual_success)
+    if args.expect == "success":
+        expectation_met = actual_success
+    else:
+        expectation_met = bool(
+            report_present
+            and expected_property
+            and target_property_failed
+        )
     metrics_complete = elapsed_seconds is not None and max_memory_kb is not None
 
     fieldnames = list(rows[0].keys()) if rows else [
@@ -196,6 +225,7 @@ def main() -> int:
         "kind",
         "model",
         "property",
+        "expected_property",
         "command_type",
         "result",
         "expected_outcome",
@@ -223,6 +253,7 @@ def main() -> int:
         "tool": "Alloy",
         "model": str(args.spec),
         "expected_outcome": args.expect,
+        "expected_property": expected_property,
         "actual_outcome": "success" if actual_success else "failure",
         "expectation_met": expectation_met,
         "report_present": report_present,
@@ -230,7 +261,9 @@ def main() -> int:
         "metrics_complete": metrics_complete,
         "tool_exit_code": args.exit_code,
         "solver": solver,
-        "violated_properties": expectation_violations,
+        "violated_properties": violated_properties,
+        "target_property_failed": target_property_failed,
+        "unexpected_violated_properties": unexpected_violated_properties,
         "elapsed_seconds": elapsed_seconds,
         "max_memory_kb": max_memory_kb,
         "stdout_path": str(args.stdout),
@@ -244,6 +277,15 @@ def main() -> int:
         return 1
     if not metrics_complete:
         print("El reporte de Alloy no contiene tiempo y memoria.", file=sys.stderr)
+        return 1
+    if args.expect == "failure" and not expected_property:
+        print("Falta declarar la propiedad objetivo del mutante Alloy.", file=sys.stderr)
+        return 1
+    if args.expect == "failure" and not target_property_failed:
+        print(
+            f"La propiedad objetivo {expected_property} no produjo un contraejemplo.",
+            file=sys.stderr,
+        )
         return 1
     if not expectation_met:
         print("El resultado de Alloy no coincide con el resultado esperado.", file=sys.stderr)

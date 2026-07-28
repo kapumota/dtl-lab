@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -ne 4 ]]; then
-  echo "Uso: run_alloy.sh <run-id> <tipo> <modelo> <success|failure>" >&2
+if [[ $# -ne 5 ]]; then
+  echo "Uso: run_alloy.sh <run-id> <tipo> <modelo> <success|failure> <propiedad-objetivo>" >&2
   exit 2
 fi
 
@@ -10,6 +10,7 @@ RUN_ID="$1"
 KIND="$2"
 SPEC_PATH="$3"
 EXPECTATION="$4"
+EXPECTED_PROPERTY="$5"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # shellcheck source=tool_versions.env
@@ -67,6 +68,7 @@ python3 "$ROOT_DIR/scripts/formal/parse_alloy_results.py" \
   --time-log "$TIME_PATH" \
   --exit-code "$exit_code" \
   --expect "$EXPECTATION" \
+  --expected-property "$EXPECTED_PROPERTY" \
   --rows "$ROWS_PATH" \
   --summary "$SUMMARY_PATH"
 
