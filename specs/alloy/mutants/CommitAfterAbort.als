@@ -1,4 +1,4 @@
-module CrossShardCommit
+module mutants/CommitAfterAbort
 
 // Modelo multisesion acotado del commit cross-shard de DLT-Lab.
 // Los estados ordenados representan una traza finita del protocolo.
@@ -166,6 +166,18 @@ pred stutter[s, nextState: State] {
   nextState.votes = s.votes
 }
 
+pred commitAfterAbort[s, nextState: State, t: Transfer] {
+  s.status[t] = Aborted
+
+  nextState.status = s.status ++ t->Committed
+  nextState.locked = s.locked
+  nextState.receiptUseCount = s.receiptUseCount
+  nextState.destinationCredit = s.destinationCredit
+  nextState.fundsReleased = s.fundsReleased
+  nextState.messages = s.messages
+  nextState.votes = s.votes ++ t->Validator
+}
+
 fact Trace {
   init[first]
   all s: State - last |
@@ -176,6 +188,7 @@ fact Trace {
       or castVote[s, nextState, t, v]
       or commitTransfer[s, nextState, t]
       or timeoutTransfer[s, nextState, t]
+      or commitAfterAbort[s, nextState, t]
       or stutter[s, nextState]
 }
 
@@ -206,6 +219,6 @@ assert QuorumRequired {
 }
 check NoReceiptReplay for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check DestinationCreditRequiresValidReceipt for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
-check DecisionConsistency for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
+check DecisionConsistency for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 1
 check EventuallyReleasedAfterTimeout for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check QuorumRequired for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0

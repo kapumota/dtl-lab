@@ -20,6 +20,7 @@ TOOLS_ROOT="${FORMAL_TOOLS_ROOT:-$ROOT_DIR/$FORMAL_TOOLS_DIR}"
 TLA_JAR="${TLA_TOOLS_JAR:-$TOOLS_ROOT/tla/$TLA_TOOLS_VERSION/tla2tools.jar}"
 RESULT_DIR="${FORMAL_RESULTS_DIR:-$ROOT_DIR/results/formal}"
 LOG_DIR="$RESULT_DIR/logs"
+COUNTEREXAMPLE_DIR="$RESULT_DIR/counterexamples"
 STDOUT_PATH="$LOG_DIR/$RUN_ID.tlc.stdout.txt"
 STDERR_PATH="$LOG_DIR/$RUN_ID.tlc.stderr.txt"
 TIME_PATH="$LOG_DIR/$RUN_ID.tlc.time.txt"
@@ -40,7 +41,7 @@ if [[ ! -x /usr/bin/time ]]; then
   exit 1
 fi
 
-mkdir -p "$LOG_DIR" "$META_DIR"
+mkdir -p "$LOG_DIR" "$META_DIR" "$COUNTEREXAMPLE_DIR"
 SPEC_DIR="$(cd "$(dirname "$SPEC_PATH")" && pwd)"
 SPEC_NAME="$(basename "$SPEC_PATH")"
 CFG_ABS="$(cd "$(dirname "$CFG_PATH")" && pwd)/$(basename "$CFG_PATH")"
@@ -72,3 +73,24 @@ python3 "$ROOT_DIR/scripts/formal/parse_tlc_results.py" \
   --summary "$SUMMARY_PATH"
 
 tail -n +2 "$ROWS_PATH" >> "$RESULT_DIR/tla_runs.csv"
+
+if [[ "$EXPECTATION" == "failure" ]]; then
+  counterexample_path="$COUNTEREXAMPLE_DIR/$RUN_ID.tlc.txt"
+  {
+    echo "Ejecucion TLC: $RUN_ID"
+    echo "Especificacion: $SPEC_PATH"
+    echo "Configuracion: $CFG_PATH"
+    echo
+    cat "$STDOUT_PATH"
+    if [[ -s "$STDERR_PATH" ]]; then
+      echo
+      echo "Salida de error"
+      cat "$STDERR_PATH"
+    fi
+  } > "$counterexample_path"
+
+  if [[ ! -s "$counterexample_path" ]]; then
+    echo "No se almaceno el contraejemplo TLC de $RUN_ID." >&2
+    exit 1
+  fi
+fi

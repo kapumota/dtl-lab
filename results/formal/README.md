@@ -13,9 +13,15 @@ tool_versions.txt
 environment.json
 tla_runs.csv
 alloy_runs.csv
+mutant_matrix.csv
 execution_manifest.json
 logs/
+counterexamples/
 ```
+
+#### Contraejemplos
+
+Cada mutante TLA+ conserva la salida completa de TLC. Cada mutante Alloy conserva al menos una solución JSON producida por el solver.
 
 #### Generación
 

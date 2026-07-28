@@ -10,8 +10,7 @@ TLA_JAR="${TLA_TOOLS_JAR:-$TOOLS_ROOT/tla/$TLA_TOOLS_VERSION/tla2tools.jar}"
 ALLOY_JAR="${ALLOY_JAR:-$TOOLS_ROOT/alloy/$ALLOY_VERSION/org.alloytools.alloy.dist-$ALLOY_VERSION.jar}"
 RESULT_DIR="${FORMAL_RESULTS_DIR:-$ROOT_DIR/results/formal}"
 LOG_DIR="$RESULT_DIR/logs"
-TEMP_DIR="$(mktemp -d)"
-trap 'rm -rf "$TEMP_DIR"' EXIT
+COUNTEREXAMPLE_DIR="$RESULT_DIR/counterexamples"
 
 calculateSha256() {
   local path="$1"
@@ -31,6 +30,27 @@ requireCommand() {
     echo "Falta el comando obligatorio: $command_name" >&2
     exit 1
   fi
+}
+
+runTla() {
+  local run_id="$1"
+  local kind="$2"
+  local spec_path="$3"
+  local config_path="$4"
+  local expectation="$5"
+
+  bash "$ROOT_DIR/scripts/formal/run_tlc.sh" \
+    "$run_id" "$kind" "$spec_path" "$config_path" "$expectation"
+}
+
+runAlloy() {
+  local run_id="$1"
+  local kind="$2"
+  local spec_path="$3"
+  local expectation="$4"
+
+  bash "$ROOT_DIR/scripts/formal/run_alloy.sh" \
+    "$run_id" "$kind" "$spec_path" "$expectation"
 }
 
 requireCommand java
@@ -69,7 +89,7 @@ fi
 
 mkdir -p "$RESULT_DIR"
 find "$RESULT_DIR" -mindepth 1 -maxdepth 1 ! -name README.md -exec rm -rf {} +
-mkdir -p "$LOG_DIR"
+mkdir -p "$LOG_DIR" "$COUNTEREXAMPLE_DIR"
 
 cat > "$RESULT_DIR/tla_runs.csv" <<'CSV'
 run_id,kind,model,property,result,expected_outcome,tool_exit_code,states_generated,distinct_states,depth,elapsed_seconds,max_memory_kb,tool_version,stdout_path,stderr_path
@@ -77,6 +97,20 @@ CSV
 
 cat > "$RESULT_DIR/alloy_runs.csv" <<'CSV'
 run_id,kind,model,property,command_type,result,expected_outcome,tool_exit_code,solver,scope,counterexamples,solve_duration_ms,elapsed_seconds,max_memory_kb,states_generated,distinct_states,depth,receipt_path
+CSV
+
+cat > "$RESULT_DIR/mutant_matrix.csv" <<'CSV'
+tool,run_id,mutant,property,spec,config
+TLC,tla-mutant-no-replay,NoReplayProtection,NoReceiptReplay,specs/tla/mutants/NoReplayProtection.tla,specs/tla/configs/mutants/no-replay-protection.cfg
+TLC,tla-mutant-credit-before-receipt,CreditBeforeReceipt,DestinationCreditRequiresValidReceipt,specs/tla/mutants/CreditBeforeReceipt.tla,specs/tla/configs/mutants/credit-before-receipt.cfg
+TLC,tla-mutant-commit-after-abort,CommitAfterAbort,DecisionConsistency,specs/tla/mutants/CommitAfterAbort.tla,specs/tla/configs/mutants/commit-after-abort.cfg
+TLC,tla-mutant-timeout-without-release,TimeoutWithoutRelease,EventuallyReleasedAfterTimeout,specs/tla/mutants/TimeoutWithoutRelease.tla,specs/tla/configs/mutants/timeout-without-release.cfg
+TLC,tla-mutant-quorum-bypass,QuorumBypass,QuorumRequired,specs/tla/mutants/QuorumBypass.tla,specs/tla/configs/mutants/quorum-bypass.cfg
+Alloy,alloy-mutant-no-replay,NoReplayProtection,NoReceiptReplay,specs/alloy/mutants/NoReplayProtection.als,
+Alloy,alloy-mutant-credit-before-receipt,CreditBeforeReceipt,DestinationCreditRequiresValidReceipt,specs/alloy/mutants/CreditBeforeReceipt.als,
+Alloy,alloy-mutant-commit-after-abort,CommitAfterAbort,DecisionConsistency,specs/alloy/mutants/CommitAfterAbort.als,
+Alloy,alloy-mutant-timeout-without-release,TimeoutWithoutRelease,EventuallyReleasedAfterTimeout,specs/alloy/mutants/TimeoutWithoutRelease.als,
+Alloy,alloy-mutant-quorum-bypass,QuorumBypass,QuorumRequired,specs/alloy/mutants/QuorumBypass.als,
 CSV
 
 java_version_full="$(java -version 2>&1 | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')"
@@ -121,79 +155,51 @@ output.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encodin
 PY
 
 TLA_SPEC="$ROOT_DIR/specs/tla/CrossShardCommit.tla"
-TLA_CFG="$ROOT_DIR/specs/tla/CrossShardCommit.cfg"
+TLA_CONFIG_DIR="$ROOT_DIR/specs/tla/configs"
+TLA_MUTANT_DIR="$ROOT_DIR/specs/tla/mutants"
 ALLOY_SPEC="$ROOT_DIR/specs/alloy/CrossShardCommit.als"
+ALLOY_MUTANT_DIR="$ROOT_DIR/specs/alloy/mutants"
 
-bash "$ROOT_DIR/scripts/formal/run_tlc.sh" \
-  "tla-valid-cross-shard" "valid" "$TLA_SPEC" "$TLA_CFG" "success"
+runTla "tla-valid-2shards-1transfer" "valid" "$TLA_SPEC" \
+  "$TLA_CONFIG_DIR/2shards-1transfer.cfg" "success"
+runTla "tla-valid-2shards-2transfers" "valid" "$TLA_SPEC" \
+  "$TLA_CONFIG_DIR/2shards-2transfers.cfg" "success"
+runTla "tla-valid-3shards-3transfers" "valid" "$TLA_SPEC" \
+  "$TLA_CONFIG_DIR/3shards-3transfers.cfg" "success"
+runTla "tla-valid-duplicate-receipt" "valid" "$TLA_SPEC" \
+  "$TLA_CONFIG_DIR/duplicate-receipt.cfg" "success"
+runTla "tla-valid-delayed-message" "valid" "$TLA_SPEC" \
+  "$TLA_CONFIG_DIR/delayed-message.cfg" "success"
+runTla "tla-valid-timeout-race" "valid" "$TLA_SPEC" \
+  "$TLA_CONFIG_DIR/timeout-race.cfg" "success"
 
-bash "$ROOT_DIR/scripts/formal/run_alloy.sh" \
-  "alloy-valid-cross-shard" "valid" "$ALLOY_SPEC" "success"
+runTla "tla-mutant-no-replay" "mutant" \
+  "$TLA_MUTANT_DIR/NoReplayProtection.tla" \
+  "$TLA_CONFIG_DIR/mutants/no-replay-protection.cfg" "failure"
+runTla "tla-mutant-credit-before-receipt" "mutant" \
+  "$TLA_MUTANT_DIR/CreditBeforeReceipt.tla" \
+  "$TLA_CONFIG_DIR/mutants/credit-before-receipt.cfg" "failure"
+runTla "tla-mutant-commit-after-abort" "mutant" \
+  "$TLA_MUTANT_DIR/CommitAfterAbort.tla" \
+  "$TLA_CONFIG_DIR/mutants/commit-after-abort.cfg" "failure"
+runTla "tla-mutant-timeout-without-release" "mutant" \
+  "$TLA_MUTANT_DIR/TimeoutWithoutRelease.tla" \
+  "$TLA_CONFIG_DIR/mutants/timeout-without-release.cfg" "failure"
+runTla "tla-mutant-quorum-bypass" "mutant" \
+  "$TLA_MUTANT_DIR/QuorumBypass.tla" \
+  "$TLA_CONFIG_DIR/mutants/quorum-bypass.cfg" "failure"
 
-mkdir -p "$TEMP_DIR/tla" "$TEMP_DIR/alloy"
-cp "$TLA_SPEC" "$TEMP_DIR/tla/CrossShardCommit.tla"
-cp "$TLA_CFG" "$TEMP_DIR/tla/CrossShardCommit.cfg"
-cp "$ALLOY_SPEC" "$TEMP_DIR/alloy/CrossShardCommit.als"
-
-python3 - "$TEMP_DIR/tla/CrossShardCommit.tla" <<'PY'
-from pathlib import Path
-import re
-import sys
-
-path = Path(sys.argv[1])
-text = path.read_text(encoding="utf-8")
-updated, count = re.subn(
-    r"AtomicCommit\s*==\s*~\(committed\s*/\\\s*aborted\)",
-    "AtomicCommit == FALSE",
-    text,
-    count=1,
-)
-if count != 1:
-    raise SystemExit("No se pudo generar el control negativo de TLC.")
-path.write_text(updated, encoding="utf-8")
-PY
-
-python3 - "$TEMP_DIR/alloy/CrossShardCommit.als" <<'PY'
-from pathlib import Path
-import re
-import sys
-
-path = Path(sys.argv[1])
-text = path.read_text(encoding="utf-8")
-
-updated, assertion_count = re.subn(
-    r"assert\s+AtomicCommit\s*\{.*?\n\}",
-    "assert AtomicCommit {\n  some none\n}",
-    text,
-    count=1,
-    flags=re.DOTALL,
-)
-if assertion_count != 1:
-    raise SystemExit(
-        "No se pudo generar el control negativo de Alloy."
-    )
-
-updated, check_count = re.subn(
-    r"(?m)^(\s*check\s+AtomicCommit\b.*?\bexpect\s+)0(\s*)$",
-    r"\g<1>1\2",
-    updated,
-    count=1,
-)
-if check_count != 1:
-    raise SystemExit(
-        "No se pudo fijar expect 1 para AtomicCommit."
-    )
-
-path.write_text(updated, encoding="utf-8")
-PY
-
-bash "$ROOT_DIR/scripts/formal/run_tlc.sh" \
-  "tla-negative-control" "negative-control" \
-  "$TEMP_DIR/tla/CrossShardCommit.tla" "$TEMP_DIR/tla/CrossShardCommit.cfg" "failure"
-
-bash "$ROOT_DIR/scripts/formal/run_alloy.sh" \
-  "alloy-negative-control" "negative-control" \
-  "$TEMP_DIR/alloy/CrossShardCommit.als" "failure"
+runAlloy "alloy-valid-multisession" "valid" "$ALLOY_SPEC" "success"
+runAlloy "alloy-mutant-no-replay" "mutant" \
+  "$ALLOY_MUTANT_DIR/NoReplayProtection.als" "failure"
+runAlloy "alloy-mutant-credit-before-receipt" "mutant" \
+  "$ALLOY_MUTANT_DIR/CreditBeforeReceipt.als" "failure"
+runAlloy "alloy-mutant-commit-after-abort" "mutant" \
+  "$ALLOY_MUTANT_DIR/CommitAfterAbort.als" "failure"
+runAlloy "alloy-mutant-timeout-without-release" "mutant" \
+  "$ALLOY_MUTANT_DIR/TimeoutWithoutRelease.als" "failure"
+runAlloy "alloy-mutant-quorum-bypass" "mutant" \
+  "$ALLOY_MUTANT_DIR/QuorumBypass.als" "failure"
 
 python3 - "$RESULT_DIR" "$git_commit" <<'PY'
 import json
@@ -202,26 +208,51 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 result_dir = Path(sys.argv[1])
-summaries = []
-for path in sorted((result_dir / "logs").glob("*.summary.json")):
-    summaries.append(json.loads(path.read_text(encoding="utf-8")))
+summaries = [
+    json.loads(path.read_text(encoding="utf-8"))
+    for path in sorted((result_dir / "logs").glob("*.summary.json"))
+]
 
-if len(summaries) != 4:
-    raise SystemExit("No se generaron los cuatro reportes formales esperados.")
+expected_reports = 17
+if len(summaries) != expected_reports:
+    raise SystemExit(
+        f"Se esperaban {expected_reports} reportes formales y se generaron {len(summaries)}."
+    )
 if not all(item.get("expectation_met") for item in summaries):
     raise SystemExit("Al menos una ejecucion formal no cumplio su expectativa.")
 if not all(item.get("report_present") for item in summaries):
     raise SystemExit("Al menos una herramienta no genero reporte.")
+if not all(item.get("metrics_complete") for item in summaries):
+    raise SystemExit("Al menos una ejecucion formal carece de metricas obligatorias.")
+
+mutant_runs = [item for item in summaries if item.get("kind") == "mutant"]
+if len(mutant_runs) != 10:
+    raise SystemExit("No se generaron los diez reportes de mutantes esperados.")
+if not all(item.get("actual_outcome") == "failure" for item in mutant_runs):
+    raise SystemExit("Al menos un mutante no produjo una violacion detectable.")
+
+counterexamples = sorted(
+    str(path.relative_to(result_dir))
+    for path in (result_dir / "counterexamples").glob("*")
+    if path.is_file()
+)
+if len(counterexamples) < 10:
+    raise SystemExit("No se almacenaron los diez contraejemplos esperados.")
 
 manifest = {
-    "schema_version": 1,
+    "schema_version": 2,
     "profile": "formal-research",
+    "phase": 6,
     "status": "passed",
     "generated_at_utc": datetime.now(timezone.utc).isoformat(),
     "git_commit": sys.argv[2],
-    "negative_controls": {
-        "scope": "controles temporales de CI",
-        "scientific_mutants_deferred_to": "Fase 6",
+    "bounded_verification": True,
+    "valid_configurations": 7,
+    "scientific_mutants": {
+        "total": 10,
+        "tla": 5,
+        "alloy": 5,
+        "counterexamples": counterexamples,
     },
     "runs": summaries,
     "outputs": [
@@ -229,8 +260,10 @@ manifest = {
         "environment.json",
         "tla_runs.csv",
         "alloy_runs.csv",
+        "mutant_matrix.csv",
         "execution_manifest.json",
         "logs/",
+        "counterexamples/",
     ],
 }
 (result_dir / "execution_manifest.json").write_text(
@@ -244,6 +277,7 @@ for output in \
   environment.json \
   tla_runs.csv \
   alloy_runs.csv \
+  mutant_matrix.csv \
   execution_manifest.json; do
   if [[ ! -s "$RESULT_DIR/$output" ]]; then
     echo "No se genero el resultado obligatorio: $RESULT_DIR/$output" >&2
@@ -251,13 +285,13 @@ for output in \
   fi
 done
 
-if ! grep -q "negative-control" "$RESULT_DIR/tla_runs.csv"; then
-  echo "No se registro el control negativo de TLC." >&2
+if ! grep -q ",mutant," "$RESULT_DIR/tla_runs.csv"; then
+  echo "No se registraron mutantes TLC." >&2
   exit 1
 fi
-if ! grep -q "negative-control" "$RESULT_DIR/alloy_runs.csv"; then
-  echo "No se registro el control negativo de Alloy." >&2
+if ! grep -q ",mutant," "$RESULT_DIR/alloy_runs.csv"; then
+  echo "No se registraron mutantes Alloy." >&2
   exit 1
 fi
 
-echo "Model checking cientifico completado correctamente."
+echo "Model checking multisesion y mutantes completado correctamente."

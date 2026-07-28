@@ -2,23 +2,40 @@
 
 #### Propósito
 
-DLT-Lab combina especificaciones TLA+ y Alloy para estudiar propiedades del commit cross-shard. La verificación formal complementa las pruebas Java, los escenarios deterministas y las invariantes runtime.
+DLT-Lab combina TLA+ y Alloy para estudiar un protocolo cross-shard concurrente y acotado. La verificación formal complementa las pruebas Java, los escenarios deterministas y las invariantes runtime.
 
-#### Modelos
+#### Modelos TLA+
 
 ```text
 specs/tla/CrossShardCommit.tla
 specs/tla/CrossShardCommit.cfg
-specs/alloy/CrossShardCommit.als
+specs/tla/configs/
+specs/tla/mutants/
 ```
 
-Los modelos comprueban:
+El modelo representa varias transferencias mediante funciones indexadas por sesión. Las variables principales son `status`, `sourceShard`, `targetShard`, `locked`, `receiptOwner`, `receiptUseCount`, `destinationCredit`, `fundsReleased`, `messages` y `votes`.
 
-- `NoDoubleMint`;
-- `NoValueLoss`;
+Las configuraciones válidas cubren una, dos y tres transferencias, recibos duplicados, mensajes retrasados y carreras de timeout.
+
+#### Modelos Alloy
+
+```text
+specs/alloy/CrossShardCommit.als
+specs/alloy/scopes/
+specs/alloy/mutants/
+```
+
+Alloy usa `open util/ordering[State]` para representar una secuencia finita de estados. El modelo incluye `State`, `Transfer`, `Receipt`, `Shard`, `Validator` y `Message`.
+
+#### Propiedades
+
 - `NoReceiptReplay`;
-- `AtomicCommit`;
-- `TimeoutReleasesFunds`.
+- `DestinationCreditRequiresValidReceipt`;
+- `DecisionConsistency`;
+- `EventuallyReleasedAfterTimeout`;
+- `QuorumRequired`.
+
+`EventuallyReleasedAfterTimeout` se interpreta en esta fase como una garantía acotada de que todo estado `Aborted` observado ya liberó los fondos. La vivacidad no acotada y los supuestos de fairness permanecen fuera del alcance.
 
 #### Perfil educativo
 
@@ -26,34 +43,36 @@ Los modelos comprueban:
 make validate
 ```
 
-Este perfil valida la estructura del repositorio y no requiere descargar herramientas formales. La comprobación se ejecuta mediante:
-
-```bash
-bash scripts/run_formal_checks.sh
-```
-
-El resultado de este perfil no debe describirse como model checking ejecutado.
+Este perfil valida estructura y convenciones sin descargar herramientas formales. Su resultado no debe describirse como model checking ejecutado.
 
 #### Perfil científico
 
 ```bash
+bash scripts/formal/install_tla_tools.sh
+bash scripts/formal/install_alloy.sh
 make formal-research
 ```
 
-Este perfil requiere TLC y Alloy. Falla si falta una herramienta, si no puede identificarse su versión, si una propiedad válida falla o si no se genera un reporte estructurado.
+El perfil científico ejecuta:
 
-Instalación local:
+- seis configuraciones válidas TLA+;
+- cinco mutantes TLA+;
+- un modelo válido Alloy;
+- cinco mutantes Alloy.
 
-```bash
-bash scripts/formal/install_tla_tools.sh
-bash scripts/formal/install_alloy.sh
-```
+El perfil falla si una configuración válida produce una violación, si un mutante no produce la violación esperada, si falta un reporte o si no se almacena el contraejemplo.
 
-Las versiones fijadas se encuentran en:
+#### Mutantes científicos
 
-```text
-scripts/formal/tool_versions.env
-```
+| Mutante | Propiedad esperada |
+|---|---|
+| `NoReplayProtection` | `NoReceiptReplay` |
+| `CreditBeforeReceipt` | `DestinationCreditRequiresValidReceipt` |
+| `CommitAfterAbort` | `DecisionConsistency` |
+| `TimeoutWithoutRelease` | `EventuallyReleasedAfterTimeout` |
+| `QuorumBypass` | `QuorumRequired` |
+
+Los mutantes están versionados en TLA+ y Alloy. Ya no se generan copias temporales mediante sustituciones de texto.
 
 #### Resultados estructurados
 
@@ -63,38 +82,22 @@ results/formal/
 ├── environment.json
 ├── tla_runs.csv
 ├── alloy_runs.csv
+├── mutant_matrix.csv
 ├── execution_manifest.json
-└── logs/
+├── logs/
+└── counterexamples/
 ```
 
-TLC registra estados generados, estados distintos, profundidad, tiempo, memoria y resultado de cada invariante.
-
-Alloy registra solver, alcance, contraejemplos, duración, tiempo total, memoria y resultado de cada assertion. Las métricas de estados y profundidad no aplican directamente a Alloy y quedan vacías en su CSV.
+TLC registra estados generados, estados distintos, profundidad, tiempo, memoria y propiedad violada. Alloy registra solver, alcance, contraejemplos, duración, tiempo total y memoria.
 
 #### Integración continua
 
-El workflow científico es:
-
-```text
-.github/workflows/formal-verification.yml
-```
-
-El workflow instala versiones concretas, ejecuta modelos válidos, ejecuta controles negativos temporales, valida los reportes y publica `results/formal/` como artefacto.
-
-La validación general existente continúa publicando `reports/`. Los dos workflows tienen responsabilidades distintas.
-
-#### Controles negativos
-
-La Fase 5 genera copias temporales defectuosas de `AtomicCommit` para confirmar que TLC y Alloy rechacen una propiedad inválida.
-
-Estos controles no son el catálogo de mutantes científicos. El modelo multisesión, los operadores de mutación y los contraejemplos versionados corresponden a la Fase 6.
+El workflow `.github/workflows/formal-verification.yml` instala las versiones fijadas, ejecuta la matriz completa y publica `results/formal/` como artefacto.
 
 #### Relación con Java
 
-TLA+ y Alloy modelan el protocolo abstracto. No ejecutan el código Java ni demuestran por sí solos su conformidad.
-
-La Fase 4 proporciona interleavings Java reproducibles. La Fase 6 ampliará los modelos formales y la Fase 7 relacionará trazas Java con acciones TLA+.
+Los modelos representan el protocolo abstracto. No demuestran por sí solos conformidad con la implementación Java. La función de abstracción y el checker de trazas corresponden a la Fase 7.
 
 #### Limitación
 
-Un check exitoso significa que no se encontró un contraejemplo dentro del alcance y configuración ejecutados. No significa verificación ilimitada ni equivalencia automática con toda la implementación Java.
+Un resultado válido significa que no se encontró un contraejemplo dentro de las configuraciones y bounds declarados. No significa verificación ilimitada, prueba de vivacidad general ni equivalencia automática con toda la implementación.

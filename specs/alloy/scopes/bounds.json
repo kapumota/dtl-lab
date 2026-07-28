@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "state": 7,
+  "transfer": 2,
+  "shard": 2,
+  "validator": 3,
+  "receipt": 4,
+  "message": 20,
+  "note": "Verificacion acotada. Los bounds coinciden con los comandos check de los modelos Alloy."
+}

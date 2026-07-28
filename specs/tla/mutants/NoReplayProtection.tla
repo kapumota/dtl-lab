@@ -1,4 +1,4 @@
----- MODULE CrossShardCommit ----
+---- MODULE NoReplayProtection ----
 EXTENDS Naturals, FiniteSets, TLC
 
 (***************************************************************************)
@@ -15,7 +15,7 @@ CONSTANTS Shards,
           DelayedCopies,
           EnableTimeout
 
-MutationMode == "Correct"
+MutationMode == "NoReplayProtection"
 
 StatusValues == {"Pending", "Locked", "Prepared", "Committed", "Aborted"}
 ShardOrNone == Shards \cup {"None"}

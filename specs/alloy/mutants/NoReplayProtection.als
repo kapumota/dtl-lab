@@ -1,4 +1,4 @@
-module CrossShardCommit
+module mutants/NoReplayProtection
 
 // Modelo multisesion acotado del commit cross-shard de DLT-Lab.
 // Los estados ordenados representan una traza finita del protocolo.
@@ -166,6 +166,24 @@ pred stutter[s, nextState: State] {
   nextState.votes = s.votes
 }
 
+pred replayReceipt[s, nextState: State, t: Transfer, r: Receipt] {
+  some message: s.messages | {
+    message.kind = ReceiptMessage
+    message.receipt = r
+    s.status[t] in Prepared + Committed
+    r.owner = t
+    s.receiptUseCount[r] = OneUse
+
+    nextState.status = s.status
+    nextState.locked = s.locked
+    nextState.receiptUseCount = s.receiptUseCount ++ r->ManyUses
+    nextState.destinationCredit = s.destinationCredit + t
+    nextState.fundsReleased = s.fundsReleased
+    nextState.messages = s.messages - message
+    nextState.votes = s.votes
+  }
+}
+
 fact Trace {
   init[first]
   all s: State - last |
@@ -173,6 +191,7 @@ fact Trace {
       some t: Transfer, r: Receipt, v: Validator |
       lockTransfer[s, nextState, t]
       or consumeReceipt[s, nextState, t, r]
+      or replayReceipt[s, nextState, t, r]
       or castVote[s, nextState, t, v]
       or commitTransfer[s, nextState, t]
       or timeoutTransfer[s, nextState, t]
@@ -204,7 +223,7 @@ assert QuorumRequired {
   all s: State, t: Transfer |
     s.status[t] = Committed implies #s.votes[t] >= 2
 }
-check NoReceiptReplay for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
+check NoReceiptReplay for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 1
 check DestinationCreditRequiresValidReceipt for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check DecisionConsistency for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check EventuallyReleasedAfterTimeout for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0

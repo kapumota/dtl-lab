@@ -19,6 +19,7 @@ TOOLS_ROOT="${FORMAL_TOOLS_ROOT:-$ROOT_DIR/$FORMAL_TOOLS_DIR}"
 ALLOY_JAR="${ALLOY_JAR:-$TOOLS_ROOT/alloy/$ALLOY_VERSION/org.alloytools.alloy.dist-$ALLOY_VERSION.jar}"
 RESULT_DIR="${FORMAL_RESULTS_DIR:-$ROOT_DIR/results/formal}"
 LOG_DIR="$RESULT_DIR/logs"
+COUNTEREXAMPLE_DIR="$RESULT_DIR/counterexamples"
 STDOUT_PATH="$LOG_DIR/$RUN_ID.alloy.stdout.txt"
 STDERR_PATH="$LOG_DIR/$RUN_ID.alloy.stderr.txt"
 TIME_PATH="$LOG_DIR/$RUN_ID.alloy.time.txt"
@@ -40,7 +41,7 @@ if [[ ! -x /usr/bin/time ]]; then
   exit 1
 fi
 
-mkdir -p "$LOG_DIR"
+mkdir -p "$LOG_DIR" "$COUNTEREXAMPLE_DIR"
 rm -rf "$OUTPUT_DIR"
 
 set +e
@@ -70,3 +71,19 @@ python3 "$ROOT_DIR/scripts/formal/parse_alloy_results.py" \
   --summary "$SUMMARY_PATH"
 
 tail -n +2 "$ROWS_PATH" >> "$RESULT_DIR/alloy_runs.csv"
+
+if [[ "$EXPECTATION" == "failure" ]]; then
+  mapfile -t solution_files < <(
+    find "$OUTPUT_DIR" -maxdepth 1 -type f -name '*solution-*.json' | sort
+  )
+
+  if [[ ${#solution_files[@]} -eq 0 ]]; then
+    echo "Alloy no almaceno un contraejemplo para $RUN_ID." >&2
+    exit 1
+  fi
+
+  for solution_path in "${solution_files[@]}"; do
+    destination="$COUNTEREXAMPLE_DIR/$RUN_ID-$(basename "$solution_path")"
+    cp "$solution_path" "$destination"
+  done
+fi

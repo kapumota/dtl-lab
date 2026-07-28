@@ -14,7 +14,7 @@ permissions:
 jobs:
   formal-research:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
 
     steps:
       - name: Descargar repositorio
@@ -43,7 +43,7 @@ jobs:
       - name: Instalar Alloy versionado
         run: bash scripts/formal/install_alloy.sh
 
-      - name: Ejecutar modelos y controles negativos
+      - name: Ejecutar configuraciones y mutantes
         run: make formal-research
 
       - name: Verificar resultados estructurados
@@ -52,9 +52,12 @@ jobs:
           test -s results/formal/environment.json
           test -s results/formal/tla_runs.csv
           test -s results/formal/alloy_runs.csv
+          test -s results/formal/mutant_matrix.csv
           test -s results/formal/execution_manifest.json
-          grep -q "negative-control" results/formal/tla_runs.csv
-          grep -q "negative-control" results/formal/alloy_runs.csv
+          grep -q ",mutant," results/formal/tla_runs.csv
+          grep -q ",mutant," results/formal/alloy_runs.csv
+          test "$(find results/formal/counterexamples -type f | wc -l)" -ge 10
+          python3 -m json.tool results/formal/execution_manifest.json >/dev/null
 
       - name: Publicar resultados formales
         if: always()

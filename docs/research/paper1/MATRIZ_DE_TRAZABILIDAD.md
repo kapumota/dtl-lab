@@ -8,19 +8,19 @@ Esta matriz relaciona las propiedades científicas esperadas con el código, las
 
 | Propiedad o elemento | Evidencia Java actual | Evidencia formal actual | Brecha identificada | Fase prevista |
 |---|---|---|---|---|
-| Estado de sesión | nueve estados en `CrossShardStatus` y tabla ejecutable en `TransitionTable` | variables booleanas y estado abstracto | falta trasladar los estados Java al modelo formal multisesión | Fase 6 |
+| Estado de sesión | nueve estados en `CrossShardStatus` y tabla ejecutable en `TransitionTable` | funciones TLA+ por transferencia y secuencia Alloy de `State` | falta comprobar conformidad automática con Java | Fase 7 |
 | Historial de sesión | `ProtocolEvent` y `CrossShardSession.events()` | no existe traza formal importable | falta formato común y checker de conformidad | Fase 7 |
 | Bloqueo de origen | `markSourceLocked`, `AtomicCommitProtocol.begin` y escenario `S06` | `LockOrigin` en TLA+ | Java explora conflictos deterministas; falta trasladarlos al modelo formal | Fase 6 |
-| Creación y entrega de recibo | `NetworkMessage`, `NetworkFaultModel`, `SEND_RECEIPT` y `DELIVER_RECEIPT` | `CreateReceipt` abstracto | red Java explícita; falta representación formal de mensajes | Fase 6 |
-| Consumo de recibo | `applyCommit`, `DuplicateReceiptModel` y escenario `S03` | `receiptUseCount` y `NoReceiptReplay` | duplicación probada en Java; falta exploración formal multisesión | Fase 6 |
+| Creación y entrega de recibo | `NetworkMessage`, `NetworkFaultModel`, `SEND_RECEIPT` y `DELIVER_RECEIPT` | mensajes y recibos explícitos en TLA+ y Alloy | falta relacionar eventos Java con mensajes formales | Fase 7 |
+| Consumo de recibo | `applyCommit`, `DuplicateReceiptModel` y escenario `S03` | configuración duplicada y mutante `NoReplayProtection` | falta conformidad entre trazas Java y contraejemplos formales | Fase 7 |
 | Protección runtime contra replay | ataque existente, invariante y traza determinista de `S03` | `NoReceiptReplay` en TLA+ y Alloy | falta relación automática entre traza Java y modelo | Fases 6 y 7 |
 | Conservación de valor | rollback de Fase 3 y escenarios concurrentes `S06`, `S07` y `S10` | `NoValueLoss` y `TimeoutReleasesFunds` | exploración Java acotada; falta model checking multisesión | Fase 6 |
 | Decisión atómica | `AtomicCommitProtocol` y carrera determinista `S05` | `AtomicCommit` | interleavings Java probados; falta equivalencia con acciones formales | Fases 6 y 7 |
 | Irreversibilidad terminal | ausencia de salidas terminales en `TransitionTable` y pruebas específicas | propiedad no separada | falta agregar `TerminalStateIrreversibility` al modelo formal | Fase 6 |
 | Timeout | `EXPIRE_TRANSFER` solo desde estados con bloqueo | `TimeoutOrigin` y `TimeoutReleasesFunds` | falta formalizar liveness y fairness | Fase 6 |
-| Quorum | validación en origen y destino dentro de `AtomicCommitProtocol` | no existe una propiedad formal específica | falta `QuorumRequired` en TLA+ y Alloy | Fase 6 |
-| Fallos de red | seis `NetworkFaultModel`, mensajes y escenarios `S02` a `S05` | no existe una red explícita de mensajes | falta incorporar red y fairness al modelo formal | Fase 6 |
-| Model checking ejecutado | `make formal-research`, parsers y workflow obligatorio | TLC y Alloy ejecutados con versiones fijadas | falta ampliar el modelo a múltiples sesiones y fallos de red | Fase 6 |
+| Quorum | validación en origen y destino dentro de `AtomicCommitProtocol` | `QuorumRequired` y mutante `QuorumBypass` en TLA+ y Alloy | falta correspondencia automática con votos Java | Fase 7 |
+| Fallos de red | seis `NetworkFaultModel`, mensajes y escenarios `S02` a `S05` | mensajes acotados, duplicación, retraso y carrera de timeout | fairness y pérdidas no acotadas permanecen fuera del alcance | Trabajo futuro |
+| Model checking ejecutado | `make formal-research`, parsers y workflow obligatorio | seis configuraciones TLA+, modelo Alloy y diez mutantes versionados | falta congelar resultados para el envío | Fase 8 |
 | Conformidad Java-TLA+ | eventos Java ordenados por sesión | modelo abstracto | falta función de abstracción, serialización y checker | Fase 7 |
 | Reproducibilidad científica | seeds explícitas y herramientas formales fijadas | CSV, JSON, logs, versiones y ambiente | falta congelar la matriz experimental y preparar el snapshot del envío | Fase 8 |
 
@@ -67,6 +67,17 @@ Esta matriz relaciona las propiedades científicas esperadas con el código, las
 - controles negativos temporales comprueban que el pipeline detecta violaciones;
 - `formal-verification.yml` publica `results/formal/`;
 - los mutantes científicos y el modelo multisesión permanecen asignados a la Fase 6.
+
+#### Evidencia agregada en la Fase 6
+
+- TLA+ representa varias transferencias mediante funciones indexadas;
+- seis configuraciones exploran topologías, duplicación, retraso y timeout;
+- Alloy representa una secuencia finita mediante `open util/ordering[State]`;
+- cinco propiedades nuevas se verifican en ambos lenguajes;
+- cinco mutantes TLA+ y cinco mutantes Alloy producen defectos específicos;
+- cada mutante almacena al menos un contraejemplo;
+- `mutant_matrix.csv` y `execution_manifest.json` registran la matriz experimental;
+- la documentación limita las afirmaciones a los bounds declarados.
 
 #### Regla de actualización
 

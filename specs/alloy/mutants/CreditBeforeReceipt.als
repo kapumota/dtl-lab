@@ -1,4 +1,4 @@
-module CrossShardCommit
+module mutants/CreditBeforeReceipt
 
 // Modelo multisesion acotado del commit cross-shard de DLT-Lab.
 // Los estados ordenados representan una traza finita del protocolo.
@@ -166,6 +166,19 @@ pred stutter[s, nextState: State] {
   nextState.votes = s.votes
 }
 
+pred creditBeforeReceipt[s, nextState: State, t: Transfer] {
+  s.status[t] = Locked
+  all r: t.~owner | s.receiptUseCount[r] = ZeroUse
+
+  nextState.status = s.status ++ t->Prepared
+  nextState.locked = s.locked
+  nextState.receiptUseCount = s.receiptUseCount
+  nextState.destinationCredit = s.destinationCredit + t
+  nextState.fundsReleased = s.fundsReleased
+  nextState.messages = s.messages
+  nextState.votes = s.votes
+}
+
 fact Trace {
   init[first]
   all s: State - last |
@@ -173,6 +186,7 @@ fact Trace {
       some t: Transfer, r: Receipt, v: Validator |
       lockTransfer[s, nextState, t]
       or consumeReceipt[s, nextState, t, r]
+      or creditBeforeReceipt[s, nextState, t]
       or castVote[s, nextState, t, v]
       or commitTransfer[s, nextState, t]
       or timeoutTransfer[s, nextState, t]
@@ -205,7 +219,7 @@ assert QuorumRequired {
     s.status[t] = Committed implies #s.votes[t] >= 2
 }
 check NoReceiptReplay for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
-check DestinationCreditRequiresValidReceipt for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
+check DestinationCreditRequiresValidReceipt for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 1
 check DecisionConsistency for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check EventuallyReleasedAfterTimeout for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check QuorumRequired for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0

@@ -1,4 +1,4 @@
-module CrossShardCommit
+module mutants/TimeoutWithoutRelease
 
 // Modelo multisesion acotado del commit cross-shard de DLT-Lab.
 // Los estados ordenados representan una traza finita del protocolo.
@@ -151,7 +151,7 @@ pred timeoutTransfer[s, nextState: State, t: Transfer] {
   nextState.locked = s.locked - t
   nextState.receiptUseCount = s.receiptUseCount
   nextState.destinationCredit = s.destinationCredit
-  nextState.fundsReleased = s.fundsReleased + t
+  nextState.fundsReleased = s.fundsReleased
   nextState.messages = s.messages - {m: Message | m.transfer = t}
   nextState.votes = s.votes
 }
@@ -207,5 +207,5 @@ assert QuorumRequired {
 check NoReceiptReplay for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check DestinationCreditRequiresValidReceipt for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
 check DecisionConsistency for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
-check EventuallyReleasedAfterTimeout for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
+check EventuallyReleasedAfterTimeout for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 1
 check QuorumRequired for exactly 7 State, exactly 2 Transfer, exactly 2 Shard, exactly 3 Validator, exactly 4 Receipt, exactly 20 Message expect 0
