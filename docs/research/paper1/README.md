@@ -2,15 +2,16 @@
 
 #### Estado
 
-- Fase actual: Fase 7C, replay formal con TLC.
-- Fases 0 a 7C: cerradas.
-- Próxima fase: Fase 7D, corpus de trazas corruptas.
+- Fase actual: Fase 7D, corpus negativo de trazas.
+- Fases 0 a 7D: cerradas.
+- Próxima fase: Fase 7E, integración de conformidad.
 - Versión visible: `v1.1.0-beta.2`.
 - Verificación: acotada, reproducible y con mutantes científicos.
 - Trazas Java: JSONL versionado, determinista y reproducible.
 - Abstracción Java-TLA+: ejecutable y tipada.
 - Replay TLC: ejecutable sobre el catálogo válido.
-- Conformidad Java-TLA+: acotada a escenarios y seeds declaradas.
+- Corpus negativo: diez mutaciones tipadas con rechazo esperado.
+- Conformidad Java-TLA+: acotada a escenarios, seeds y mutaciones declaradas.
 
 #### Objetivo
 
@@ -38,7 +39,8 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 - `CIERRE_CIENTIFICO_FASE_6.md`;
 - `FORMATO_DE_TRAZAS.md`;
 - `FUNCION_DE_ABSTRACCION.md`;
-- `REPLAY_TLC.md`.
+- `REPLAY_TLC.md`;
+- `CORPUS_NEGATIVO_TRAZAS.md`.
 
 #### Reglas de redacción
 
@@ -52,4 +54,4 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 
 #### Gate actual
 
-La Fase 7C usa TLC como oráculo sobre módulos de replay generados y conserva el paso rechazado. La Fase 7D debe agregar mutaciones controladas sin cambiar el catálogo válido.
+La Fase 7D demuestra que TLC rechaza las diez mutaciones declaradas y conserva su procedencia. La Fase 7E debe integrar catálogo válido, corpus negativo, CI y resultados científicos.

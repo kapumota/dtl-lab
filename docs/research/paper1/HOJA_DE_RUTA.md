@@ -17,6 +17,7 @@ Cada fase se desarrolla en una rama corta creada desde `main` actualizado y se i
 - Fase 7A: exportación determinista de trazas.
 - Fase 7B: función de abstracción Java-TLA+.
 - Fase 7C: replay formal con TLC.
+- Fase 7D: corpus negativo de trazas.
 
 #### Fase 6.1: cierre científico
 
@@ -104,13 +105,25 @@ Gate:
 
 #### Fase 7D: corpus negativo
 
-Rama prevista: `paper1/fase-7d-trazas-corruptas`
+Rama: `paper1/fase-7d-trazas-corruptas`
 
-Objetivos:
+Objetivos cerrados:
 
-- generar mutaciones de trazas;
-- rechazar commit después de abort, replay, crédito sin recibo y commit sin quorum;
-- reportar paso, transferencia y causa.
+- construir diez mutaciones tipadas desde trazas válidas;
+- conservar prefijos válidos y un único paso objetivo corrupto;
+- reutilizar `TraceConformanceChecker` y el parser de Fase 7C;
+- rechazar commit inválido, replay, crédito sin recibo y commit sin quorum;
+- cubrir votos duplicados, cambio de sesión, topología y orden de acciones;
+- reportar paso abstracto, paso concreto, acción y transferencia.
+
+Gate:
+
+- las diez mutaciones son únicas y deterministas;
+- TLC rechaza las diez trazas corruptas;
+- cada diagnóstico coincide con su paso objetivo;
+- el catálogo válido de Fase 7C continúa siendo aceptado;
+- Java no duplica las guardas de `Next`;
+- TLA+, Alloy, JSONL y los mapeadores permanecen sin cambios.
 
 #### Fase 7E: integración de conformidad
 

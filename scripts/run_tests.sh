@@ -13,4 +13,5 @@ DTL_SIMULATION_SEEDS=100 java -cp build/classes:build/test-classes dltlab.simula
 java -cp build/classes:build/test-classes dltlab.trace.TraceExportTest
 java -cp build/classes:build/test-classes dltlab.conformance.TraceAbstractionTest
 java -cp build/classes:build/test-classes dltlab.conformance.TraceReplayGeneratorTest
+java -cp build/classes:build/test-classes dltlab.conformance.NegativeTraceCatalogTest
 java -cp build/classes:build/test-classes dltlab.TestRunner
