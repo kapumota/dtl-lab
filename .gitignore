@@ -49,3 +49,5 @@ results/formal/*
 !results/formal/README.md
 results/traces/*
 !results/traces/README.md
+results/conformance/*
+!results/conformance/README.md

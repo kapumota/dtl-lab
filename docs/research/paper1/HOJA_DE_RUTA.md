@@ -16,6 +16,7 @@ Cada fase se desarrolla en una rama corta creada desde `main` actualizado y se i
 - Fase 6.1: cierre científico y documental.
 - Fase 7A: exportación determinista de trazas.
 - Fase 7B: función de abstracción Java-TLA+.
+- Fase 7C: replay formal con TLC.
 
 #### Fase 6.1: cierre científico
 
@@ -81,14 +82,25 @@ Gate:
 
 #### Fase 7C: replay formal con TLC
 
-Rama prevista: `paper1/fase-7c-replay-tlc`
+Rama: `paper1/fase-7c-replay-tlc`
 
-Objetivos:
+Objetivos cerrados:
 
-- convertir trazas abstractas en restricciones formales;
-- usar TLC como oráculo;
-- aceptar trazas conformantes;
-- localizar transiciones rechazadas.
+- generar módulos TLA+ deterministas desde `AbstractTrace`;
+- usar `Init` y los operadores reales de `CrossShardCommit`;
+- exigir coincidencia exacta del estado posterior;
+- ejecutar TLC con un solo worker;
+- localizar índice abstracto, paso concreto, acción y transferencia;
+- conservar fuera de alcance el corpus negativo de Fase 7D.
+
+Gate:
+
+- los diez escenarios válidos generan módulos reproducibles;
+- TLC acepta el catálogo válido;
+- `ReplayEventuallyComplete` detecta un replay detenido;
+- Java no redefine `Next` ni sus guardas;
+- TLA+, Alloy y JSONL permanecen sin cambios;
+- las pruebas de 7A y 7B continúan en verde.
 
 #### Fase 7D: corpus negativo
 
