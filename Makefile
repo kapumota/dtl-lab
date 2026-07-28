@@ -1,5 +1,5 @@
 # Makefile principal de DLT-Lab para validacion, pruebas, demostraciones y verificacion.
-.PHONY: validate test demo demo-mempool demo-defi demo-adversarial security formal formal-research clean
+.PHONY: validate test demo demo-mempool demo-defi demo-adversarial security formal formal-research trace-export clean
 
 validate:
 	bash scripts/validate.sh
@@ -27,6 +27,9 @@ formal:
 
 formal-research:
 	bash scripts/formal/run_formal_research.sh
+
+trace-export:
+	bash scripts/export_trace_catalog.sh
 
 clean:
 	rm -rf build target out

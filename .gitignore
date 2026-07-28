@@ -47,3 +47,5 @@ Thumbs.db
 .formal-tools/
 results/formal/*
 !results/formal/README.md
+results/traces/*
+!results/traces/README.md

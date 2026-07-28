@@ -2,11 +2,12 @@
 
 #### Estado
 
-- Fase actual: Fase 6.1, cierre científico y documental.
-- Fases 0 a 6: cerradas.
-- Próxima fase: Fase 7A, exportación determinista de trazas.
+- Fase actual: Fase 7A, exportación determinista de trazas.
+- Fases 0 a 7A: cerradas.
+- Próxima fase: Fase 7B, función de abstracción Java-TLA+.
 - Versión visible: `v1.1.0-beta.2`.
 - Verificación: acotada, reproducible y con mutantes científicos.
+- Trazas Java: JSONL versionado, determinista y reproducible.
 - Conformidad Java-TLA+: todavía pendiente.
 
 #### Objetivo
@@ -32,7 +33,8 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 - `SIMULACION_DETERMINISTA.md`;
 - `MODEL_CHECKING_EJECUTABLE.md`;
 - `MODELO_MULTISESION_MUTANTES.md`;
-- `CIERRE_CIENTIFICO_FASE_6.md`.
+- `CIERRE_CIENTIFICO_FASE_6.md`;
+- `FORMATO_DE_TRAZAS.md`.
 
 #### Reglas de redacción
 
@@ -42,8 +44,8 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 - subtítulos con `####`;
 - resultados respaldados por ejecuciones reproducibles;
 - bounds y limitaciones declarados;
-- ausencia de afirmaciones de refinamiento antes de Fase 7.
+- ausencia de afirmaciones de refinamiento antes de cerrar la Fase 7.
 
 #### Gate actual
 
-El baseline es defendible para preparar una evaluación Q4. La diferenciación prevista para Q3 depende de cerrar la conformidad acotada Java-TLA+ y la evaluación de la Fase 8.
+La Fase 7A conserva el orden global del simulador, las transiciones reales del protocolo y las observaciones de red en JSONL determinista. La Fase 7B debe definir una función de abstracción explícita sin modificar el contrato concreto de trazas.
