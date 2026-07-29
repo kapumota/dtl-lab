@@ -1,0 +1,15 @@
+configuration_id,rq_ids,tool,model_kind,bound_profile,fault_profile,case_type,seed_policy,warmup_repetitions,measured_repetitions,timeout_seconds,max_rss_mb,notes
+RQ1R4-TLC-SMALL,RQ1;RQ4,tlc,valid,small,normal,formal,none,2,10,1800,12288,Perfil pequeño para propiedades y escalabilidad.
+RQ1R4-TLC-MEDIUM,RQ1;RQ4,tlc,valid,medium,normal,formal,none,2,10,1800,12288,Perfil mediano para propiedades y escalabilidad.
+RQ1R4-TLC-LARGE,RQ1;RQ4,tlc,valid,large,normal,formal,none,2,10,1800,12288,Perfil grande para propiedades y escalabilidad.
+RQ1R4-ALLOY-SMALL,RQ1;RQ4,alloy,valid,small,normal,formal,none,2,10,1800,12288,Scope pequeño para propiedades y escalabilidad.
+RQ1R4-ALLOY-MEDIUM,RQ1;RQ4,alloy,valid,medium,normal,formal,none,2,10,1800,12288,Scope mediano para propiedades y escalabilidad.
+RQ1R4-ALLOY-LARGE,RQ1;RQ4,alloy,valid,large,normal,formal,none,2,10,1800,12288,Scope grande para propiedades y escalabilidad.
+RQ2-TLC-MUTANTS,RQ2,tlc,mutant,medium,normal,formal,none,2,10,1800,12288,Cinco mutantes TLC con propiedad objetivo.
+RQ2-ALLOY-MUTANTS,RQ2,alloy,mutant,medium,normal,formal,none,2,10,1800,12288,Cinco mutantes Alloy con propiedad objetivo.
+RQ3-TLC-VALID,RQ3,tlc,valid,catalog,catalog,valid,multiseed-30,0,1,1800,12288,Diez escenarios validos por treinta seeds.
+RQ3-TLC-NEGATIVE,RQ3,tlc,mutant,catalog,catalog,negative,multiseed-30,0,1,1800,12288,Diez mutaciones negativas por treinta seeds.
+RQ4-TLC-FAULT-NORMAL,RQ4,tlc,valid,medium,normal,formal,none,2,10,1800,12288,Control de costo sin fallo adicional.
+RQ4-TLC-FAULT-REPLAY,RQ4,tlc,valid,medium,replay,formal,none,2,10,1800,12288,Presion de copias y replay.
+RQ4-TLC-FAULT-TIMEOUT,RQ4,tlc,valid,medium,timeout,formal,none,2,10,1800,12288,Timeout habilitado.
+RQ4-TLC-FAULT-QUORUM,RQ4,tlc,valid,medium,insufficient_quorum,formal,none,2,10,1800,12288,Quorum insuficiente.

@@ -2,9 +2,9 @@
 
 #### Estado
 
-- Fase actual: Fase 7E, integración y cierre de conformidad.
+- Fase actual: Fase 8A, protocolo experimental Q3.
 - Fases 0 a 7E: cerradas.
-- Próxima fase: Fase 8, evaluación y artefacto de envío.
+- Próxima fase: Fase 8B, infraestructura experimental.
 - Versión visible: `v1.1.0-rc.1`.
 - Verificación: acotada, reproducible y con mutantes científicos.
 - Trazas Java: JSONL versionado, determinista y reproducible.
@@ -41,7 +41,8 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 - `FUNCION_DE_ABSTRACCION.md`;
 - `REPLAY_TLC.md`;
 - `CORPUS_NEGATIVO_TRAZAS.md`;
-- `CIERRE_CONFORMIDAD_FASE_7.md`.
+- `CIERRE_CONFORMIDAD_FASE_7.md`;
+- `PROTOCOLO_EXPERIMENTAL_Q3.md`.
 
 #### Reglas de redacción
 
@@ -55,4 +56,4 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 
 #### Gate actual
 
-La Fase 7 queda cerrada con diez escenarios válidos aceptados, diez trazas corruptas rechazadas, diagnósticos coincidentes y un artefacto integrado de CI. La Fase 8 realizará la evaluación y congelará el snapshot de envío.
+La Fase 8A congela RQ1 a RQ4, hipótesis, factores, configuraciones, seeds, repeticiones, recursos y análisis antes de ejecutar resultados definitivos. La Fase 8B implementará la infraestructura sin cambiar la semántica cerrada en la Fase 7.

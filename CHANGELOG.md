@@ -4,6 +4,18 @@ Todos los cambios importantes de este proyecto se documentan en este archivo.
 
 El proyecto sigue una evolución por fases y usa tags versionados para preservar hitos técnicos. El formato está inspirado en Keep a Changelog y el versionado sigue una lógica compatible con Semantic Versioning.
 
+#### [Unreleased] - Fase 8: evaluación experimental Q3
+
+#### Fase 8A
+
+* Congela RQ1 a RQ4 y las hipótesis H1 a H4 antes de los resultados.
+* Define factores, niveles y catorce familias de configuración válidas.
+* Fija treinta seeds para conformidad multiseed.
+* Fija dos calentamientos y diez repeticiones medidas.
+* Declara timeout, memoria, hardware, versiones y tratamiento de ejecuciones incompletas.
+* Agrega el gate `make experiment-protocol`.
+* Mantiene sin cambios Java, TLA+, Alloy y la conformidad de Fase 7.
+
 #### [1.1.0-rc.1] - Fase 7: conformidad acotada basada en trazas
 
 #### Fase 7E

@@ -15,4 +15,5 @@ java -cp build/classes:build/test-classes dltlab.conformance.TraceAbstractionTes
 java -cp build/classes:build/test-classes dltlab.conformance.TraceReplayGeneratorTest
 java -cp build/classes:build/test-classes dltlab.conformance.NegativeTraceCatalogTest
 bash scripts/conformance/check_conformance_structure.sh
+bash scripts/experiments/check_experimental_structure.sh
 java -cp build/classes:build/test-classes dltlab.TestRunner
