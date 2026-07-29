@@ -26,7 +26,7 @@ Evidencia:
 - resultados estructurados;
 - validación de que cada mutante Alloy viola su objetivo.
 
-La comparación cuantitativa final entre herramientas corresponde a la Fase 8.
+La comparación cuantitativa final entre herramientas usa el protocolo congelado de la Fase 8A y se ejecutará en las Fases 8C y 8D.
 
 #### C3: conformidad acotada Java-TLA+
 
@@ -49,6 +49,14 @@ La denominación usada es `bounded implementation-model trace conformance`.
 Estado: alcanzada para el perfil de conformidad.
 
 Existen herramientas fijadas, comandos reproducibles, resultados raw, manifiestos con procedencia y artefactos de CI. Las tablas finales del paper y el snapshot editorial corresponden a la Fase 8.
+
+#### Plan experimental Q3
+
+Estado: protocolo congelado en la Fase 8A.
+
+La evaluación define RQ1 a RQ4, H1 a H4, treinta seeds, catorce familias de configuración, dos calentamientos, diez repeticiones medidas, límites de recursos y análisis estadístico reproducible.
+
+La Fase 8A no agrega resultados ni modifica la evidencia semántica de las Fases 0 a 7E.
 
 #### Contribuciones no reclamadas
 

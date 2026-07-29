@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "phase": "8A",
+  "protocol_id": "paper1-q3-v1",
+  "status": "frozen",
+  "definitive_results_generated": false,
+  "baseline": {
+    "commit": "45cb114d61b1df8c605c50700f3cc72d48d157fe",
+    "release": "v1.1.0-rc.1"
+  },
+  "research_questions": [
+    {
+      "id": "RQ1",
+      "hypothesis": "H1",
+      "unit": "property_tool_configuration_run"
+    },
+    {
+      "id": "RQ2",
+      "hypothesis": "H2",
+      "unit": "mutant_tool_configuration_run"
+    },
+    {
+      "id": "RQ3",
+      "hypothesis": "H3",
+      "unit": "trace_case_seed_run"
+    },
+    {
+      "id": "RQ4",
+      "hypothesis": "H4",
+      "unit": "tool_profile_repetition_run"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "status": "to_be_tested",
+      "statement": "Los modelos validos no producen violaciones dentro de los bounds declarados."
+    },
+    {
+      "id": "H2",
+      "status": "to_be_tested",
+      "statement": "Cada mutante cientifico produce una violacion de su propiedad objetivo."
+    },
+    {
+      "id": "H3",
+      "status": "to_be_tested",
+      "statement": "Las trazas validas son aceptadas y las trazas corruptas son rechazadas en el punto esperado."
+    },
+    {
+      "id": "H4",
+      "status": "to_be_tested",
+      "statement": "El costo de model checking crece de forma no lineal con el numero de transferencias concurrentes y shards."
+    }
+  ],
+  "tools": {
+    "tlc": {
+      "version": "1.7.4",
+      "workers": 1
+    },
+    "alloy": {
+      "version": "6.2.0",
+      "solver": "sat4j"
+    },
+    "java": {
+      "major": 17
+    },
+    "python": {
+      "major_minor": "3.12"
+    },
+    "time_command": "/usr/bin/time -v"
+  },
+  "factors": {
+    "tool": [
+      "tlc",
+      "alloy"
+    ],
+    "model_kind": [
+      "valid",
+      "mutant"
+    ],
+    "shards": [
+      2,
+      3,
+      4
+    ],
+    "concurrent_transfers": [
+      1,
+      2,
+      3
+    ],
+    "validators": [
+      2,
+      3,
+      4
+    ],
+    "receipt_copies": [
+      1,
+      2
+    ],
+    "bound_profile": [
+      "catalog",
+      "small",
+      "medium",
+      "large"
+    ],
+    "tlc_fault_profile": [
+      "normal",
+      "replay",
+      "timeout",
+      "insufficient_quorum"
+    ],
+    "trace_case_type": [
+      "valid",
+      "negative"
+    ]
+  },
+  "bound_profiles": {
+    "catalog": {
+      "source": "phase-7-catalog",
+      "alloy_state_scope": null
+    },
+    "small": {
+      "shards": 2,
+      "concurrent_transfers": 1,
+      "validators": 2,
+      "quorum": 2,
+      "receipt_copies": 1,
+      "alloy_state_scope": 6
+    },
+    "medium": {
+      "shards": 3,
+      "concurrent_transfers": 2,
+      "validators": 3,
+      "quorum": 2,
+      "receipt_copies": 2,
+      "alloy_state_scope": 8
+    },
+    "large": {
+      "shards": 4,
+      "concurrent_transfers": 3,
+      "validators": 4,
+      "quorum": 3,
+      "receipt_copies": 2,
+      "alloy_state_scope": 10
+    }
+  },
+  "sampling": {
+    "seed_file": "experiments/paper1/seeds.txt",
+    "seed_count": 30,
+    "smoke_seed": 2026,
+    "warmup_repetitions": 2,
+    "measured_repetitions": 10,
+    "rq3_repetitions_per_case_seed": 1
+  },
+  "resources": {
+    "timeout_seconds": 1800,
+    "max_rss_mb": 12288,
+    "max_parallel_runs": 1,
+    "timing_host": "dedicated_native_linux",
+    "ci_timing_allowed": false,
+    "virtualized_timing_allowed": false,
+    "tlc_workers": 1
+  },
+  "incomplete_runs": {
+    "timeout": "retain_as_censored_timeout",
+    "out_of_memory": "retain_as_censored_oom",
+    "unexpected_exit": "retain_as_tool_error",
+    "instrumentation_retry_limit": 1,
+    "result_based_retry_allowed": false
+  },
+  "statistics": {
+    "location": "median",
+    "dispersion": "interquartile_range",
+    "report_min_max": true,
+    "report_coefficient_of_variation": true,
+    "confidence_interval": "bootstrap_95_for_median",
+    "bootstrap_resamples": 10000,
+    "proportion_interval": "wilson_95",
+    "rq4_association": "spearman",
+    "cross_tool_absolute_speed_claim_allowed": false
+  },
+  "artifacts": {
+    "configurations": "experiments/paper1/configurations.csv",
+    "protocol_document": "docs/research/paper1/PROTOCOLO_EXPERIMENTAL_Q3.md",
+    "raw_results_root": "results/experiments/raw",
+    "derived_results_root": "results/experiments/derived",
+    "tables_root": "results/experiments/tables",
+    "figures_root": "results/experiments/figures"
+  },
+  "planned_outputs": {
+    "tables": 8,
+    "figures": 8,
+    "valid_conformance_runs": 300,
+    "negative_conformance_runs": 300
+  }
+}

@@ -148,14 +148,83 @@ Gate Q3:
 - el workflow publica el artefacto integrado;
 - TLA+, Alloy, JSONL, abstracción, replay y mutaciones no cambian de semántica.
 
-#### Fase 8: evaluación y artefacto
+#### Fase 8A: protocolo experimental Q3
+
+Rama: `paper1/fase-8a-protocolo-experimental-q3`
 
 Objetivos:
 
-- ejecutar la matriz experimental;
-- generar tablas y figuras;
-- congelar configuraciones;
-- preparar release y snapshot del envío.
+- elevar la pregunta de escalabilidad a RQ4;
+- declarar H1 a H4 como hipótesis pendientes;
+- congelar factores, niveles y configuraciones válidas;
+- fijar treinta seeds, calentamientos y repeticiones;
+- declarar timeout, memoria, hardware y versiones;
+- congelar métricas, análisis estadístico, tablas y figuras;
+- mantener fuera de alcance los resultados definitivos.
+
+Gate:
+
+- ninguna configuración queda implícita;
+- cada RQ tiene unidad y métricas;
+- H1 a H4 permanecen pendientes;
+- seeds, repeticiones y recursos están fijados;
+- criterios de exclusión y ejecuciones incompletas están declarados;
+- el protocolo pasa `make experiment-protocol`;
+- Java, TLA+, Alloy y conformidad no cambian;
+- no se generan resultados definitivos.
+
+#### Fase 8B: infraestructura experimental
+
+Objetivos:
+
+- implementar el runner reanudable;
+- capturar ambiente y procedencia;
+- validar configuraciones antes de ejecutar;
+- separar resultados raw y derivados.
+
+#### Fase 8C: matriz experimental
+
+Objetivos:
+
+- ejecutar propiedades y mutantes;
+- ejecutar conformidad multiseed;
+- ejecutar perfiles de escalabilidad y fallos;
+- conservar timeout y falta de memoria.
+
+#### Fase 8D: análisis, tablas y figuras
+
+Objetivos:
+
+- generar resultados derivados;
+- producir tablas y figuras desde raw;
+- responder RQ1 a RQ4;
+- documentar amenazas a la validez.
+
+#### Fase 8E: reproducción independiente
+
+Objetivos:
+
+- ejecutar el artefacto en un ambiente limpio;
+- registrar incidencias, hashes y resultados;
+- corregir instrucciones sin alterar resultados raw.
+
+#### Fase 8F: manuscrito Q3
+
+Objetivos:
+
+- integrar metodología, resultados y discusión;
+- completar related work;
+- completar amenazas a la validez;
+- revisar afirmaciones y limitaciones.
+
+#### Fase 8G: artefacto de envío
+
+Objetivos:
+
+- congelar release;
+- crear snapshot editorial;
+- publicar checksums;
+- archivar el artefacto con identificador persistente.
 
 #### Fase 9 opcional
 
