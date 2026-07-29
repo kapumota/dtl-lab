@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import time
@@ -46,6 +47,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--run-dir", required=True)
     parser.add_argument("--executor", required=True)
+    parser.add_argument(
+        "--phase",
+        choices=["8B", "8C"],
+        default="8B",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--limit", type=int)
@@ -165,6 +171,7 @@ def initialize_run(
     manifest_path: Path,
     executor: Path,
     smoke: bool,
+    phase: str,
 ) -> None:
     run_dir.mkdir(parents=True, exist_ok=True)
     snapshots = run_dir / "snapshots"
@@ -201,6 +208,8 @@ def initialize_run(
             str(root),
             "--output",
             str(environment_path),
+            "--phase",
+            phase,
         ]
         completed = subprocess.run(command, check=False)
         if completed.returncode != 0:
@@ -210,9 +219,15 @@ def initialize_run(
     if not provenance_path.exists():
         provenance = {
             "schema_version": 1,
-            "phase": "8B",
+            "phase": phase,
             "protocol_id": "paper1-q3-v1",
-            "run_kind": "infrastructure_smoke" if smoke else "definitive",
+            "run_kind": (
+                "scientific_smoke"
+                if smoke and phase == "8C"
+                else "infrastructure_smoke"
+                if smoke
+                else "definitive"
+            ),
             "created_at_utc": utc_now(),
             "plan_sha256": calculate_sha256_file(plan_path),
             "manifest_sha256": calculate_sha256_file(manifest_path),
@@ -303,26 +318,33 @@ def execute_task(
     timed_out = False
     exit_code: int | None = None
 
-    try:
-        with stdout_path.open(
-            "w",
-            encoding="utf-8",
-            newline="\n",
-        ) as stdout_stream, stderr_path.open(
-            "w",
-            encoding="utf-8",
-            newline="\n",
-        ) as stderr_stream:
-            completed = subprocess.run(
-                command,
-                stdout=stdout_stream,
-                stderr=stderr_stream,
-                check=False,
-                timeout=int(task["timeout_seconds"]),
+    with stdout_path.open(
+        "w",
+        encoding="utf-8",
+        newline="\n",
+    ) as stdout_stream, stderr_path.open(
+        "w",
+        encoding="utf-8",
+        newline="\n",
+    ) as stderr_stream:
+        process = subprocess.Popen(
+            command,
+            stdout=stdout_stream,
+            stderr=stderr_stream,
+            start_new_session=True,
+        )
+        try:
+            exit_code = process.wait(
+                timeout=int(task["timeout_seconds"])
             )
-            exit_code = completed.returncode
-    except subprocess.TimeoutExpired:
-        timed_out = True
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            os.killpg(process.pid, signal.SIGTERM)
+            try:
+                process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                os.killpg(process.pid, signal.SIGKILL)
+                process.wait()
 
     finished_at = utc_now()
     elapsed_seconds = time.monotonic() - started_monotonic
@@ -389,12 +411,19 @@ def write_state(
     skipped: int,
     statuses: dict[str, int],
     smoke: bool,
+    phase: str,
 ) -> None:
     state = {
         "schema_version": 1,
-        "phase": "8B",
+        "phase": phase,
         "protocol_id": "paper1-q3-v1",
-        "run_kind": "infrastructure_smoke" if smoke else "definitive",
+        "run_kind": (
+            "scientific_smoke"
+            if smoke and phase == "8C"
+            else "infrastructure_smoke"
+            if smoke
+            else "definitive"
+        ),
         "updated_at_utc": utc_now(),
         "tasks_planned": total,
         "tasks_executed_this_invocation": executed,
@@ -445,6 +474,7 @@ def main() -> None:
             manifest_path,
             executor,
             args.smoke,
+            args.phase,
         )
         tasks_root = run_dir / "tasks"
         tasks_root.mkdir(parents=True, exist_ok=True)
@@ -468,6 +498,7 @@ def main() -> None:
                 skipped,
                 statuses,
                 args.smoke,
+                args.phase,
             )
 
         print(

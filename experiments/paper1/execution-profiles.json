@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "phase": "8C",
+  "protocol_id": "paper1-q3-v1",
+  "purpose": "Traduccion ejecutable de perfiles congelados a parametros concretos de TLC y Alloy.",
+  "base_models": {
+    "tlc": "specs/tla/CrossShardCommit.tla",
+    "alloy": "specs/alloy/CrossShardCommit.als"
+  },
+  "profiles": {
+    "small": {
+      "shards": 2,
+      "concurrent_transfers": 1,
+      "validators": 2,
+      "quorum": 2,
+      "receipt_copies": 1,
+      "alloy_state_scope": 6,
+      "alloy_receipts": 2,
+      "alloy_messages": 10
+    },
+    "medium": {
+      "shards": 3,
+      "concurrent_transfers": 2,
+      "validators": 3,
+      "quorum": 2,
+      "receipt_copies": 2,
+      "alloy_state_scope": 8,
+      "alloy_receipts": 4,
+      "alloy_messages": 20
+    },
+    "large": {
+      "shards": 4,
+      "concurrent_transfers": 3,
+      "validators": 4,
+      "quorum": 3,
+      "receipt_copies": 2,
+      "alloy_state_scope": 10,
+      "alloy_receipts": 6,
+      "alloy_messages": 30
+    }
+  },
+  "fault_profiles": {
+    "normal": {
+      "base_profile": "medium",
+      "receipt_copies": 1,
+      "delayed_copies": [],
+      "enable_timeout": false,
+      "quorum": 2,
+      "property": "NoReceiptReplay"
+    },
+    "replay": {
+      "base_profile": "medium",
+      "receipt_copies": 2,
+      "delayed_copies": [],
+      "enable_timeout": false,
+      "quorum": 2,
+      "property": "NoReceiptReplay"
+    },
+    "timeout": {
+      "base_profile": "medium",
+      "receipt_copies": 2,
+      "delayed_copies": [
+        1
+      ],
+      "enable_timeout": true,
+      "quorum": 2,
+      "property": "EventuallyReleasedAfterTimeout"
+    },
+    "insufficient_quorum": {
+      "base_profile": "medium",
+      "receipt_copies": 2,
+      "delayed_copies": [],
+      "enable_timeout": false,
+      "quorum": 3,
+      "property": "QuorumRequired"
+    }
+  },
+  "conformance": {
+    "java_classes_dir": "build/experiment-classes",
+    "runner_class": "dltlab.conformance.ConformanceCaseRunner",
+    "tla_model": "specs/tla/CrossShardCommit.tla"
+  },
+  "smoke_task_ids": [
+    "RQ1R4-TLC-SMALL__NoReceiptReplay__seed-none__measured__01",
+    "RQ2-TLC-MUTANTS__tla-mutant-no-replay__seed-none__measured__01",
+    "RQ1R4-ALLOY-SMALL__NoReceiptReplay__seed-none__measured__01",
+    "RQ2-ALLOY-MUTANTS__alloy-mutant-no-replay__seed-none__measured__01",
+    "RQ3-TLC-VALID__S01_NORMAL_COMMIT__seed-2026001__measured__01",
+    "RQ3-TLC-NEGATIVE__M01_COMMIT_FROM_PENDING__seed-2026001__measured__01"
+  ]
+}

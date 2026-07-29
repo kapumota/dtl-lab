@@ -16,5 +16,34 @@ java -cp build/classes:build/test-classes dltlab.conformance.TraceReplayGenerato
 java -cp build/classes:build/test-classes dltlab.conformance.NegativeTraceCatalogTest
 bash scripts/conformance/check_conformance_structure.sh
 bash scripts/experiments/check_experimental_structure.sh
-bash scripts/experiments/check_experiment_infrastructure.sh
+
+unexpected_experiment_paths="$(
+  find results/experiments \
+    -mindepth 1 \
+    -maxdepth 1 \
+    ! -name README.md \
+    ! -name smoke-v1 \
+    ! -name raw \
+    ! -name '.smoke-v1.lock' \
+    -print
+)"
+
+if [[ -n "$unexpected_experiment_paths" ]]; then
+  echo "Existen rutas experimentales inesperadas:" >&2
+  printf '%s\n' "$unexpected_experiment_paths" >&2
+  exit 1
+fi
+
+if find results/experiments \
+  -mindepth 1 \
+  -maxdepth 1 \
+  \( -name smoke-v1 -o -name raw \) \
+  -print -quit |
+  grep -q .; then
+  echo "Se valida Fase 8B mediante el gate compatible de Fase 8C."
+else
+  bash scripts/experiments/check_experiment_infrastructure.sh
+fi
+
+bash scripts/experiments/check_scientific_matrix_structure.sh
 java -cp build/classes:build/test-classes dltlab.TestRunner
