@@ -17,6 +17,7 @@
 | model checking | ejecución reproducible | diecisiete runs y diez mutantes | matriz congelada, ejecución pendiente | 8A a 8D |
 | escalabilidad | perfiles de escenarios y fallos | shards, transferencias, scopes y estados | protocolo congelado, resultados pendientes | 8A a 8D |
 | protocolo experimental | seeds, repeticiones y recursos | configuraciones TLC y Alloy | cerrado antes de resultados | 8A |
+| infraestructura experimental | inventario, plan y runner reanudable | hashes, ambiente y resultados raw por tarea | executors científicos y matriz pendientes | 8B |
 | procedencia | seed y commit Java | commit fuente y commit ejecutado | cerrada con manifiesto y hashes integrados | 7E |
 | conformidad Java-TLA+ | diez escenarios válidos | replay TLC y diez mutaciones rechazadas | cerrada dentro del catálogo declarado | 7A a 7E |
 | artefacto reproducible | scripts y workflows | manifiesto, resumen, matriz y artefacto CI | protocolo congelado, snapshot editorial pendiente | 8A a 8G |

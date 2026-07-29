@@ -2,9 +2,9 @@
 
 #### Estado
 
-- Fase actual: Fase 8A, protocolo experimental Q3.
-- Fases 0 a 7E: cerradas.
-- Próxima fase: Fase 8B, infraestructura experimental.
+- Fase actual: Fase 8B, infraestructura experimental.
+- Fases 0 a 8A: cerradas.
+- Próxima fase: Fase 8C, matriz experimental.
 - Versión visible: `v1.1.0-rc.1`.
 - Verificación: acotada, reproducible y con mutantes científicos.
 - Trazas Java: JSONL versionado, determinista y reproducible.
@@ -42,7 +42,8 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 - `REPLAY_TLC.md`;
 - `CORPUS_NEGATIVO_TRAZAS.md`;
 - `CIERRE_CONFORMIDAD_FASE_7.md`;
-- `PROTOCOLO_EXPERIMENTAL_Q3.md`.
+- `PROTOCOLO_EXPERIMENTAL_Q3.md`;
+- `INFRAESTRUCTURA_EXPERIMENTAL.md`.
 
 #### Reglas de redacción
 
@@ -56,4 +57,4 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 
 #### Gate actual
 
-La Fase 8A congela RQ1 a RQ4, hipótesis, factores, configuraciones, seeds, repeticiones, recursos y análisis antes de ejecutar resultados definitivos. La Fase 8B implementará la infraestructura sin cambiar la semántica cerrada en la Fase 7.
+La Fase 8B construye un plan determinista, captura ambiente y procedencia, valida ejecución serial y reanudable, y separa resultados raw de derivados. La Fase 8C implementará los executors científicos y ejecutará la matriz congelada.

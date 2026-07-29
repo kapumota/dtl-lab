@@ -152,7 +152,7 @@ Gate Q3:
 
 Rama: `paper1/fase-8a-protocolo-experimental-q3`
 
-Objetivos:
+Objetivos cerrados:
 
 - elevar la pregunta de escalabilidad a RQ4;
 - declarar H1 a H4 como hipótesis pendientes;
@@ -162,7 +162,7 @@ Objetivos:
 - congelar métricas, análisis estadístico, tablas y figuras;
 - mantener fuera de alcance los resultados definitivos.
 
-Gate:
+Gate cerrado:
 
 - ninguna configuración queda implícita;
 - cada RQ tiene unidad y métricas;
@@ -175,12 +175,30 @@ Gate:
 
 #### Fase 8B: infraestructura experimental
 
+Rama: `paper1/fase-8b-infraestructura-experimental`
+
 Objetivos:
 
-- implementar el runner reanudable;
+- derivar un inventario ejecutable desde artefactos existentes;
+- construir un plan determinista de 1272 tareas;
+- implementar un runner serial y reanudable;
 - capturar ambiente y procedencia;
+- conservar stdout, stderr, tiempo y memoria por tarea;
 - validar configuraciones antes de ejecutar;
-- separar resultados raw y derivados.
+- separar resultados raw y derivados;
+- mantener fuera de alcance los executors científicos y resultados definitivos.
+
+Gate:
+
+- los archivos congelados de Fase 8A conservan sus blobs;
+- el plan contiene 112 calentamientos y 1160 tareas medidas;
+- cada tarea tiene identidad y hash reproducibles;
+- el runner rechaza ejecución concurrente;
+- una segunda invocación omite tareas terminales válidas;
+- CI solo ejecuta dry run y smoke test;
+- ambiente, procedencia y snapshots quedan registrados;
+- no se generan resultados definitivos;
+- Java, TLA+, Alloy, JSONL y conformidad no cambian.
 
 #### Fase 8C: matriz experimental
 

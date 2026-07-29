@@ -6,6 +6,17 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 
 #### [Unreleased] - Fase 8: evaluación experimental Q3
 
+#### Fase 8B
+
+* Agrega un inventario ejecutable derivado de propiedades, mutantes y trazas existentes.
+* Construye un plan determinista de 1272 tareas con hashes SHA-256.
+* Agrega un runner serial y reanudable con resultados por tarea.
+* Captura ambiente, procedencia, stdout, stderr, tiempo y memoria.
+* Separa resultados raw de resultados derivados.
+* Agrega un smoke test temporal que valida reanudación sin producir resultados definitivos.
+* Mantiene congelados factores, configuraciones, seeds y recursos de Fase 8A.
+* Mantiene sin cambios Java, TLA+, Alloy, JSONL y conformidad.
+
 #### Fase 8A
 
 * Congela RQ1 a RQ4 y las hipótesis H1 a H4 antes de los resultados.

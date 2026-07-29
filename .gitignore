@@ -51,3 +51,5 @@ results/traces/*
 !results/traces/README.md
 results/conformance/*
 !results/conformance/README.md
+results/experiments/*
+!results/experiments/README.md

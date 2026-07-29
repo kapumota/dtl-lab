@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kapumota/dtl-lab/experiments/paper1/result-schema-v1.json",
+  "title": "Resultado raw de una tarea experimental de DLT-Lab",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "protocol_id",
+    "task_id",
+    "task_sha256",
+    "status",
+    "started_at_utc",
+    "finished_at_utc",
+    "elapsed_seconds",
+    "max_rss_kb",
+    "exit_code",
+    "expectation_met",
+    "stdout_path",
+    "stderr_path",
+    "time_path",
+    "executor_result_path"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "protocol_id": {
+      "const": "paper1-q3-v1"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "timeout",
+        "out_of_memory",
+        "tool_error"
+      ]
+    },
+    "started_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finished_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "elapsed_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "max_rss_kb": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "exit_code": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "expectation_met": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "stdout_path": {
+      "type": "string"
+    },
+    "stderr_path": {
+      "type": "string"
+    },
+    "time_path": {
+      "type": "string"
+    },
+    "executor_result_path": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "executor_payload": {
+      "type": "object"
+    }
+  }
+}
