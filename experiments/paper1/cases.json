@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "phase": "8B",
+  "protocol_id": "paper1-q3-v1",
+  "purpose": "Inventario ejecutable derivado del protocolo congelado de la Fase 8A.",
+  "properties": [
+    {
+      "id": "NoReceiptReplay",
+      "tools": [
+        "tlc",
+        "alloy"
+      ]
+    },
+    {
+      "id": "DestinationCreditRequiresValidReceipt",
+      "tools": [
+        "tlc",
+        "alloy"
+      ]
+    },
+    {
+      "id": "DecisionConsistency",
+      "tools": [
+        "tlc",
+        "alloy"
+      ]
+    },
+    {
+      "id": "NoValueLossAtTermination",
+      "tools": [
+        "tlc",
+        "alloy"
+      ]
+    },
+    {
+      "id": "TerminalStateIrreversibility",
+      "tools": [
+        "tlc",
+        "alloy"
+      ]
+    },
+    {
+      "id": "EventuallyReleasedAfterTimeout",
+      "tools": [
+        "tlc",
+        "alloy"
+      ]
+    },
+    {
+      "id": "QuorumRequired",
+      "tools": [
+        "tlc",
+        "alloy"
+      ]
+    }
+  ],
+  "formal_mutants": [
+    {
+      "id": "tla-mutant-no-replay",
+      "tool": "tlc",
+      "model": "specs/tla/mutants/NoReplayProtection.tla",
+      "configuration": "specs/tla/configs/mutants/no-replay-protection.cfg",
+      "expected_property": "NoReceiptReplay"
+    },
+    {
+      "id": "tla-mutant-credit-before-receipt",
+      "tool": "tlc",
+      "model": "specs/tla/mutants/CreditBeforeReceipt.tla",
+      "configuration": "specs/tla/configs/mutants/credit-before-receipt.cfg",
+      "expected_property": "DestinationCreditRequiresValidReceipt"
+    },
+    {
+      "id": "tla-mutant-commit-after-abort",
+      "tool": "tlc",
+      "model": "specs/tla/mutants/CommitAfterAbort.tla",
+      "configuration": "specs/tla/configs/mutants/commit-after-abort.cfg",
+      "expected_property": "DecisionConsistency"
+    },
+    {
+      "id": "tla-mutant-timeout-without-release",
+      "tool": "tlc",
+      "model": "specs/tla/mutants/TimeoutWithoutRelease.tla",
+      "configuration": "specs/tla/configs/mutants/timeout-without-release.cfg",
+      "expected_property": "EventuallyReleasedAfterTimeout"
+    },
+    {
+      "id": "tla-mutant-quorum-bypass",
+      "tool": "tlc",
+      "model": "specs/tla/mutants/QuorumBypass.tla",
+      "configuration": "specs/tla/configs/mutants/quorum-bypass.cfg",
+      "expected_property": "QuorumRequired"
+    },
+    {
+      "id": "alloy-mutant-no-replay",
+      "tool": "alloy",
+      "model": "specs/alloy/mutants/NoReplayProtection.als",
+      "configuration": "",
+      "expected_property": "NoReceiptReplay"
+    },
+    {
+      "id": "alloy-mutant-credit-before-receipt",
+      "tool": "alloy",
+      "model": "specs/alloy/mutants/CreditBeforeReceipt.als",
+      "configuration": "",
+      "expected_property": "DestinationCreditRequiresValidReceipt"
+    },
+    {
+      "id": "alloy-mutant-commit-after-abort",
+      "tool": "alloy",
+      "model": "specs/alloy/mutants/CommitAfterAbort.als",
+      "configuration": "",
+      "expected_property": "TerminalStateIrreversibility"
+    },
+    {
+      "id": "alloy-mutant-timeout-without-release",
+      "tool": "alloy",
+      "model": "specs/alloy/mutants/TimeoutWithoutRelease.als",
+      "configuration": "",
+      "expected_property": "EventuallyReleasedAfterTimeout"
+    },
+    {
+      "id": "alloy-mutant-quorum-bypass",
+      "tool": "alloy",
+      "model": "specs/alloy/mutants/QuorumBypass.als",
+      "configuration": "",
+      "expected_property": "QuorumRequired"
+    }
+  ],
+  "valid_trace_cases": [
+    "S01_NORMAL_COMMIT",
+    "S02_TIMEOUT_BEFORE_DELIVERY",
+    "S03_DUPLICATED_RECEIPT",
+    "S04_DELAYED_AFTER_TIMEOUT",
+    "S05_COMMIT_TIMEOUT_SAME_ROUND",
+    "S06_SAME_UTXO_CONFLICT",
+    "S07_BIDIRECTIONAL_TRANSFERS",
+    "S08_TEMPORARY_TARGET_OUTAGE",
+    "S09_INSUFFICIENT_QUORUM",
+    "S10_MULTIPLE_CONCURRENT_SESSIONS"
+  ],
+  "negative_trace_cases": [
+    "M01_COMMIT_FROM_PENDING",
+    "M02_COMMIT_AFTER_ABORT",
+    "M03_RECEIPT_REPLAY",
+    "M04_CREDIT_WITHOUT_RECEIPT",
+    "M05_TIMEOUT_WITHOUT_RELEASE",
+    "M06_COMMIT_WITHOUT_QUORUM",
+    "M07_DUPLICATE_VOTE",
+    "M08_TRANSFER_ID_CHANGE",
+    "M09_SHARD_TOPOLOGY_CHANGE",
+    "M10_CONSUME_BEFORE_LOCK"
+  ]
+}

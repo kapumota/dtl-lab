@@ -1,5 +1,5 @@
 # Makefile principal de DLT-Lab para validacion, pruebas, demostraciones y verificacion.
-.PHONY: validate test demo demo-mempool demo-defi demo-adversarial security formal formal-research trace-export conformance-replay conformance-negative conformance-research conformance-structure experiment-protocol clean
+.PHONY: validate test demo demo-mempool demo-defi demo-adversarial security formal formal-research trace-export conformance-replay conformance-negative conformance-research conformance-structure experiment-protocol experiment-infrastructure clean
 
 validate:
 	bash scripts/validate.sh
@@ -45,6 +45,9 @@ conformance-structure:
 
 experiment-protocol:
 	bash scripts/experiments/check_experimental_structure.sh
+
+experiment-infrastructure:
+	bash scripts/experiments/check_experiment_infrastructure.sh
 
 clean:
 	rm -rf build target out
