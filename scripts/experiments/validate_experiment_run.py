@@ -37,7 +37,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expect-completed", type=int)
     parser.add_argument(
         "--expect-run-kind",
-        choices=["infrastructure_smoke", "definitive"],
+            choices=[
+                "infrastructure_smoke",
+                "scientific_smoke",
+                "definitive",
+            ],
     )
     return parser.parse_args()
 

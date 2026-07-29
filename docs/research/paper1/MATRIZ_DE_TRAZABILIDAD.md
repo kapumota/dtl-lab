@@ -14,29 +14,43 @@
 | decisión terminal | tabla Java e irreversibilidad | `TerminalStateIrreversibility` | contrastada mediante replay y commit tras abort | 7C y 7D |
 | replay | ataque runtime y escenario S03 | `NoReceiptReplay`, mutante | cerrada con consumo repetido rechazado por TLC | 7D |
 | timeout | ronda lógica y liberación | invariante acotada de liberación | liveness general fuera del alcance | trabajo futuro |
-| model checking | ejecución reproducible | diecisiete runs y diez mutantes | matriz congelada, ejecución pendiente | 8A a 8D |
-| escalabilidad | perfiles de escenarios y fallos | shards, transferencias, scopes y estados | protocolo congelado, resultados pendientes | 8A a 8D |
+| model checking | ejecución reproducible | diecisiete runs y diez mutantes | executors listos, matriz raw pendiente | 8A a 8D |
+| escalabilidad | perfiles de escenarios y fallos | shards, transferencias, scopes y estados | traducción ejecutable lista, resultados pendientes | 8A a 8D |
 | protocolo experimental | seeds, repeticiones y recursos | configuraciones TLC y Alloy | cerrado antes de resultados | 8A |
-| infraestructura experimental | inventario, plan y runner reanudable | hashes, ambiente y resultados raw por tarea | executors científicos y matriz pendientes | 8B |
+| infraestructura experimental | inventario, plan y runner reanudable | hashes, ambiente y resultados raw por tarea | cerrada para ejecución científica | 8B |
+| ejecución científica | runner por tarea y caso individual | TLC, Alloy y conformidad conectados | matriz definitiva y manifiesto raw | 8C |
 | procedencia | seed y commit Java | commit fuente y commit ejecutado | cerrada con manifiesto y hashes integrados | 7E |
-| conformidad Java-TLA+ | diez escenarios válidos | replay TLC y diez mutaciones rechazadas | cerrada dentro del catálogo declarado | 7A a 7E |
-| artefacto reproducible | scripts y workflows | manifiesto, resumen, matriz y artefacto CI | protocolo congelado, snapshot editorial pendiente | 8A a 8G |
+| conformidad Java-TLA+ | diez escenarios válidos | replay TLC y diez mutaciones rechazadas | ejecución multiseed pendiente | 7A a 8C |
+| artefacto reproducible | scripts y workflows | manifiesto, resumen, matriz y artefacto CI | raw pendiente, snapshot editorial pendiente | 8A a 8G |
 
 #### Evidencia cerrada hasta Fase 7E
 
-- máquina de estados Java;
-- protocolo atómico y rollback;
-- simulación determinista S01 a S10;
-- TLA+ y Alloy multisesión;
-- siete propiedades ejecutadas;
-- cinco mutantes por herramienta;
-- contraejemplos almacenados;
-- propiedad objetivo validada en Alloy;
-- procedencia de resultados;
-- JSONL determinista y función de abstracción;
-- replay TLC de diez escenarios válidos;
-- corpus de diez trazas corruptas;
-- manifiesto científico integrado y artefacto CI.
+- máquina de estados Java
+- protocolo atómico y rollback
+- simulación determinista S01 a S10
+- TLA+ y Alloy multisesión
+- siete propiedades ejecutadas
+- cinco mutantes por herramienta
+- contraejemplos almacenados
+- propiedad objetivo validada en Alloy
+- procedencia de resultados
+- JSONL determinista y función de abstracción
+- replay TLC de diez escenarios válidos
+- corpus de diez trazas corruptas
+- manifiesto científico integrado y artefacto CI
+
+#### Infraestructura cerrada hasta Fase 8C
+
+- protocolo Q3 congelado
+- plan determinista de 1272 tareas
+- runner serial y reanudable
+- captura de ambiente y procedencia
+- traducción concreta de perfiles
+- executor TLC por tarea
+- executor Alloy por tarea
+- conformidad por escenario o mutación
+- smoke científico de seis tareas
+- manifiesto raw con hashes por resultado
 
 #### Regla de actualización
 

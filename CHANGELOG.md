@@ -6,6 +6,17 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 
 #### [Unreleased] - Fase 8: evaluación experimental Q3
 
+#### Fase 8C
+
+* Agrega executors científicos por tarea para TLC, Alloy y conformidad.
+* Traduce perfiles congelados a configuraciones temporales y scopes ejecutables.
+* Agrega un runner Java para un escenario o mutación de conformidad.
+* Agrega un smoke científico de seis tareas para CI.
+* Exige Linux nativo dedicado para la matriz definitiva.
+* Genera un manifiesto raw con hashes por resultado.
+* Mantiene sin cambios modelos base, protocolo, seeds y configuraciones congeladas.
+* Mantiene fuera de alcance análisis, tablas y figuras.
+
 #### Fase 8B
 
 * Agrega un inventario ejecutable derivado de propiedades, mutantes y trazas existentes.

@@ -120,6 +120,36 @@ jobs:
               raise SystemExit("No coinciden los diez diagnósticos negativos.")
           PY
 
+      - name: Ejecutar smoke científico de Fase 8C
+        run: make experiment-scientific-smoke
+
+      - name: Verificar smoke científico
+        run: |
+          test -s results/experiments/smoke-v1/raw-manifest.json
+          test -s results/experiments/smoke-v1/environment.json
+          test -s results/experiments/smoke-v1/provenance.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path(
+                  "results/experiments/smoke-v1/raw-manifest.json"
+              ).read_text(encoding="utf-8")
+          )
+          if manifest.get("phase") != "8C":
+              raise SystemExit("El smoke debe declarar Fase 8C.")
+          if manifest.get("run_kind") != "scientific_smoke":
+              raise SystemExit("El tipo de smoke no coincide.")
+          counts = manifest.get("counts", {})
+          if counts.get("tasks_total") != 6:
+              raise SystemExit("El smoke debe contener seis tareas.")
+          if counts.get("expectation_met") != 6:
+              raise SystemExit("Las seis tareas deben cumplir su expectativa.")
+          if counts.get("by_status", {}).get("completed") != 6:
+              raise SystemExit("Las seis tareas smoke deben terminar completed.")
+          PY
+
       - name: Publicar resultados formales
         if: always()
         uses: actions/upload-artifact@v4
@@ -135,5 +165,13 @@ jobs:
         with:
           name: dtl-lab-conformance-results
           path: results/conformance/research-v1/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publicar smoke científico
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dtl-lab-experiment-scientific-smoke
+          path: results/experiments/smoke-v1/
           if-no-files-found: error
           retention-days: 30

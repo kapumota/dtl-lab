@@ -28,6 +28,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--repository-root", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument(
+        "--phase",
+        choices=["8B", "8C"],
+        default="8B",
+    )
     return parser.parse_args()
 
 
@@ -113,7 +118,7 @@ def main() -> None:
 
     environment = {
         "schema_version": 1,
-        "phase": "8B",
+        "phase": args.phase,
         "captured_at_utc": datetime.now(timezone.utc).isoformat(),
         "repository_root": str(root),
         "git": {

@@ -177,7 +177,7 @@ Gate cerrado:
 
 Rama: `paper1/fase-8b-infraestructura-experimental`
 
-Objetivos:
+Objetivos cerrados:
 
 - derivar un inventario ejecutable desde artefactos existentes;
 - construir un plan determinista de 1272 tareas;
@@ -188,7 +188,7 @@ Objetivos:
 - separar resultados raw y derivados;
 - mantener fuera de alcance los executors científicos y resultados definitivos.
 
-Gate:
+Gate cerrado:
 
 - los archivos congelados de Fase 8A conservan sus blobs;
 - el plan contiene 112 calentamientos y 1160 tareas medidas;
@@ -202,12 +202,33 @@ Gate:
 
 #### Fase 8C: matriz experimental
 
+Rama: `paper1/fase-8c-matriz-experimental`
+
 Objetivos:
 
-- ejecutar propiedades y mutantes;
-- ejecutar conformidad multiseed;
-- ejecutar perfiles de escalabilidad y fallos;
-- conservar timeout y falta de memoria.
+- traducir perfiles congelados a entradas concretas de TLC y Alloy;
+- ejecutar una propiedad o mutante por tarea;
+- ejecutar un escenario o mutación de conformidad por tarea;
+- preparar Java antes de iniciar las mediciones;
+- ejecutar un smoke científico de seis tareas;
+- ejecutar o reanudar la matriz completa de 1272 tareas;
+- conservar timeout, falta de memoria y errores de herramienta;
+- generar un manifiesto raw con hashes por resultado;
+- mantener fuera de alcance el análisis estadístico.
+
+Gate:
+
+- Fase 8A y Fase 8B conservan sus contratos;
+- los modelos TLA+ y Alloy versionados no cambian;
+- el executor TLC reutiliza launcher y parser existentes;
+- el executor Alloy reutiliza launcher y parser existentes;
+- la conformidad reutiliza los catálogos y el checker existentes;
+- el smoke científico cubre seis rutas representativas;
+- CI publica el artefacto smoke sin usar sus tiempos;
+- la ejecución definitiva rechaza WSL, virtualización y CI;
+- la matriz puede reanudarse sin repetir resultados terminales;
+- `raw-manifest.json` conserva 1272 resultados terminales;
+- no se generan tablas ni figuras.
 
 #### Fase 8D: análisis, tablas y figuras
 
