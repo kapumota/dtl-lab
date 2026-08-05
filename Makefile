@@ -1,5 +1,5 @@
 # Makefile principal de DLT-Lab para validacion, pruebas, demostraciones y verificacion.
-.PHONY: validate test demo demo-mempool demo-defi demo-adversarial security formal formal-research trace-export conformance-replay conformance-negative conformance-research conformance-structure experiment-protocol experiment-infrastructure experiment-scientific-structure experiment-scientific-smoke experiment-matrix clean
+.PHONY: validate test demo demo-mempool demo-defi demo-adversarial security formal formal-research trace-export conformance-replay conformance-negative conformance-research conformance-structure experiment-protocol experiment-infrastructure experiment-scientific-structure experiment-scientific-smoke experiment-matrix experiment-analysis-structure experiment-analysis clean
 
 validate:
 	bash scripts/validate.sh
@@ -57,6 +57,12 @@ experiment-scientific-smoke:
 
 experiment-matrix:
 	bash scripts/experiments/run_scientific_matrix.sh definitive
+
+experiment-analysis-structure:
+	bash scripts/experiments/check_experiment_analysis_structure.sh
+
+experiment-analysis:
+	bash scripts/experiments/run_experiment_analysis.sh
 
 clean:
 	rm -rf build target out

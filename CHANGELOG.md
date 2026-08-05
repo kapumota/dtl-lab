@@ -6,6 +6,17 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 
 #### [Unreleased] - Fase 8: evaluación experimental Q3
 
+#### Fase 8D
+
+* Agrega análisis reproducible sobre las 1272 tareas de la matriz definitiva.
+* Separa calentamientos, mediciones, censura y errores de herramienta.
+* Genera estadísticas descriptivas, intervalos bootstrap e intervalos Wilson.
+* Genera ocho tablas y ocho figuras SVG reproducibles.
+* Responde RQ1 a RQ4 con afirmaciones limitadas por bounds y censura.
+* Registra 1188 ejecuciones completadas y 84 timeouts.
+* Mantiene sin cambios los resultados raw de la Fase 8C.
+* Mantiene fuera de alcance la reproducción independiente y el manuscrito.
+
 #### Fase 8C
 
 * Agrega executors científicos por tarea para TLC, Alloy y conformidad.
