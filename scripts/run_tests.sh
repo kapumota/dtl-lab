@@ -24,6 +24,9 @@ unexpected_experiment_paths="$(
     ! -name README.md \
     ! -name smoke-v1 \
     ! -name raw \
+    ! -name derived \
+    ! -name tables \
+    ! -name figures \
     ! -name '.smoke-v1.lock' \
     -print
 )"
@@ -46,4 +49,5 @@ else
 fi
 
 bash scripts/experiments/check_scientific_matrix_structure.sh
+bash scripts/experiments/check_experiment_analysis_structure.sh
 java -cp build/classes:build/test-classes dltlab.TestRunner

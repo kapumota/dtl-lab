@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "phase": "8D",
+  "protocol_id": "paper1-q3-v1",
+  "status": "versionado",
+  "source_phase": "8C",
+  "bootstrap_resamples": 10000,
+  "proportion_interval": "wilson_95",
+  "rq4_association": "spearman",
+  "input_contract": {
+    "run_kind": "definitive",
+    "raw_manifest_phase": "8C",
+    "expected_tasks": 1272,
+    "raw_is_read_only": true
+  },
+  "outputs": {
+    "derived_datasets": [
+      "task-results.csv",
+      "measured-results.csv",
+      "exclusions.csv",
+      "statistics.csv",
+      "analysis-summary.json",
+      "rq-findings.json",
+      "rq-findings.md",
+      "derived-manifest.json"
+    ],
+    "tables": 8,
+    "figures": 8
+  },
+  "validity_threats": [
+    {
+      "category": "constructo",
+      "threat": "TLC y Alloy usan semánticas y unidades de costo diferentes.",
+      "mitigation": "El análisis compara crecimiento relativo dentro de cada herramienta y no tiempos absolutos entre herramientas.",
+      "residual_risk": "Los perfiles no representan toda configuración formal posible."
+    },
+    {
+      "category": "constructo",
+      "threat": "La conformidad de trazas no equivale a refinamiento general.",
+      "mitigation": "La conclusión se limita a conformidad acotada de trazas entre implementación y modelo sobre los casos evaluados.",
+      "residual_risk": "Pueden existir ejecuciones concretas fuera del catálogo."
+    },
+    {
+      "category": "interna",
+      "threat": "La carga del host puede afectar tiempo y memoria.",
+      "mitigation": "Las mediciones definitivas se ejecutan de forma serial en Linux nativo dedicado y registran el ambiente.",
+      "residual_risk": "Persisten variaciones del sistema operativo y de la JVM."
+    },
+    {
+      "category": "interna",
+      "threat": "Los calentamientos pueden sesgar las mediciones principales.",
+      "mitigation": "Dos repeticiones de calentamiento se conservan pero se excluyen del análisis principal.",
+      "residual_risk": "Diez repeticiones pueden no capturar toda variación de ejecución."
+    },
+    {
+      "category": "interna",
+      "threat": "Timeouts y falta de memoria producen observaciones censuradas.",
+      "mitigation": "Estos estados se conservan y se reportan por separado sin imputar valores numéricos.",
+      "residual_risk": "La mediana de observaciones completadas puede subestimar el costo en perfiles censurados."
+    },
+    {
+      "category": "externa",
+      "threat": "Los bounds pequeños, medianos y grandes son representaciones acotadas.",
+      "mitigation": "Cada afirmación declara herramienta, perfil, constantes y scope usados.",
+      "residual_risk": "Los resultados no se generalizan a redes blockchain reales sin validación adicional."
+    },
+    {
+      "category": "conclusión",
+      "threat": "Tres niveles ordinales limitan la inferencia sobre crecimiento no lineal.",
+      "mitigation": "Se reportan medianas, razones de crecimiento y Spearman como evidencia descriptiva.",
+      "residual_risk": "H4 requiere interpretación prudente y no demuestra una ley asintótica."
+    },
+    {
+      "category": "reproducibilidad",
+      "threat": "Cambios manuales en raw pueden alterar tablas y figuras.",
+      "mitigation": "El análisis verifica hashes del manifiesto raw y registra hashes de cada salida derivada.",
+      "residual_risk": "La preservación a largo plazo depende del archivo externo y sus checksums."
+    }
+  ]
+}
