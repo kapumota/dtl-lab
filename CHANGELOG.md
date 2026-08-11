@@ -6,6 +6,17 @@ El proyecto sigue una evolución por fases y usa tags versionados para preservar
 
 #### [Unreleased] - Fase 8: evaluación experimental Q3
 
+#### Fase 8E
+
+* Agrega un artefacto externo de reproducción con checksums SHA-256.
+* Exige un clon limpio y el mismo commit registrado en el artefacto.
+* Reutiliza los instaladores versionados de TLC y Alloy.
+* Ejecuta la validación general y un smoke científico de seis tareas.
+* Regenera el análisis completo desde el respaldo raw.
+* Compara datasets, tablas y figuras mediante hashes exactos.
+* Registra ambiente, pasos, logs e incidencias de reproducción.
+* Mantiene fuera de alcance la repetición completa de las 1272 mediciones.
+
 #### Fase 8D
 
 * Agrega análisis reproducible sobre las 1272 tareas de la matriz definitiva.
