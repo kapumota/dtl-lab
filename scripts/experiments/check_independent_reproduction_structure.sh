@@ -91,6 +91,15 @@ requireText \
   "$ROOT_DIR/docs/research/paper1/REPRODUCCION_INDEPENDIENTE.md" \
   "La matriz definitiva de 1272 tareas no se vuelve a ejecutar."
 
+requireText \
+  "$ROOT_DIR/scripts/validate.sh" \
+  'VALIDATION_TMP_DIR="$(mktemp -d)"'
+
+if grep -Fq '/tmp/dtl_' "$ROOT_DIR/scripts/validate.sh"; then
+  echo "validate.sh no debe usar rutas temporales globales fijas /tmp/dtl_*." >&2
+  exit 1
+fi
+
 python3 -B - "$ROOT_DIR" <<'PY'
 import ast
 import json

@@ -9,6 +9,15 @@ cd "$ROOT_DIR"
 
 export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:--Djava.security.egd=file:/dev/./urandom}"
 
+# Cada ejecución usa un directorio temporal privado para evitar colisiones
+# entre usuarios o ejecuciones concurrentes.
+VALIDATION_TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$VALIDATION_TMP_DIR"' EXIT
+
+GENERATED_FILES="$VALIDATION_TMP_DIR/dtl_generated_files.txt"
+MEMPOOL_DEMO="$VALIDATION_TMP_DIR/dtl_mempool_demo.txt"
+FORMAL_CHECKS="$VALIDATION_TMP_DIR/dtl_formal_checks.txt"
+
 require_file() {
   local path="$1"
   if [[ ! -f "$path" ]]; then
@@ -52,9 +61,9 @@ javac -version
 
 echo "3. Verificando que no existan artefactos binarios versionados"
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  if git ls-files | grep -E '(^|/)(build|target|out)(/|$)|\.(class|jar|war|ear)$|\.bak-badges-validation$' > /tmp/dtl_generated_files.txt; then
+  if git ls-files | grep -E '(^|/)(build|target|out)(/|$)|\.(class|jar|war|ear)$|\.bak-badges-validation$' > "$GENERATED_FILES"; then
     echo "Error: hay artefactos generados versionados:" >&2
-    cat /tmp/dtl_generated_files.txt >&2
+    cat "$GENERATED_FILES" >&2
     exit 1
   fi
 else
@@ -72,15 +81,15 @@ echo "5. Ejecutando pruebas automatizadas"
 bash scripts/run_tests.sh
 
 echo "6. Ejecutando demo focalizada de mempool"
-bash scripts/run_mempool_demo.sh > /tmp/dtl_mempool_demo.txt
-test -s /tmp/dtl_mempool_demo.txt
+bash scripts/run_mempool_demo.sh > "$MEMPOOL_DEMO"
+test -s "$MEMPOOL_DEMO"
 
 echo "7. Ejecutando verificacion formal estructural"
-bash scripts/run_formal_checks.sh > /tmp/dtl_formal_checks.txt
-test -s /tmp/dtl_formal_checks.txt
+bash scripts/run_formal_checks.sh > "$FORMAL_CHECKS"
+test -s "$FORMAL_CHECKS"
 
 echo "8. Verificando salidas de validacion"
-grep -q "CPFP" /tmp/dtl_mempool_demo.txt
-grep -q "Verificacion formal" /tmp/dtl_formal_checks.txt
+grep -q "CPFP" "$MEMPOOL_DEMO"
+grep -q "Verificacion formal" "$FORMAL_CHECKS"
 
 echo "Validacion completada correctamente."
