@@ -27,6 +27,7 @@ unexpected_experiment_paths="$(
     ! -name derived \
     ! -name tables \
     ! -name figures \
+    ! -name reproduction \
     ! -name '.smoke-v1.lock' \
     -print
 )"
@@ -50,4 +51,5 @@ fi
 
 bash scripts/experiments/check_scientific_matrix_structure.sh
 bash scripts/experiments/check_experiment_analysis_structure.sh
+bash scripts/experiments/check_independent_reproduction_structure.sh
 java -cp build/classes:build/test-classes dltlab.TestRunner

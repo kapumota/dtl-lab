@@ -13,6 +13,7 @@ results/experiments/
   tables/
   figures/
   smoke-v1/
+  reproduction/
   README.md
 ```
 
@@ -23,6 +24,8 @@ results/experiments/
 `tables` y `figures` conservan artefactos generados mediante scripts versionados.
 
 `smoke-v1` contiene un artefacto temporal de corrección funcional. Sus tiempos no se mezclan con las mediciones definitivas.
+
+`reproduction` conserva informes locales de Fase 8E, comparación de hashes, incidencias y salidas regeneradas.
 
 #### Regla de integridad
 
@@ -62,8 +65,27 @@ make experiment-analysis
 
 `derived-manifest.json` identifica los hashes de entrada, scripts y salidas.
 
+#### Reproducción independiente
+
+La ruta predeterminada es:
+
+```text
+results/experiments/reproduction/paper1-q3-v1
+```
+
+La reproducción se ejecuta con un artefacto externo:
+
+```bash
+make experiment-reproduction \
+  REPRODUCTION_BUNDLE=/ruta/paper1-q3-v1-reproduction.tar.gz
+```
+
+El informe registra ambiente, pasos, incidencias y comparación SHA-256.
+
 #### Estado
 
 La Fase 8C produce resultados raw y manifiestos.
 
 La Fase 8D produce datasets consolidados, estadística, respuestas a RQ1 a RQ4, ocho tablas y ocho figuras.
+
+La Fase 8E valida un clon limpio, ejecuta el smoke científico, regenera el análisis y compara los hashes de referencia.

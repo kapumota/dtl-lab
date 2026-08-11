@@ -30,6 +30,49 @@ El baseline científico `v1.1.0-rc.1` incluye:
 * perfil `make conformance-research` con procedencia y artefacto CI.
 
 
+#### Reproducción independiente del Paper 1
+
+La Fase 8E se ejecuta desde un clon limpio en Linux. Se recomienda usar otro usuario y otra máquina. WSL o una máquina virtual pueden validar el smoke y los hashes, pero no se usan para reinterpretar tiempos o memoria.
+
+En Ubuntu 24.04 se instalan los requisitos del sistema con:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+  ca-certificates \
+  curl \
+  git \
+  make \
+  openjdk-17-jdk \
+  python3.12 \
+  tar \
+  time
+```
+
+El repositorio se clona desde cero:
+
+```bash
+git clone https://github.com/kapumota/dtl-lab.git
+cd dtl-lab
+```
+
+El commit debe coincidir con `bundle-manifest.json`. Las herramientas formales versionadas se instalan con:
+
+```bash
+make experiment-reproduction-prepare
+```
+
+La reproducción se ejecuta con:
+
+```bash
+make experiment-reproduction \
+  REPRODUCTION_BUNDLE=/ruta/paper1-q3-v1-reproduction.tar.gz \
+  REPRODUCTION_OUTPUT=/ruta/resultados-reproduccion
+```
+
+El flujo ejecuta la validación general, seis tareas científicas representativas, la regeneración completa del análisis desde raw y la comparación SHA-256 de datasets, tablas y figuras. La matriz definitiva de 1272 tareas no se vuelve a ejecutar.
+
+
 #### Validación reproducible del software
 
 DLT-Lab se valida mediante un flujo reproducible conectado a GitHub Actions. El workflow `.github/workflows/validation.yml` ejecuta el script principal:

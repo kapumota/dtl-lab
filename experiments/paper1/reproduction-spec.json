@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "phase": "8E",
+  "protocol_id": "paper1-q3-v1",
+  "status": "versionado",
+  "source_phase": "8D",
+  "purpose": "Reproducción independiente funcional y documental del artefacto experimental.",
+  "independence_levels": {
+    "preferred": "usuario y máquina Linux distintos",
+    "acceptable": "usuario distinto en la misma máquina Linux",
+    "functional_only": "WSL o virtualización para smoke y comparación de hashes"
+  },
+  "clean_clone": {
+    "required": true,
+    "tracked_worktree_clean": true,
+    "source_commit_must_match_bundle": true
+  },
+  "software": {
+    "linux_required": true,
+    "java_major": 17,
+    "python_major_minor": "3.12",
+    "commands": [
+      "git",
+      "make",
+      "java",
+      "javac",
+      "python3",
+      "curl",
+      "tar",
+      "sha256sum",
+      "/usr/bin/time",
+      "readlink"
+    ]
+  },
+  "workflow": {
+    "install_from_readme_only": true,
+    "validate_repository": true,
+    "scientific_smoke_tasks": 6,
+    "full_matrix_rerun": false,
+    "regenerate_full_analysis_from_raw": true,
+    "compare_outputs_by": "sha256_exacto"
+  },
+  "reference_outputs": {
+    "task_rows": 1272,
+    "tables": 8,
+    "figures": 8,
+    "directories": [
+      "derived",
+      "tables",
+      "figures"
+    ]
+  },
+  "required_reports": [
+    "environment.json",
+    "steps.tsv",
+    "comparison/comparison.csv",
+    "comparison/comparison.json",
+    "comparison/comparison.md",
+    "incidents.csv",
+    "reproduction-report.json",
+    "reproduction-report.md"
+  ],
+  "incident_categories": [
+    "ambiente",
+    "instalación",
+    "validación",
+    "smoke",
+    "análisis",
+    "comparación",
+    "documentación"
+  ],
+  "acceptance": {
+    "repository_validation_passes": true,
+    "scientific_smoke_passes": true,
+    "analysis_regeneration_passes": true,
+    "all_reference_hashes_match": true,
+    "critical_incidents": 0
+  }
+}
