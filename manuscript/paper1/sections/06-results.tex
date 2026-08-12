@@ -207,3 +207,84 @@ sensitive to the injected defect classes considered in the experiment.
 It does not establish completeness with respect to arbitrary
 cross-shard protocol defects or mutations outside the predefined
 catalogue.
+
+\subsection{RQ3: Bounded implementation-model trace conformance}
+\label{subsec:rq3-results}
+
+RQ3 evaluates whether observable traces produced by the Java
+implementation correspond to action sequences admitted by the TLA+
+model within the predefined scenario catalogue and experimental
+bounds.
+
+The experiment contained ten valid scenarios and ten deliberately
+corrupted negative cases. Each case was executed under thirty
+deterministic seeds, producing 600 measured replay executions.
+
+All 300 valid traces were accepted by the bounded replay procedure.
+All 300 negative traces were rejected. For every negative execution,
+the diagnostic information also identified the expected rejection
+point, yielding 300 matching diagnostics.
+
+Table~\ref{tab:rq3-summary} summarizes the aggregate classification
+results.
+
+\begin{table}[htbp]
+\centering
+\caption{RQ3 bounded trace-conformance results.}
+\label{tab:rq3-summary}
+\begin{tabular}{lrrrr}
+\hline
+Trace class &
+Cases &
+Runs &
+Correct classification &
+Matching diagnostics \\
+\hline
+Valid    & 10 & 300 & 300 & --  \\
+Negative & 10 & 300 & 300 & 300 \\
+\hline
+Total    & 20 & 600 & 600 & 300 \\
+\hline
+\end{tabular}
+\end{table}
+
+At the individual-case level, every one of the twenty scenarios
+obtained 30 correct classifications out of 30 seeds. The observed
+classification proportion was therefore 1.0 for every case. The
+case-level Wilson 95\% interval associated with 30 successes in 30
+runs had a lower bound of approximately 0.8865 and an upper bound of
+1.0.
+
+The valid catalogue includes normal commit, timeout-related behavior,
+duplicated receipts, delayed delivery after timeout, same-round commit
+and timeout, conflicting use of the same UTXO, bidirectional
+transfers, temporary target unavailability, insufficient quorum, and
+multiple concurrent sessions.
+
+The negative catalogue contains deliberately corrupted traces,
+including commit from a pending state, commit after abort, receipt
+replay, destination credit without a valid receipt, timeout without
+release, commit without quorum, duplicate voting, transfer-identifier
+changes, shard-topology changes, and receipt consumption before the
+source lock.
+
+The diagnostic criterion is evaluated only for negative cases because
+these executions are expected to be rejected at a predefined point.
+A matching diagnostic means that the replay procedure rejected the
+trace consistently with the expected abstract-action mismatch rather
+than merely producing a generic failure.
+
+\subsubsection{Answer to RQ3}
+\label{subsubsec:rq3-answer}
+
+All 300 valid traces were accepted, all 300 deliberately corrupted
+traces were rejected, and all 300 negative executions produced the
+expected diagnostic agreement.
+
+H3 is therefore supported for the predefined bounded trace catalogue.
+
+This result provides evidence of bounded implementation-model trace
+conformance between the Java implementation and the TLA+ abstraction
+for the evaluated scenarios and seeds. It does not constitute a
+general refinement proof, behavioral equivalence result, or guarantee
+that arbitrary Java executions conform to the formal model.
