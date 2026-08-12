@@ -1,0 +1,130 @@
+\section{Cross-Shard Transaction Model}
+\label{sec:cross-shard-model}
+
+\subsection{System abstraction}
+\label{subsec:system-abstraction}
+
+We study a cross-shard transaction protocol in which a transfer moves value from a source shard to a target shard while preserving a consistent terminal outcome. Each shard maintains an independent UTXO-based ledger, and each cross-shard transfer is represented by a uniquely identified protocol session.
+
+A session coordinates the source-side lock, the creation and delivery of a cross-shard receipt, destination-side preparation, and the final commit decision. The protocol additionally handles aborts, validation failures, insufficient quorum, timeouts, duplicated receipts, and partially applied commits.
+
+The executable implementation separates shard management from transaction-state mutation. The shard manager maintains shard topology, validators, logical time, session registration, and aggregate metrics. The atomic-commit component validates protocol preconditions and performs state-changing operations. This separation allows the transaction protocol to be analyzed independently from unrelated blockchain functionality in the surrounding simulation platform.
+
+Receipt authenticity is treated as an abstract protocol precondition rather than as a cryptographic result. Similarly, quorum is assumed to summarize validator approval; the consensus mechanism that produces those approvals is outside the scope of this study. Timeouts use logical rounds and therefore do not represent wall-clock deadlines.
+
+\subsection{Cross-shard session state machine}
+\label{subsec:state-machine}
+
+Each transfer is represented by a finite-state session. The implementation contains the following states:
+
+\begin{itemize}
+\item \texttt{CREATED};
+\item \texttt{SOURCE_LOCKED};
+\item \texttt{RECEIPT_CREATED};
+\item \texttt{RECEIPT_DELIVERED};
+\item \texttt{DESTINATION_PREPARED};
+\item \texttt{COMMITTED};
+\item \texttt{ABORTED};
+\item \texttt{TIMED_OUT};
+\item \texttt{FAILED_VALIDATION}.
+\end{itemize}
+
+The normal successful execution follows
+
+\begin{equation}
+\begin{split}
+\texttt{CREATED}
+&\rightarrow \texttt{SOURCE_LOCKED} \\
+&\rightarrow \texttt{RECEIPT_CREATED} \\
+&\rightarrow \texttt{RECEIPT_DELIVERED} \\
+&\rightarrow \texttt{DESTINATION_PREPARED} \\
+&\rightarrow \texttt{COMMITTED}.
+\end{split}
+\label{eq:normal-commit-path}
+\end{equation}
+
+The states \texttt{COMMITTED}, \texttt{ABORTED}, \texttt{TIMED_OUT}, and \texttt{FAILED_VALIDATION} are terminal. The transition system does not permit outgoing transitions from these states.
+
+Abort and validation-failure transitions may occur from nonterminal states. A timeout may occur after source locking and before a terminal decision, but it is not allowed directly from \texttt{CREATED}, where no source resource has yet been locked.
+
+The transition relation explicitly rejects inconsistent executions such as commit after abort, commit after timeout, direct transition from creation to commit, repeated terminal decisions, and receipt processing for a different transfer identifier. Each accepted transition generates an immutable protocol event containing a sequence number, logical time, transfer identifier, action, previous state, next state, and diagnostic reason.
+
+\subsection{Atomic commit and rollback}
+\label{subsec:atomic-commit}
+
+The executable commit operation is divided into four conceptual stages:
+
+\begin{enumerate}
+\item preparation of the commit plan;
+\item validation of commit preconditions;
+\item application of ledger and session mutations;
+\item rollback if an application step fails.
+\end{enumerate}
+
+Before modifying ledger state, the protocol constructs a commit plan and captures a restorable snapshot. The snapshot records the relevant source UTXO, its lock state, receipt-consumption state, optional change output, destination output, and a checkpoint of the complete protocol session.
+
+During a normal commit, the destination is prepared, the receipt is consumed, the source value is removed, the source lock is released, the optional change output is created, the destination output is created, and the session reaches \texttt{COMMITTED}.
+
+A failure during this sequence invokes rollback before the protocol error is propagated. Rollback restores the destination output, change output, source UTXO, receipt-consumption state, source lock, and session checkpoint to their pre-commit values. The restored session does not record a synthetic reverse transition because rollback represents cancellation of an incomplete state application rather than a new protocol decision.
+
+The implementation also exposes deterministic failure-injection points around receipt consumption, source debit, and destination credit. These points make partially executed commits reproducible without introducing nondeterministic faults into the experimental workflow.
+
+\subsection{Concurrent formal abstraction}
+\label{subsec:formal-abstraction}
+
+The executable protocol is complemented by bounded formal models in TLA+ and Alloy. The models abstract the implementation into protocol-level state needed to reason about concurrent sessions and failure behavior.
+
+The formal abstractions represent transfer status, source and target shards, resource locks, receipt ownership and consumption, destination credit, released funds, messages, and validator votes. The abstraction deliberately collapses implementation-level states that do not change the protocol-level decision state.
+
+The Java-to-formal projection maps \texttt{CREATED} to \texttt{Pending}; \texttt{SOURCE\_LOCKED}, \texttt{RECEIPT\_CREATED}, and \texttt{RECEIPT\_DELIVERED} to \texttt{Locked}; \texttt{DESTINATION\_PREPARED} to \texttt{Prepared}; \texttt{COMMITTED} to \texttt{Committed}; and \texttt{ABORTED}, \texttt{TIMED\_OUT}, and \texttt{FAILED\_VALIDATION} to \texttt{Aborted}.
+
+TLA+ additionally stores the first abstract terminal decision in \texttt{terminalStatus}. Alloy instead represents bounded executions as an ordered sequence of states and checks terminal-state irreversibility over consecutive states. The two models therefore encode terminal consistency differently while targeting the same protocol concern.
+
+Concurrent configurations vary the number of shards and active transfers and include executions with duplicate receipts, delayed messages, timeout races, and quorum-related behavior. These configurations are finite by construction; consequently, all model-checking conclusions in this work are bounded by the declared scopes and constants.
+
+TLA+ and Alloy provide two formal representations of the same cross-shard protocol concerns, but their state representations, exploration semantics, and cost units are not treated as equivalent. We therefore use them as complementary verification mechanisms and do not infer tool superiority from absolute execution-time differences.
+
+\subsection{Evaluated protocol properties}
+\label{subsec:properties}
+
+Seven protocol properties define the main bounded verification target.
+
+\begin{description}
+
+```
+\item[\texttt{NoReceiptReplay}.]
+A cross-shard receipt must not be consumed more than once.
+
+\item[\texttt{DestinationCreditRequiresValidReceipt}.]
+Destination-side credit requires a receipt accepted as valid by the protocol.
+
+\item[\texttt{DecisionConsistency}.]
+A committed transfer must not simultaneously be represented as having released its source funds through an abort-like terminal outcome.
+
+\item[\texttt{NoValueLossAtTermination}.]
+At a terminal state, transferred value must either have been committed to the destination or remain recoverable on the source side.
+
+\item[\texttt{TerminalStateIrreversibility}.]
+Once the protocol reaches its first terminal decision, a later execution step must not replace it with an incompatible terminal outcome.
+
+\item[\texttt{EventuallyReleasedAfterTimeout}.]
+An abstract transfer represented as \texttt{Aborted} must have released its source funds. This property captures the release obligation associated with the modeled timeout and non-commit terminal behavior.
+
+\item[\texttt{QuorumRequired}.]
+A commit requires the relevant validator quorum. TLA+ parameterizes this threshold through \texttt{Quorum}, whereas the evaluated Alloy model requires at least two validator votes.
+```
+
+\end{description}
+
+These properties cover replay protection, destination authorization, decision consistency, conservation of value, terminal-state stability, release after timeout, and quorum enforcement. They form the property set evaluated by the valid formal models and by the mutation-based experiments described later.
+
+\subsection{Scope of the model}
+\label{subsec:model-scope}
+
+The model deliberately excludes several concerns.
+
+First, receipt authenticity is abstracted rather than derived from a complete cryptographic verification protocol. Second, validator quorum is modeled as an approval condition rather than by formally verifying the consensus mechanism that produces the votes. Third, time is represented by logical rounds instead of physical time. Fourth, network behavior remains scenario-bounded. Delay and duplicate-receipt behavior are represented by the evaluated formal configurations, while concrete implementation-level network events that are not structurally represented by the abstraction are projected as stuttering steps during trace conformance.
+
+Most importantly, both formal representations operate over finite configurations. Absence of a counterexample therefore indicates that no violation was found within the evaluated model, property, configuration, and bound. It does not constitute an unbounded proof of protocol correctness.
+
+The relationship between the Java implementation and the formal model is evaluated separately through bounded trace conformance. This study does not claim a general refinement proof or behavioral equivalence between the implementation and either formal specification.
