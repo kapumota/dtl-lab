@@ -288,3 +288,136 @@ conformance between the Java implementation and the TLA+ abstraction
 for the evaluated scenarios and seeds. It does not constitute a
 general refinement proof, behavioral equivalence result, or guarantee
 that arbitrary Java executions conform to the formal model.
+
+\subsection{RQ4: Bounded verification cost}
+\label{subsec:rq4-results}
+
+RQ4 characterizes how the computational cost of bounded verification
+changes as the predefined profiles increase in size and as selected
+fault conditions are enabled.
+
+The RQ4 evidence comprises 460 measured executions. Of these, 420
+belong to the valid-model small, medium, and large bound profiles
+shared with RQ1, and 40 correspond to four additional TLC fault
+profiles.
+
+\subsubsection{Cost across bound profiles}
+\label{subsubsec:rq4-bound-cost}
+
+Table~\ref{tab:rq4-bound-cost} summarizes elapsed time, memory, and
+available state-space measurements for the three ordered profiles.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{RQ4 cost by formal tool and bound profile.}
+\label{tab:rq4-bound-cost}
+\begin{tabular}{llrrrrr}
+\hline
+Tool &
+Profile &
+Runs &
+Completed &
+Timeout &
+Median time (s) &
+Median RSS (KiB) \\
+\hline
+Alloy & Small  & 70 & 70 & 0  & 0.515306 & 179830 \\
+Alloy & Medium & 70 & 70 & 0  & 0.766172 & 299268 \\
+Alloy & Large  & 70 & 70 & 0  & 1.568320 & 317612 \\
+TLC   & Small  & 70 & 70 & 0  & 0.666802 & 143660 \\
+TLC   & Medium & 70 & 70 & 0  & 1.118120 & 601428 \\
+TLC   & Large  & 70 & 0  & 70 & --       & --     \\
+\hline
+\end{tabular}
+\end{table}
+
+All Alloy profiles completed. Median elapsed time increased from
+0.515306 seconds in the small profile to 0.766172 seconds in the
+medium profile and 1.568320 seconds in the large profile. Median
+maximum resident memory increased from 179830 KiB to 299268 KiB and
+317612 KiB, respectively.
+
+Across the three Alloy profiles, Spearman rank association between the
+ordered profile level and both median elapsed time and median maximum
+resident memory was 1.0. The large-to-small ratio was approximately
+3.043 for median elapsed time and 1.766 for median memory.
+
+For TLC, the small and medium profiles completed, with median elapsed
+times of 0.666802 and 1.118120 seconds and median maximum resident
+memory values of 143660 and 601428 KiB, respectively. Median distinct
+states increased from 14 in the small profile to 24336 in the medium
+profile.
+
+The large TLC profile did not yield completed measurements. All 70
+measured executions reached the predefined 1800-second timeout.
+Consequently, elapsed-time, memory, and state-space medians are not
+reported for that profile.
+
+The available TLC measurements exhibit increasing cost from small to
+medium, but the two completed profile levels are insufficient for a
+meaningful characterization of the shape of the growth curve.
+Furthermore, the complete censoring of the large profile prevents a
+three-level completed-profile analysis.
+
+\subsubsection{Cost under enabled fault profiles}
+\label{subsubsec:rq4-fault-cost}
+
+The additional TLC fault experiment evaluates four medium-bound
+configurations. All forty measured executions completed without
+timeout, out-of-memory, or tool-error outcomes.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{RQ4 TLC cost under enabled fault profiles.}
+\label{tab:rq4-fault-cost}
+\begin{tabular}{lrrr}
+\hline
+Fault profile &
+Runs &
+Median time (s) &
+Median RSS (KiB) \\
+\hline
+Normal               & 10 & 0.867343 & 379846 \\
+Insufficient quorum  & 10 & 1.068210 & 493370 \\
+Replay               & 10 & 1.118420 & 604258 \\
+Timeout              & 10 & 1.569610 & 822820 \\
+\hline
+\end{tabular}
+\end{table}
+
+The enabled fault condition therefore affects the cost observed within
+the TLC medium-bound experiments. Among the evaluated profiles, the
+timeout-oriented case produced the largest median elapsed time and
+median memory footprint, while the normal profile produced the
+smallest values.
+
+These measurements characterize the evaluated fault profiles only.
+They are not interpreted as an ordering that generalizes to arbitrary
+failure modes.
+
+\subsubsection{Answer to RQ4}
+\label{subsubsec:rq4-answer}
+
+The experiments provide evidence that bounded verification cost
+increases as the evaluated configurations grow.
+
+For Alloy, all three ordered profiles completed and both median elapsed
+time and median memory increased monotonically with profile level.
+For TLC, cost increased between the two completed profiles, while all
+large-profile measurements were censored by timeout.
+
+These observations support a descriptive claim of increasing
+verification cost. They do not establish the preregistered nonlinear
+growth claim in H4. Only three ordered profiles were defined, and TLC
+provides completed measurements for only two of them.
+
+Accordingly, H4 remains unconfirmed in its nonlinear form: the
+experiment provides evidence of growth without sufficient evidence to
+establish a nonlinear or asymptotic growth law.
+
+All cost comparisons are interpreted within each formal tool. The
+results do not support claims of absolute performance superiority
+between TLC and Alloy because their modelling semantics and
+state-space representations differ.
