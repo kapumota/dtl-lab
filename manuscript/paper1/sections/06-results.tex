@@ -75,3 +75,135 @@ cannot be interpreted as successful property verification.
 H1 is therefore partially supported under censoring. The result is
 restricted to the completed bounded configurations and does not
 constitute an unbounded proof of protocol correctness.
+
+\subsection{RQ2: Mutation-based validation}
+\label{subsec:rq2-results}
+
+RQ2 evaluates whether the declared property suite detects predefined
+scientific mutations that remove controls from the cross-shard
+protocol.
+
+The experiment contained ten scientific mutants: five instantiated in
+the TLA+ model and five in the Alloy model. Each mutant was evaluated
+through ten measured repetitions at the medium profile, producing 100
+measured mutation runs.
+
+All ten scientific mutants were detected through their designated
+target properties, and detection remained consistent across all
+measured repetitions. The resulting mutation score was
+
+\begin{equation}
+\mathrm{MutationScore}
+=
+\frac{10}{10}
+=
+1.0.
+\label{eq:rq2-mutation-score}
+\end{equation}
+
+Table~\ref{tab:rq2-summary} summarizes the aggregate result.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{RQ2 scientific mutants, target properties, and detection results.}
+\label{tab:rq2-summary}
+\begin{tabular}{llllr}
+\hline
+Tool & Mutant & Target property & Detected & Runs \\
+\hline
+Alloy &
+commit-after-abort &
+TerminalStateIrreversibility &
+Yes & 10/10 \\
+
+Alloy &
+credit-before-receipt &
+DestinationCreditRequiresValidReceipt &
+Yes & 10/10 \\
+
+Alloy &
+no-replay &
+NoReceiptReplay &
+Yes & 10/10 \\
+
+Alloy &
+quorum-bypass &
+QuorumRequired &
+Yes & 10/10 \\
+
+Alloy &
+timeout-without-release &
+EventuallyReleasedAfterTimeout &
+Yes & 10/10 \\
+
+TLC &
+commit-after-abort &
+DecisionConsistency &
+Yes & 10/10 \\
+
+TLC &
+credit-before-receipt &
+DestinationCreditRequiresValidReceipt &
+Yes & 10/10 \\
+
+TLC &
+no-replay &
+NoReceiptReplay &
+Yes & 10/10 \\
+
+TLC &
+quorum-bypass &
+QuorumRequired &
+Yes & 10/10 \\
+
+TLC &
+timeout-without-release &
+EventuallyReleasedAfterTimeout &
+Yes & 10/10 \\
+\hline
+\end{tabular}
+\end{table}
+
+The commit-after-abort defect is associated with different designated
+target properties in the two formal representations:
+\texttt{TerminalStateIrreversibility} in Alloy and
+\texttt{DecisionConsistency} in TLA+. This difference follows the
+tool-specific encodings of terminal consistency and does not affect
+the mutant-level detection criterion.
+
+The evaluated defect classes covered removal of replay protection,
+destination credit without the required receipt condition, commit after
+an abort-like terminal decision, timeout without release of source
+funds, and quorum bypass.
+
+Detection was evaluated at the mutant level rather than by counting
+individual counterexample-producing repetitions as separate mutants.
+Therefore, the 100 measured runs represent repeated evaluations of ten
+scientific mutants, not 100 independent mutant definitions.
+
+The repeated measurements also verified consistency of the logical
+outcome: each mutant continued to expose its designated target-property
+violation across all ten measured repetitions.
+
+No absolute execution-time comparison between TLC and Alloy is used to
+support RQ2. The two formal representations have different exploration
+semantics, and the relevant result for this research question is
+whether each predefined mutant exposes its designated property
+violation.
+
+\subsubsection{Answer to RQ2}
+\label{subsubsec:rq2-answer}
+
+All ten predefined scientific mutants were detected through their
+target properties, yielding a mutation score of 1.0 with consistent
+detection across the measured repetitions.
+
+H2 is therefore supported for the predefined scientific mutant
+catalogue.
+
+This result demonstrates that the evaluated property suite is
+sensitive to the injected defect classes considered in the experiment.
+It does not establish completeness with respect to arbitrary
+cross-shard protocol defects or mutations outside the predefined
+catalogue.
