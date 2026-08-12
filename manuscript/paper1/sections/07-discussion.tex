@@ -1,0 +1,237 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Bounded verification evidence}
+\label{subsec:discussion-bounded-verification}
+
+The RQ1 results provide bounded evidence that the cross-shard protocol
+preserves the declared properties across the completed configurations.
+No completed TLC or Alloy execution produced a counterexample for the
+evaluated valid models. This result is relevant because the property
+suite covers complementary protocol obligations, including replay
+protection, receipt-dependent destination credit, decision
+consistency, value preservation at termination, quorum enforcement,
+terminal-state irreversibility, and release after timeout.
+
+The strength of this evidence is determined by the explored bounds
+rather than by the absence of counterexamples alone. Alloy completed
+all three predefined profiles, whereas TLC completed the small and
+medium profiles but reached the experimental timeout for every
+large-profile measured execution. The TLC-large observations therefore
+do not constitute property violations; instead, they delimit the
+portion of the bounded state space for which verification completed
+under the frozen resource policy.
+
+This distinction is important for interpreting H1. The experiment
+supports property preservation for the completed bounded
+configurations, but it cannot extend that conclusion to unexplored
+states or to the censored TLC-large executions. In particular, the
+absence of a counterexample in the completed runs must not be
+interpreted as an unbounded correctness proof.
+
+The complementary use of TLC and Alloy strengthens the bounded
+evidence without making the two analyses interchangeable. Each tool
+encodes and explores the protocol using different formal semantics.
+Agreement in the absence of detected violations across the completed
+profiles therefore provides corroborating evidence, rather than a
+claim that the two formal representations explore identical state
+spaces or establish equivalent proofs.
+
+\subsection{Mutation sensitivity and property adequacy}
+\label{subsec:discussion-mutation}
+
+RQ2 complements the absence-of-counterexample evidence from RQ1 by
+testing whether the declared properties respond when relevant protocol
+controls are deliberately removed. All ten predefined scientific
+mutants were detected through their designated target properties, and
+the detection outcome remained consistent across the repeated
+measurements. The resulting mutation score of 1.0 therefore provides
+evidence that the evaluated property suite is not merely satisfied by
+the valid models, but is also sensitive to the injected defect classes.
+
+This distinction strengthens the interpretation of the formal
+verification results. A property suite that reports no violation for a
+valid model is more informative when controlled perturbations of that
+model cause the expected properties to fail. In this experiment, the
+mutants exercise protocol mechanisms related to replay protection,
+receipt-dependent credit, terminal decisions, timeout release, and
+quorum enforcement. Their detection provides targeted evidence that
+these protocol obligations are represented by the formal properties
+used in the study.
+
+The mutation results also expose the role of tool-specific formal
+encodings. The commit-after-abort defect is associated with
+\texttt{TerminalStateIrreversibility} in Alloy and
+\texttt{DecisionConsistency} in TLA+. This difference does not weaken
+the mutant-level result; rather, it shows that equivalent defect
+intentions can be captured through different property formulations in
+the two representations.
+
+The interpretation nevertheless remains bounded by the predefined
+mutation catalogue. A mutation score of 1.0 means that all injected
+scientific mutants considered by the experiment were detected. It does
+not establish that the property suite is complete with respect to
+arbitrary implementation defects, modelling errors, or alternative
+cross-shard failure modes.
+
+Accordingly, the contribution of RQ2 is evidence of property
+sensitivity and targeted adequacy, not completeness. Together with RQ1,
+it distinguishes two complementary claims: the declared properties
+hold in the completed valid-model configurations, and the same
+verification framework reacts when selected protocol guarantees are
+intentionally weakened.
+
+\subsection{Implementation-model trace conformance}
+\label{subsec:discussion-conformance}
+
+RQ3 connects the formal models with the executable Java implementation
+through bounded replay of observable traces. All 300 traces produced
+from the predefined valid scenarios were accepted by the TLA+ replay
+procedure, while all 300 deliberately corrupted traces were rejected.
+For the negative catalogue, the expected diagnostic point also matched
+in all 300 executions.
+
+These results provide evidence that the abstraction used by the formal
+model captures the implementation-level events exercised by the
+predefined scenario catalogue. The result is stronger than checking
+only whether valid traces are accepted because the negative catalogue
+tests whether specific corruptions are rejected at the expected
+abstract-action boundary.
+
+The diagnostic agreement is particularly relevant. A generic rejection
+would show only that a trace cannot be replayed. Agreement with the
+expected rejection point instead provides evidence that the mismatch is
+identified at the protocol step deliberately corrupted by the
+experiment.
+
+The conformance result nevertheless has a deliberately limited scope.
+The replay procedure observes a selected abstraction of implementation
+behavior, and the experiment evaluates ten valid and ten negative trace
+classes over the frozen set of thirty seeds. Therefore, the result
+supports bounded implementation-model trace conformance for the
+evaluated catalogue rather than a statement about every possible Java
+execution.
+
+In particular, this evidence must not be interpreted as a formal
+refinement proof or as behavioral equivalence between the Java
+implementation and the TLA+ specification. Establishing refinement
+would require a stronger semantic relation covering the full relevant
+transition systems, whereas the present experiment validates
+correspondence for the predefined observable traces.
+
+RQ3 therefore contributes an implementation-facing validation layer:
+the formal abstraction is not evaluated only internally through model
+checking and mutation analysis, but is also confronted with observable
+execution sequences generated by the implementation.
+
+\subsection{Verification cost and scalability}
+\label{subsec:discussion-cost}
+
+RQ4 shows that the verification campaign is constrained not only by
+logical correctness but also by the cost of exploring increasingly
+large bounded configurations. The measured results exhibit increasing
+cost within both formal tools, although the available evidence does not
+support the stronger preregistered claim of nonlinear growth.
+
+For Alloy, all three ordered bound profiles completed. Median elapsed
+time increased monotonically from the small to the medium and large
+profiles, and median memory usage followed the same ordering. The
+Spearman rank association of 1.0 for both metrics therefore confirms a
+monotonic relationship across the three observed profile levels. With
+only three ordinal points, however, this statistic cannot identify the
+functional form of the growth curve.
+
+The TLC results expose a stronger scalability boundary. The small and
+medium profiles completed and showed increases in elapsed time, memory,
+and explored state-space size. The large profile, however, produced no
+completed measured execution because all seventy runs reached the
+frozen 1800-second timeout. This complete censoring prevents computation
+of a completed-run median for the large profile and also prevents a
+three-level characterization comparable to the completed Alloy data.
+
+The TLC-large outcome should not be interpreted as an experimental
+failure. Under the preregistered resource policy, timeout is a valid
+censored observation indicating that the verification task exceeded the
+available execution budget. Excluding these observations would hide an
+important scalability boundary of the evaluated configuration.
+
+The enabled-fault profiles provide an additional view of verification
+cost. Within the TLC medium-bound configurations, the observed median
+time and memory footprint differed across normal, insufficient-quorum,
+replay, and timeout-oriented cases. These differences indicate that
+verification cost depends not only on nominal bound size but also on
+the behavioral structure enabled by a configuration.
+
+The evidence therefore supports a descriptive conclusion that bounded
+verification cost grows as the evaluated configurations become more
+demanding. It does not establish a nonlinear or asymptotic growth law.
+For Alloy, three completed ordinal levels are insufficient to infer
+such a law, and for TLC only two profile levels provide completed
+measurements.
+
+Finally, the cost results must be interpreted within each formal tool.
+TLC and Alloy use different modelling semantics, exploration
+mechanisms, and internal representations. Their absolute elapsed-time,
+memory, or state-space measurements therefore do not provide a sound
+basis for claiming that one tool is intrinsically faster or more
+scalable than the other.
+
+\subsection{Cross-layer evidence triangulation}
+\label{subsec:discussion-triangulation}
+
+The four research questions are intended to provide complementary
+evidence rather than four independent demonstrations of protocol
+correctness. Each question addresses a different potential weakness in
+the validation argument.
+
+RQ1 examines whether the declared safety and liveness-related
+properties survive the bounded interleavings explored for the valid
+formal models. By itself, however, absence of a counterexample does not
+show that the property suite is sensitive to relevant defects. RQ2
+addresses this limitation by deliberately weakening selected protocol
+controls and testing whether the designated formal properties detect
+the resulting violations.
+
+Conversely, successful formal verification and mutation detection
+remain statements about the formal representations. They do not by
+themselves establish that the executable implementation exhibits
+behavior corresponding to those representations. RQ3 adds this
+implementation-facing layer by checking bounded conformance of
+observable Java traces against the TLA+ abstraction, including both
+valid and deliberately corrupted executions.
+
+RQ4 addresses a different limitation: whether the verification evidence
+can be obtained as the experimental bounds become more demanding.
+The observed increase in verification cost, together with complete
+censoring of the TLC-large profile, makes the computational boundary of
+the formal evidence explicit rather than treating verification as a
+cost-free oracle.
+
+Taken together, these layers form an evidence chain:
+
+\begin{quote}
+bounded property verification $\rightarrow$
+mutation-based property validation $\rightarrow$
+bounded implementation-model trace conformance $\rightarrow$
+verification-cost characterization.
+\end{quote}
+
+The value of this chain lies in the different failure modes addressed
+by its components. Bounded model checking can miss defects outside the
+explored bounds; mutation analysis can only assess the selected defect
+catalogue; trace replay observes only the chosen implementation
+abstraction and scenarios; and cost characterization describes the
+feasibility boundary of the evaluated verification configurations.
+No individual layer removes the limitations of the others.
+
+The combined result is therefore not a general proof of cross-shard
+protocol correctness. Instead, it provides a reproducible,
+multi-layer argument in which property satisfaction, defect
+sensitivity, implementation-facing conformance, and verification cost
+are evaluated under one frozen experimental protocol.
+
+This integration is central to the methodological contribution of the
+study. The formal models are connected to executable evidence and to
+the resource conditions under which that evidence can be reproduced,
+while the interpretation of each result remains explicitly bounded by
+its experimental scope.

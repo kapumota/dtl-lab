@@ -1,0 +1,278 @@
+\section{Experimental Design}
+\label{sec:experimental-design}
+
+\subsection{Frozen experimental protocol}
+\label{subsec:frozen-protocol}
+
+The definitive experiment follows protocol \texttt{paper1-q3-v1},
+which was frozen before execution of the experimental matrix.
+The protocol specifies the research questions, hypotheses, configuration
+families, seeds, repetitions, resource limits, statistical procedures,
+and treatment of incomplete executions.
+
+The scientific baseline corresponds to release
+\texttt{v1.1.0-rc.1}. The frozen toolchain consists of TLA+ Tools
+1.7.4, Alloy 6.2.0 with the SAT4J solver, Java 17, Python 3.12,
+and GNU \texttt{/usr/bin/time -v} for execution-time and memory
+instrumentation.
+
+The definitive design contains valid-model verification, scientific
+mutants, implementation-to-model trace conformance, and TLC fault
+profiles. Configuration families were enumerated before the definitive
+runs; configurations not present in the frozen matrix were not added
+after observing experimental outcomes.
+
+\subsection{Configuration matrix}
+\label{subsec:configuration-matrix}
+
+The experimental matrix contains fourteen configuration families:
+
+\begin{itemize}
+    \item six valid-model scalability families, with small, medium,
+          and large profiles for TLC and Alloy;
+    \item two mutation families, one for TLC and one for Alloy;
+    \item two trace-conformance families, covering valid and negative
+          traces;
+    \item four TLC fault-profile families covering normal execution,
+          replay pressure, timeout behavior, and insufficient quorum.
+\end{itemize}
+
+The fourteen frozen configuration families expand, according to their
+properties, mutants, repetitions, scenarios, and seeds, into 1272
+scheduled experimental tasks. This count includes warm-up and measured
+executions where defined, while RQ3 contributes one replay execution
+per case-seed pair.
+
+Each task carries a protocol identifier, configuration identifier,
+tool, model kind, profile, repetition or seed, resource limits, and
+provenance metadata.
+
+\subsection{Bound profiles}
+\label{subsec:bound-profiles}
+
+Three ordered profiles define the principal bounded scalability
+configurations. Table~\ref{tab:bound-profiles} summarizes their
+parameters.
+
+\begin{table}[htbp]
+\centering
+\caption{Bound profiles used in the definitive experiment.}
+\label{tab:bound-profiles}
+\begin{tabular}{lrrrrrr}
+\hline
+Profile &
+Shards &
+Transfers &
+Validators &
+Quorum &
+Receipts &
+Alloy state scope \\
+\hline
+Small  & 2 & 1 & 2 & 2 & 1 & 6  \\
+Medium & 3 & 2 & 3 & 2 & 2 & 8  \\
+Large  & 4 & 3 & 4 & 3 & 2 & 10 \\
+\hline
+\end{tabular}
+\end{table}
+
+The profiles are experimental bundles rather than independent
+one-factor perturbations. Increasing the profile simultaneously changes
+the number of shards, concurrent transfers, validators, quorum where
+required, receipt copies, and Alloy state scope.
+
+Consequently, profile-level cost changes are interpreted as changes
+associated with the complete bounded configuration rather than as
+isolated causal effects of a single parameter.
+
+The \texttt{catalog} profile is reserved for the scenario catalogue used
+for implementation-to-model trace conformance.
+
+\subsection{Mutation configurations}
+\label{subsec:mutation-configurations}
+
+Mutation experiments are executed at the medium profile.
+
+Five scientific defect classes are instantiated for each formal
+representation:
+
+\begin{itemize}
+    \item removal of receipt replay protection;
+    \item destination credit before valid receipt consumption;
+    \item commit after an abort-like terminal decision;
+    \item timeout without release of source funds;
+    \item quorum bypass.
+\end{itemize}
+
+Each mutant has a predefined target property. Ten measured repetitions
+are executed per mutant after two warm-up repetitions. Logical
+detection must remain consistent across the measured repetitions.
+
+\subsection{Trace-conformance configurations}
+\label{subsec:trace-configurations}
+
+RQ3 uses a separate multiseed design.
+
+The catalogue contains ten valid scenarios and ten negative cases.
+Each case is evaluated under thirty deterministic seeds, yielding
+
+\begin{equation}
+10 \times 30 = 300
+\end{equation}
+
+valid trace executions and
+
+\begin{equation}
+10 \times 30 = 300
+\end{equation}
+
+negative trace executions.
+
+The definitive seed sequence contains the integer values
+\texttt{2026001} through \texttt{2026030}.
+
+RQ3 therefore contains 600 TLC replay executions. Each case-seed pair
+is executed once and uses no warm-up repetition because its primary
+logical outcome is deterministic classification rather than repeated
+performance estimation.
+
+\subsection{Repetitions and execution order}
+\label{subsec:repetitions}
+
+For model-checking configurations used to measure time and memory, the
+protocol specifies:
+
+\begin{itemize}
+    \item two warm-up repetitions;
+    \item ten measured repetitions;
+    \item serial execution;
+    \item exclusion of warm-up measurements from the primary
+          statistical analysis.
+\end{itemize}
+
+Logical outcomes are expected to remain consistent across repetitions.
+The repeated executions are primarily used to characterize elapsed
+time and memory rather than to create multiple independent logical
+property outcomes.
+
+No run is repeated merely because it produces a counterexample,
+timeout, or otherwise unfavorable scientific result.
+
+\subsection{Resource limits}
+\label{subsec:resource-limits}
+
+Each measured model-checking execution is constrained by the following
+resource policy:
+
+\begin{itemize}
+    \item timeout: 1800 seconds;
+    \item maximum resident-memory limit: 12288 MiB;
+    \item maximum concurrent experimental executions: one;
+    \item TLC workers: one;
+    \item Alloy solver: SAT4J.
+\end{itemize}
+
+Execution-time and maximum-resident-memory measurements are collected
+through \texttt{/usr/bin/time -v}.
+
+Timeout and out-of-memory outcomes are considered scientifically
+meaningful scalability outcomes. They remain in the experimental
+record and are not removed from the matrix.
+
+\subsection{Execution environment}
+\label{subsec:execution-environment}
+
+The definitive timing and memory campaign is executed on a dedicated
+native Linux host.
+
+Virtualized environments, WSL, and shared continuous-integration
+runners are excluded from the primary timing and memory measurements.
+Continuous integration is used for functional correctness, structural
+integrity, and reproducibility checks, but its execution times are not
+mixed with the definitive performance measurements.
+
+The recorded environment includes the operating system and kernel,
+processor architecture and processor count, available memory,
+Java and Python versions, formal-tool versions, repository commit,
+and virtualization status.
+
+\subsection{Measured outcomes}
+\label{subsec:measured-outcomes}
+
+The experiment records both logical and resource-oriented outcomes.
+
+For TLC, recorded measurements include:
+
+\begin{itemize}
+    \item property result;
+    \item generated states;
+    \item distinct states;
+    \item exploration depth;
+    \item elapsed time;
+    \item maximum resident memory;
+    \item process exit status;
+    \item counterexample information when applicable.
+\end{itemize}
+
+For Alloy, recorded measurements include:
+
+\begin{itemize}
+    \item assertion result;
+    \item solver and scope;
+    \item counterexample information;
+    \item solving and total elapsed time when available;
+    \item maximum resident memory;
+    \item process exit status.
+\end{itemize}
+
+TLC state counts and Alloy scopes are not treated as equivalent
+state-space units.
+
+For trace conformance, the recorded fields include case identifier,
+seed, case type, acceptance or rejection, diagnostic agreement,
+abstract step, concrete step, action, transfer identifier, elapsed
+time, memory, source commit, and input hashes.
+
+\subsection{Incomplete executions and censoring}
+\label{subsec:censoring}
+
+Experimental executions may terminate as completed runs,
+counterexamples, timeouts, out-of-memory outcomes, tool errors, or
+instrumentation failures.
+
+Timeout and out-of-memory outcomes are retained as censored
+observations. Their elapsed-time or memory values are not replaced by
+the configured limit or by another synthetic numerical value.
+
+Unexpected tool exits remain tool errors. Instrumentation failures may
+be retried only according to the frozen retry policy and are not
+repeated on the basis of the scientific result.
+
+This treatment preserves unfavorable outcomes and prevents selective
+removal of executions that would weaken a hypothesis.
+
+\subsection{Statistical analysis}
+\label{subsec:statistical-analysis}
+
+Time and memory distributions are summarized using the median and
+interquartile range. Minimum, maximum, and coefficient of variation are
+also retained as descriptive statistics.
+
+A 95\% bootstrap confidence interval for the median is estimated using
+10,000 bootstrap resamples.
+
+For proportions, including mutation detection and trace
+classification, Wilson 95\% confidence intervals are used.
+
+RQ4 reports profile-level medians and within-tool growth ratios.
+Spearman rank association is used to describe monotonic association
+between the ordered profile level and cost when sufficient completed
+profiles are available.
+
+TLC and Alloy are not compared through absolute execution-time claims.
+Their different modelling semantics and state-space representations
+make such measurements unsuitable as evidence of intrinsic tool
+superiority.
+
+The three ordered profiles provide descriptive evidence about bounded
+cost growth. They do not, by themselves, establish an asymptotic
+complexity class or a general nonlinear growth law.

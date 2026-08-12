@@ -1,0 +1,423 @@
+\section{Results}
+\label{sec:results}
+
+\subsection{Experimental campaign overview}
+\label{subsec:results-overview}
+
+The definitive campaign contained 1272 scheduled experimental tasks
+across the four research questions. This section reports only measured
+runs when evaluating the research hypotheses; warm-up executions are
+reported separately from the principal statistical evidence.
+
+The results are presented in the order of the research questions.
+Incomplete executions are retained according to the censoring policy
+defined in Section~\ref{subsec:censoring}.
+
+\subsection{RQ1: Bounded property verification}
+\label{subsec:rq1-results}
+
+RQ1 asks whether the valid formal models satisfy the seven declared
+protocol properties within the evaluated bounds.
+
+Across both formal tools and the three bound profiles, RQ1 contained
+420 measured property runs. Of these, 350 completed and 70 were
+censored by timeout. No completed run produced a counterexample.
+
+Table~\ref{tab:rq1-summary} summarizes the result by tool and bound
+profile.
+
+\begin{table}[htbp]
+\centering
+\caption{RQ1 bounded property-verification results by tool and profile.}
+\label{tab:rq1-summary}
+\begin{tabular}{llrrrr}
+\hline
+Tool & Profile & Measured & Completed & No counterexample & Timeout \\
+\hline
+Alloy & Small  & 70 & 70 & 70 & 0  \\
+Alloy & Medium & 70 & 70 & 70 & 0  \\
+Alloy & Large  & 70 & 70 & 70 & 0  \\
+TLC   & Small  & 70 & 70 & 70 & 0  \\
+TLC   & Medium & 70 & 70 & 70 & 0  \\
+TLC   & Large  & 70 & 0  & 0  & 70 \\
+\hline
+Total &        & 420 & 350 & 350 & 70 \\
+\hline
+\end{tabular}
+\end{table}
+
+For Alloy, all seven properties completed without a counterexample
+under the small, medium, and large profiles. Each property-profile
+combination was measured ten times, yielding 210 completed Alloy runs.
+
+For TLC, all seven properties completed without a counterexample under
+the small and medium profiles, yielding 140 completed runs. In
+contrast, every measured execution under the large TLC profile reached
+the predefined 1800-second timeout. This produced 70 censored
+observations, corresponding to seven properties and ten measured
+repetitions per property.
+
+No out-of-memory or tool-error outcome was observed in the RQ1
+measurements. The incomplete evidence is therefore concentrated
+entirely in the large TLC profile.
+
+\subsubsection{Answer to RQ1}
+\label{subsubsec:rq1-answer}
+
+Within the 350 completed bounded model-checking runs, no violation of
+the seven evaluated properties was observed. This provides supporting
+evidence for H1 within the completed configurations.
+
+However, the 70 large-profile TLC measurements did not complete within
+the predefined resource limit. Their absence of a counterexample
+cannot be interpreted as successful property verification.
+
+H1 is therefore partially supported under censoring. The result is
+restricted to the completed bounded configurations and does not
+constitute an unbounded proof of protocol correctness.
+
+\subsection{RQ2: Mutation-based validation}
+\label{subsec:rq2-results}
+
+RQ2 evaluates whether the declared property suite detects predefined
+scientific mutations that remove controls from the cross-shard
+protocol.
+
+The experiment contained ten scientific mutants: five instantiated in
+the TLA+ model and five in the Alloy model. Each mutant was evaluated
+through ten measured repetitions at the medium profile, producing 100
+measured mutation runs.
+
+All ten scientific mutants were detected through their designated
+target properties, and detection remained consistent across all
+measured repetitions. The resulting mutation score was
+
+\begin{equation}
+\mathrm{MutationScore}
+=
+\frac{10}{10}
+=
+1.0.
+\label{eq:rq2-mutation-score}
+\end{equation}
+
+Table~\ref{tab:rq2-summary} summarizes the aggregate result.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{RQ2 scientific mutants, target properties, and detection results.}
+\label{tab:rq2-summary}
+\begin{tabular}{llllr}
+\hline
+Tool & Mutant & Target property & Detected & Runs \\
+\hline
+Alloy &
+commit-after-abort &
+TerminalStateIrreversibility &
+Yes & 10/10 \\
+
+Alloy &
+credit-before-receipt &
+DestinationCreditRequiresValidReceipt &
+Yes & 10/10 \\
+
+Alloy &
+no-replay &
+NoReceiptReplay &
+Yes & 10/10 \\
+
+Alloy &
+quorum-bypass &
+QuorumRequired &
+Yes & 10/10 \\
+
+Alloy &
+timeout-without-release &
+EventuallyReleasedAfterTimeout &
+Yes & 10/10 \\
+
+TLC &
+commit-after-abort &
+DecisionConsistency &
+Yes & 10/10 \\
+
+TLC &
+credit-before-receipt &
+DestinationCreditRequiresValidReceipt &
+Yes & 10/10 \\
+
+TLC &
+no-replay &
+NoReceiptReplay &
+Yes & 10/10 \\
+
+TLC &
+quorum-bypass &
+QuorumRequired &
+Yes & 10/10 \\
+
+TLC &
+timeout-without-release &
+EventuallyReleasedAfterTimeout &
+Yes & 10/10 \\
+\hline
+\end{tabular}
+\end{table}
+
+The commit-after-abort defect is associated with different designated
+target properties in the two formal representations:
+\texttt{TerminalStateIrreversibility} in Alloy and
+\texttt{DecisionConsistency} in TLA+. This difference follows the
+tool-specific encodings of terminal consistency and does not affect
+the mutant-level detection criterion.
+
+The evaluated defect classes covered removal of replay protection,
+destination credit without the required receipt condition, commit after
+an abort-like terminal decision, timeout without release of source
+funds, and quorum bypass.
+
+Detection was evaluated at the mutant level rather than by counting
+individual counterexample-producing repetitions as separate mutants.
+Therefore, the 100 measured runs represent repeated evaluations of ten
+scientific mutants, not 100 independent mutant definitions.
+
+The repeated measurements also verified consistency of the logical
+outcome: each mutant continued to expose its designated target-property
+violation across all ten measured repetitions.
+
+No absolute execution-time comparison between TLC and Alloy is used to
+support RQ2. The two formal representations have different exploration
+semantics, and the relevant result for this research question is
+whether each predefined mutant exposes its designated property
+violation.
+
+\subsubsection{Answer to RQ2}
+\label{subsubsec:rq2-answer}
+
+All ten predefined scientific mutants were detected through their
+target properties, yielding a mutation score of 1.0 with consistent
+detection across the measured repetitions.
+
+H2 is therefore supported for the predefined scientific mutant
+catalogue.
+
+This result demonstrates that the evaluated property suite is
+sensitive to the injected defect classes considered in the experiment.
+It does not establish completeness with respect to arbitrary
+cross-shard protocol defects or mutations outside the predefined
+catalogue.
+
+\subsection{RQ3: Bounded implementation-model trace conformance}
+\label{subsec:rq3-results}
+
+RQ3 evaluates whether observable traces produced by the Java
+implementation correspond to action sequences admitted by the TLA+
+model within the predefined scenario catalogue and experimental
+bounds.
+
+The experiment contained ten valid scenarios and ten deliberately
+corrupted negative cases. Each case was executed under thirty
+deterministic seeds, producing 600 measured replay executions.
+
+All 300 valid traces were accepted by the bounded replay procedure.
+All 300 negative traces were rejected. For every negative execution,
+the diagnostic information also identified the expected rejection
+point, yielding 300 matching diagnostics.
+
+Table~\ref{tab:rq3-summary} summarizes the aggregate classification
+results.
+
+\begin{table}[htbp]
+\centering
+\caption{RQ3 bounded trace-conformance results.}
+\label{tab:rq3-summary}
+\begin{tabular}{lrrrr}
+\hline
+Trace class &
+Cases &
+Runs &
+Correct classification &
+Matching diagnostics \\
+\hline
+Valid    & 10 & 300 & 300 & --  \\
+Negative & 10 & 300 & 300 & 300 \\
+\hline
+Total    & 20 & 600 & 600 & 300 \\
+\hline
+\end{tabular}
+\end{table}
+
+At the individual-case level, every one of the twenty scenarios
+obtained 30 correct classifications out of 30 seeds. The observed
+classification proportion was therefore 1.0 for every case. The
+case-level Wilson 95\% interval associated with 30 successes in 30
+runs had a lower bound of approximately 0.8865 and an upper bound of
+1.0.
+
+The valid catalogue includes normal commit, timeout-related behavior,
+duplicated receipts, delayed delivery after timeout, same-round commit
+and timeout, conflicting use of the same UTXO, bidirectional
+transfers, temporary target unavailability, insufficient quorum, and
+multiple concurrent sessions.
+
+The negative catalogue contains deliberately corrupted traces,
+including commit from a pending state, commit after abort, receipt
+replay, destination credit without a valid receipt, timeout without
+release, commit without quorum, duplicate voting, transfer-identifier
+changes, shard-topology changes, and receipt consumption before the
+source lock.
+
+The diagnostic criterion is evaluated only for negative cases because
+these executions are expected to be rejected at a predefined point.
+A matching diagnostic means that the replay procedure rejected the
+trace consistently with the expected abstract-action mismatch rather
+than merely producing a generic failure.
+
+\subsubsection{Answer to RQ3}
+\label{subsubsec:rq3-answer}
+
+All 300 valid traces were accepted, all 300 deliberately corrupted
+traces were rejected, and all 300 negative executions produced the
+expected diagnostic agreement.
+
+H3 is therefore supported for the predefined bounded trace catalogue.
+
+This result provides evidence of bounded implementation-model trace
+conformance between the Java implementation and the TLA+ abstraction
+for the evaluated scenarios and seeds. It does not constitute a
+general refinement proof, behavioral equivalence result, or guarantee
+that arbitrary Java executions conform to the formal model.
+
+\subsection{RQ4: Bounded verification cost}
+\label{subsec:rq4-results}
+
+RQ4 characterizes how the computational cost of bounded verification
+changes as the predefined profiles increase in size and as selected
+fault conditions are enabled.
+
+The RQ4 evidence comprises 460 measured executions. Of these, 420
+belong to the valid-model small, medium, and large bound profiles
+shared with RQ1, and 40 correspond to four additional TLC fault
+profiles.
+
+\subsubsection{Cost across bound profiles}
+\label{subsubsec:rq4-bound-cost}
+
+Table~\ref{tab:rq4-bound-cost} summarizes elapsed time, memory, and
+available state-space measurements for the three ordered profiles.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{RQ4 cost by formal tool and bound profile.}
+\label{tab:rq4-bound-cost}
+\begin{tabular}{llrrrrr}
+\hline
+Tool &
+Profile &
+Runs &
+Completed &
+Timeout &
+Median time (s) &
+Median RSS (KiB) \\
+\hline
+Alloy & Small  & 70 & 70 & 0  & 0.515306 & 179830 \\
+Alloy & Medium & 70 & 70 & 0  & 0.766172 & 299268 \\
+Alloy & Large  & 70 & 70 & 0  & 1.568320 & 317612 \\
+TLC   & Small  & 70 & 70 & 0  & 0.666802 & 143660 \\
+TLC   & Medium & 70 & 70 & 0  & 1.118120 & 601428 \\
+TLC   & Large  & 70 & 0  & 70 & --       & --     \\
+\hline
+\end{tabular}
+\end{table}
+
+All Alloy profiles completed. Median elapsed time increased from
+0.515306 seconds in the small profile to 0.766172 seconds in the
+medium profile and 1.568320 seconds in the large profile. Median
+maximum resident memory increased from 179830 KiB to 299268 KiB and
+317612 KiB, respectively.
+
+Across the three Alloy profiles, Spearman rank association between the
+ordered profile level and both median elapsed time and median maximum
+resident memory was 1.0. The large-to-small ratio was approximately
+3.043 for median elapsed time and 1.766 for median memory.
+
+For TLC, the small and medium profiles completed, with median elapsed
+times of 0.666802 and 1.118120 seconds and median maximum resident
+memory values of 143660 and 601428 KiB, respectively. Median distinct
+states increased from 14 in the small profile to 24336 in the medium
+profile.
+
+The large TLC profile did not yield completed measurements. All 70
+measured executions reached the predefined 1800-second timeout.
+Consequently, elapsed-time, memory, and state-space medians are not
+reported for that profile.
+
+The available TLC measurements exhibit increasing cost from small to
+medium, but the two completed profile levels are insufficient for a
+meaningful characterization of the shape of the growth curve.
+Furthermore, the complete censoring of the large profile prevents a
+three-level completed-profile analysis.
+
+\subsubsection{Cost under enabled fault profiles}
+\label{subsubsec:rq4-fault-cost}
+
+The additional TLC fault experiment evaluates four medium-bound
+configurations. All forty measured executions completed without
+timeout, out-of-memory, or tool-error outcomes.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{RQ4 TLC cost under enabled fault profiles.}
+\label{tab:rq4-fault-cost}
+\begin{tabular}{lrrr}
+\hline
+Fault profile &
+Runs &
+Median time (s) &
+Median RSS (KiB) \\
+\hline
+Normal               & 10 & 0.867343 & 379846 \\
+Insufficient quorum  & 10 & 1.068210 & 493370 \\
+Replay               & 10 & 1.118420 & 604258 \\
+Timeout              & 10 & 1.569610 & 822820 \\
+\hline
+\end{tabular}
+\end{table}
+
+The enabled fault condition therefore affects the cost observed within
+the TLC medium-bound experiments. Among the evaluated profiles, the
+timeout-oriented case produced the largest median elapsed time and
+median memory footprint, while the normal profile produced the
+smallest values.
+
+These measurements characterize the evaluated fault profiles only.
+They are not interpreted as an ordering that generalizes to arbitrary
+failure modes.
+
+\subsubsection{Answer to RQ4}
+\label{subsubsec:rq4-answer}
+
+The experiments provide evidence that bounded verification cost
+increases as the evaluated configurations grow.
+
+For Alloy, all three ordered profiles completed and both median elapsed
+time and median memory increased monotonically with profile level.
+For TLC, cost increased between the two completed profiles, while all
+large-profile measurements were censored by timeout.
+
+These observations support a descriptive claim of increasing
+verification cost. They do not establish the preregistered nonlinear
+growth claim in H4. Only three ordered profiles were defined, and TLC
+provides completed measurements for only two of them.
+
+Accordingly, H4 remains unconfirmed in its nonlinear form: the
+experiment provides evidence of growth without sufficient evidence to
+establish a nonlinear or asymptotic growth law.
+
+All cost comparisons are interpreted within each formal tool. The
+results do not support claims of absolute performance superiority
+between TLC and Alloy because their modelling semantics and
+state-space representations differ.

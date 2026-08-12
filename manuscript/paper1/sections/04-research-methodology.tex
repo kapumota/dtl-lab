@@ -1,0 +1,239 @@
+\section{Research Methodology}
+\label{sec:methodology}
+
+\subsection{Study design}
+\label{subsec:study-design}
+
+This study evaluates a cross-shard commit protocol through a multi-method verification and validation design. The methodology combines bounded formal verification, mutation-based validation, implementation-to-model trace conformance, and empirical characterization of model-checking cost.
+
+The design was frozen before the definitive experimental campaign. Research questions, hypotheses, factors, configuration profiles, seeds, repetitions, resource limits, statistical procedures, and rules for incomplete executions were specified before observing the final results. Changes to these elements after inspection of the definitive outcomes would require a new protocol version.
+
+The methodology addresses four complementary questions. RQ1 evaluates the valid formal models against the declared protocol properties. RQ2 evaluates whether the verification infrastructure can expose deliberately introduced protocol defects. RQ3 introduces evidence from the Java implementation by projecting executable traces into the formal abstraction. RQ4 characterizes the computational cost associated with bounded model checking as the evaluated configurations increase in size.
+
+This combination is intended to avoid relying on a single form of evidence. Absence of a counterexample in a valid model is complemented by defect-injection evidence, implementation-level trace evidence, and explicit characterization of the computational limits of the verification process.
+
+\subsection{Research questions and hypotheses}
+\label{subsec:research-questions}
+
+The study addresses the following research questions and preregistered hypotheses.
+
+\paragraph{RQ1: Preservation of declared properties.}
+
+Does the cross-shard commit protocol preserve the declared properties under the explored interleavings within the documented bounds?
+
+The corresponding hypothesis is:
+
+\begin{quote}
+\textbf{H1.} Valid models produce no property violations within the declared bounds.
+\end{quote}
+
+RQ1 concerns bounded model behavior. Completion without a counterexample is interpreted only for the executed property, tool, configuration, and bound. It is not interpreted as an unbounded correctness proof.
+
+\paragraph{RQ2: Defect-detection capability.}
+
+Do TLC and Alloy detect realistic mutations that remove controls from the cross-shard protocol?
+
+The corresponding hypothesis is:
+
+\begin{quote}
+\textbf{H2.} Each scientific mutant produces a violation of its designated target property.
+\end{quote}
+
+RQ2 evaluates the sensitivity of the property suite to deliberately defective formal models. Detection requires the designated target property to be among the violations reported for the mutant. A mutant may additionally violate other properties.
+
+\paragraph{RQ3: Implementation-to-model conformance.}
+
+Do observable traces produced by the Java implementation correspond to action sequences admitted by the TLA+ model within the evaluated scenarios and bounds?
+
+The corresponding hypothesis is:
+
+\begin{quote}
+\textbf{H3.} Valid traces are accepted and corrupted traces are rejected at the expected point.
+\end{quote}
+
+RQ3 is interpreted as bounded implementation-model trace conformance. It does not constitute a general refinement proof or behavioral equivalence between the Java implementation and the formal specification.
+
+\paragraph{RQ4: Verification cost.}
+
+How does verification cost change as the number of shards, concurrent transfers, bounds, and enabled faults increase?
+
+The preregistered hypothesis is:
+
+\begin{quote}
+\textbf{H4.} Model-checking cost grows nonlinearly with the number of concurrent transfers and shards.
+\end{quote}
+
+H4 is treated as an empirical hypothesis rather than an assumption. Its evaluation depends on the observed profile-level cost measurements and must not be inferred from the experimental design itself.
+
+\subsection{Methodological layers}
+\label{subsec:methodological-layers}
+
+The four research questions form three verification and validation layers plus one cost-analysis layer.
+
+\subsubsection{Bounded verification layer}
+
+RQ1 evaluates the valid TLA+ and Alloy specifications against the seven protocol properties defined in Section~\ref{subsec:properties}.
+
+The experimental unit consists of:
+
+\begin{itemize}
+\item a protocol property;
+\item a formal tool;
+\item a bounded configuration;
+\item a measured repetition.
+\end{itemize}
+
+The response variables include property outcome, state-space information when exposed by the tool, exploration depth or scope, elapsed time, maximum resident memory, exit status, and counterexample information.
+
+A completed execution without a counterexample provides evidence only within its declared finite configuration. Timeout and out-of-memory outcomes remain incomplete or censored observations rather than being interpreted as successful verification.
+
+\subsubsection{Mutation-validation layer}
+
+RQ2 evaluates scientific mutants designed to remove specific protocol controls.
+
+The evaluated defect classes are:
+
+\begin{itemize}
+\item removal of replay protection;
+\item destination credit without a valid receipt;
+\item commit after an abort-like terminal decision;
+\item timeout without release of source funds;
+\item commit without sufficient quorum.
+\end{itemize}
+
+The experimental unit consists of:
+
+\begin{itemize}
+\item a scientific mutant;
+\item a formal tool;
+\item a bounded configuration;
+\item a measured repetition.
+\end{itemize}
+
+Each mutant has one predefined target property. Detection is credited only when that target property is violated.
+
+The principal aggregate measure is the mutation score,
+
+\begin{equation}
+\mathrm{MutationScore}
+======================
+
+\frac{N_{\mathrm{detected}}}
+{N_{\mathrm{mutants}}},
+\label{eq:mutation-score}
+\end{equation}
+
+where (N_{\mathrm{detected}}) is the number of predefined mutants detected through their target properties and (N_{\mathrm{mutants}}) is the number of evaluated scientific mutants.
+
+The mutation score is restricted to the predefined mutant catalogue and is not interpreted as proof that the property suite detects every possible protocol defect.
+
+\subsubsection{Implementation-conformance layer}
+
+RQ3 evaluates traces generated by the Java implementation.
+
+Concrete protocol executions are recorded deterministically and projected through the Java-to-TLA+ abstraction described in Section~\ref{subsec:formal-abstraction}. The projection maps concrete implementation states and actions into the smaller protocol-level vocabulary of the formal model.
+
+The experimental unit consists of:
+
+\begin{itemize}
+\item a valid scenario or negative mutation;
+\item a deterministic seed;
+\item the corresponding TLC replay outcome.
+\end{itemize}
+
+Two trace classes are evaluated:
+
+\begin{itemize}
+\item valid traces generated from supported protocol scenarios;
+\item corrupted traces containing predefined structural or semantic defects.
+\end{itemize}
+
+A valid trace is successfully classified when the projected action sequence is admitted by the replay model. A negative trace is successfully classified when it is rejected at the predefined diagnostic point.
+
+For negative traces, the methodology also checks whether the observed diagnostic agrees with the expected abstract step, concrete step, action, and transfer identifier.
+
+This procedure evaluates a finite catalogue of scenarios and mutations. Consequently, the resulting evidence is bounded trace conformance rather than general refinement.
+
+\subsubsection{Cost-characterization layer}
+
+RQ4 characterizes the computational cost of bounded verification.
+
+The experimental unit consists of:
+
+\begin{itemize}
+\item a formal tool;
+\item a bound profile;
+\item a fault profile when applicable;
+\item a measured repetition.
+\end{itemize}
+
+The principal response variables are:
+
+\begin{itemize}
+\item elapsed execution time;
+\item maximum resident memory;
+\item states generated and distinct states when available;
+\item exploration depth or Alloy scope;
+\item timeout;
+\item out-of-memory outcome;
+\item within-tool growth ratios.
+\end{itemize}
+
+TLC and Alloy expose different state representations and exploration semantics. Their state counts, scopes, and absolute execution times are therefore not treated as interchangeable measurements. Cost trends are analyzed within each tool.
+
+\subsection{Triangulation of evidence}
+\label{subsec:evidence-triangulation}
+
+The methodological layers address different failure modes in the scientific argument.
+
+RQ1 asks whether the valid bounded models exhibit violations of the declared properties. However, absence of a counterexample does not by itself establish that the properties are capable of exposing realistic defects.
+
+RQ2 therefore introduces deliberately defective models and evaluates whether their designated properties detect those defects.
+
+RQ3 addresses a different limitation: evidence obtained only from formal specifications does not establish agreement with the executable implementation. The trace-conformance layer consequently evaluates whether concrete Java executions can be projected into action sequences accepted by the TLA+ model, and whether deliberately corrupted traces are rejected as expected.
+
+RQ4 then characterizes the computational conditions under which the bounded verification evidence can be obtained.
+
+The resulting methodological structure can be summarized as:
+
+\begin{equation}
+\begin{split}
+\text{valid formal models}
+&\rightarrow \mathrm{RQ1}, \\
+\text{scientific mutants}
+&\rightarrow \mathrm{RQ2}, \\
+\text{implementation traces}
+&\rightarrow \mathrm{RQ3}, \\
+\text{verification profiles}
+&\rightarrow \mathrm{RQ4}.
+\end{split}
+\label{eq:methodological-layers}
+\end{equation}
+
+The first three layers provide complementary evidence about property preservation, defect sensitivity, and implementation-model agreement. The fourth layer characterizes the bounded computational envelope of that evidence.
+
+\subsection{Treatment of incomplete executions}
+\label{subsec:incomplete-executions}
+
+Experimental outcomes are retained according to their observed status. Timeout, out-of-memory, counterexample, and other scientifically meaningful outcomes are not removed because they are unfavorable to a hypothesis.
+
+A failed instrumentation attempt may be repeated only under the predefined protocol rules. A run is not repeated merely because it produces an unexpected property result, counterexample, timeout, or other unfavorable scientific outcome.
+
+Timeout and out-of-memory observations are retained as censored results. They are not assigned artificial elapsed-time or memory values and are not reclassified as successful verification.
+
+This policy prevents incomplete runs from being silently converted into positive evidence.
+
+\subsection{Interpretation boundaries}
+\label{subsec:method-boundaries}
+
+The study adopts explicit boundaries for interpretation.
+
+First, model checking is bounded by the finite configurations and scopes declared in the experimental protocol. Absence of a counterexample therefore does not constitute an unrestricted proof of protocol correctness.
+
+Second, mutation analysis evaluates only the predefined scientific mutant catalogue and does not establish completeness of the property suite.
+
+Third, trace replay evaluates bounded implementation-model conformance over the declared scenarios, seeds, and negative mutations. It does not establish general refinement or behavioral equivalence.
+
+Fourth, TLC and Alloy use different semantics and cost units. Absolute execution-time or state-space comparisons are not interpreted as evidence that one tool is intrinsically superior to the other.
+
+Finally, the evaluated configurations are abstractions of cross-shard transaction behavior. The findings are therefore restricted to the declared protocol model, properties, configurations, bounds, and execution environment rather than unrestricted production blockchain systems.
