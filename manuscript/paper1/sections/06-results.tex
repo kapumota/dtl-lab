@@ -1,0 +1,77 @@
+\section{Results}
+\label{sec:results}
+
+\subsection{Experimental campaign overview}
+\label{subsec:results-overview}
+
+The definitive campaign contained 1272 scheduled experimental tasks
+across the four research questions. This section reports only measured
+runs when evaluating the research hypotheses; warm-up executions are
+reported separately from the principal statistical evidence.
+
+The results are presented in the order of the research questions.
+Incomplete executions are retained according to the censoring policy
+defined in Section~\ref{subsec:censoring}.
+
+\subsection{RQ1: Bounded property verification}
+\label{subsec:rq1-results}
+
+RQ1 asks whether the valid formal models satisfy the seven declared
+protocol properties within the evaluated bounds.
+
+Across both formal tools and the three bound profiles, RQ1 contained
+420 measured property runs. Of these, 350 completed and 70 were
+censored by timeout. No completed run produced a counterexample.
+
+Table~\ref{tab:rq1-summary} summarizes the result by tool and bound
+profile.
+
+\begin{table}[htbp]
+\centering
+\caption{RQ1 bounded property-verification results by tool and profile.}
+\label{tab:rq1-summary}
+\begin{tabular}{llrrrr}
+\hline
+Tool & Profile & Measured & Completed & No counterexample & Timeout \\
+\hline
+Alloy & Small  & 70 & 70 & 70 & 0  \\
+Alloy & Medium & 70 & 70 & 70 & 0  \\
+Alloy & Large  & 70 & 70 & 70 & 0  \\
+TLC   & Small  & 70 & 70 & 70 & 0  \\
+TLC   & Medium & 70 & 70 & 70 & 0  \\
+TLC   & Large  & 70 & 0  & 0  & 70 \\
+\hline
+Total &        & 420 & 350 & 350 & 70 \\
+\hline
+\end{tabular}
+\end{table}
+
+For Alloy, all seven properties completed without a counterexample
+under the small, medium, and large profiles. Each property-profile
+combination was measured ten times, yielding 210 completed Alloy runs.
+
+For TLC, all seven properties completed without a counterexample under
+the small and medium profiles, yielding 140 completed runs. In
+contrast, every measured execution under the large TLC profile reached
+the predefined 1800-second timeout. This produced 70 censored
+observations, corresponding to seven properties and ten measured
+repetitions per property.
+
+No out-of-memory or tool-error outcome was observed in the RQ1
+measurements. The incomplete evidence is therefore concentrated
+entirely in the large TLC profile.
+
+\subsubsection{Answer to RQ1}
+\label{subsubsec:rq1-answer}
+
+Within the 350 completed bounded model-checking runs, no violation of
+the seven evaluated properties was observed. This provides supporting
+evidence for H1 within the completed configurations.
+
+However, the 70 large-profile TLC measurements did not complete within
+the predefined resource limit. Their absence of a counterexample
+cannot be interpreted as successful property verification.
+
+H1 is therefore partially supported under censoring. The result is
+restricted to the completed bounded configurations and does not
+constitute an unbounded proof of protocol correctness.
