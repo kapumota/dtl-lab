@@ -1,0 +1,268 @@
+\section{Reproducibility and Artifact}
+\label{sec:reproducibility-artifact}
+
+\subsection{Artifact scope}
+\label{subsec:artifact-scope}
+
+The reproducibility artifact is designed to preserve the complete
+evidence path from the executable protocol implementation and formal
+models to the derived results reported in this paper. Its scope is
+therefore broader than a source-code release or a collection of final
+tables.
+
+The first artifact layer contains the scientific source material. This
+includes the Java implementation of the cross-shard protocol, the TLA+
+specifications and configurations used for bounded model checking, and
+the Alloy models and commands used for bounded relational analysis.
+These sources define the executable and formal objects evaluated by the
+experimental campaign.
+
+The second layer contains the frozen experimental definition. It
+records the protocol version, research questions and hypotheses,
+configuration families, bound profiles, mutation cases, trace scenarios,
+deterministic seeds, repetitions, resource limits, tool configurations,
+and rules for incomplete executions. Preserving these decisions
+separately from the observed outcomes is important because they define
+which executions belong to the definitive campaign.
+
+The third layer contains the preserved experimental evidence. Raw task
+results are retained together with the derived datasets used to produce
+the paper-level summaries. The artifact also preserves the generated
+tables and figures so that reported results can be traced back to the
+underlying executions rather than reconstructed only from values copied
+into the manuscript.
+
+The fourth layer contains the reproduction machinery. It provides
+scripts and targets for checking the artifact structure, preparing a
+reproduction workspace, executing representative verification and
+trace-conformance smoke cases, regenerating the analysis from preserved
+raw results, and comparing regenerated outputs with the reference
+artifact.
+
+The final layer contains integrity and traceability evidence. Manifests,
+content hashes, source-version identifiers, and reproduction reports
+connect the preserved campaign to the regenerated outputs and make
+unexpected artifact changes observable.
+
+These layers serve different reproducibility purposes. The scientific
+source defines what was studied, the frozen protocol defines how it was
+evaluated, the preserved results retain the definitive observations,
+the reproduction machinery reconstructs and checks the evidence path,
+and the integrity metadata verifies correspondence among those
+components.
+
+The artifact is therefore intended to support inspection, partial
+re-execution, analysis regeneration, and integrity verification of the
+reported study. Full re-execution of every definitive experimental task
+is not required by the independent reproduction workflow described
+below and is distinguished explicitly from regeneration of the analysis
+from preserved raw evidence.
+
+\subsection{Reproduction workflow}
+\label{subsec:reproduction-workflow}
+
+The reproduction workflow separates structural validation, selective
+re-execution, analysis regeneration, and integrity comparison into
+explicit stages.
+
+The first stage validates the expected artifact structure and checks
+that the scientific sources, frozen experimental definition, preserved
+raw results, derived outputs, and reproduction scripts are available
+before any reproduction action is attempted.
+
+The second stage prepares an isolated reproduction workspace from the
+preserved artifact. This step records the source revision and creates
+the directory structure required for regenerated results without
+modifying the reference campaign.
+
+The third stage executes a representative smoke suite. The suite covers
+a valid and a mutated TLC configuration, a valid and a mutated Alloy
+configuration, one valid implementation trace, and one deliberately
+corrupted trace. These executions exercise the principal formal and
+implementation-facing paths of the artifact without repeating the full
+definitive campaign.
+
+The fourth stage regenerates the paper-level analysis from the preserved
+raw experimental results. Derived datasets, tables, figures, and
+research-question summaries are reconstructed using the same analysis
+pipeline used for the reference artifact.
+
+The fifth stage compares the regenerated outputs against the preserved
+reference outputs. Content hashes and reproduction gates are used to
+detect unexpected differences in the analysis products and supporting
+evidence.
+
+A reproduction verdict is produced only after these stages have
+completed. Structural checks, representative executions, regenerated
+analysis, and integrity comparisons are therefore treated as separate
+forms of evidence rather than collapsed into a single successful
+command.
+
+This workflow intentionally distinguishes two reproducibility goals.
+Representative re-execution checks that the main executable paths remain
+operational in the reproduction environment. Analysis regeneration
+checks that the reported paper-level evidence can be reconstructed from
+the preserved definitive observations.
+
+Neither operation should be interpreted as a new independent
+measurement of all definitive tasks. In particular, the preserved raw
+results remain the source observations for regeneration of the complete
+analysis, while the smoke suite provides targeted executable
+confirmation of the artifact machinery.
+
+\subsection{Independent reproduction evidence}
+\label{subsec:independent-reproduction}
+
+The artifact was evaluated through an independent reproduction attempt
+performed from a separate clone and execution workspace rather than from
+the working directory used to construct the reference campaign.
+
+The reproduction used source revision
+\texttt{6cd88c377afd23fee4998882f91142d71e7d963e}. The packaged artifact
+used for the successful attempt had SHA-256 digest
+\texttt{d464888e9f3e5d8cc64ef5d22cc7b7c24f83e3853f5825f18f23de26adf6a6e6}.
+The reproduction was executed from the independent clone
+\texttt{/home/reproducer/dtl-lab-reproduction}, with regenerated
+outputs written to
+\texttt{/home/reproducer/reproduction/results/} under the corresponding
+reproduction attempt.
+
+The reproduction workflow completed all ten predefined validation gates.
+These gates covered artifact structure, workspace preparation,
+representative formal and trace-conformance executions, analysis
+regeneration, and integrity comparison. No reproduction incident was
+recorded during the successful attempt.
+
+The regenerated analysis products were compared with the preserved
+reference outputs through content hashes. All 32 expected output hashes
+matched their reference counterparts. The successful reproduction
+therefore obtained a 10/10 gate result and 32/32 matching analysis
+artifacts, with zero recorded incidents.
+
+The executable part of the reproduction consisted of the representative
+smoke suite described above rather than a re-execution of the complete
+definitive campaign. The full set of paper-level derived outputs was
+instead regenerated from the preserved definitive raw observations and
+checked against the reference artifact.
+
+This distinction is essential for interpreting the reproduction result.
+The successful attempt demonstrates that an independent clone can
+validate representative executable paths, regenerate the complete
+analysis from the preserved raw evidence, and recover the expected
+analysis artifacts under the documented environment. It does not
+constitute an independent repetition of every definitive experimental
+measurement.
+
+The reproduction also provides process separation, but not full
+hardware independence. It was performed under a separate operating-
+system user and workspace on the same native Linux host. Consequently,
+the result guards against dependence on the original working tree and
+user-local execution state, while reproduction on a second physical
+machine remains an additional possible validation step rather than a
+claim established by the present artifact evaluation.
+
+\subsection{Integrity and traceability}
+\label{subsec:artifact-integrity}
+
+The artifact preserves traceability across the main stages of the
+scientific evidence pipeline. Source-version identifiers link the
+implementation, formal models, and reproduction scripts to a specific
+repository state, while the frozen experimental definition identifies
+the campaign associated with the reported results.
+
+The preserved raw results form the primary empirical record of the
+definitive campaign. Derived datasets, research-question summaries,
+tables, and figures are generated from these observations through the
+documented analysis pipeline rather than maintained as disconnected
+manuscript values.
+
+Integrity manifests provide a second traceability layer. Cryptographic
+content hashes are recorded for the analysis artifacts that are expected
+to remain unchanged during reproduction. Regenerated files are hashed
+again and compared against the preserved reference values.
+
+A matching hash establishes content identity for the corresponding
+artifact. It does not independently establish scientific correctness,
+but it provides a deterministic check that the reproduction pipeline
+reconstructed the expected analysis output from the preserved evidence.
+
+Conversely, a hash mismatch is treated as an observable reproduction
+difference requiring investigation rather than being silently accepted.
+The reproduction report therefore records gate outcomes, integrity
+comparisons, and incidents as explicit evidence of the reproduction
+process.
+
+The resulting traceability chain can be summarized as:
+
+\begin{quote}
+source revision $\rightarrow$
+frozen experimental protocol $\rightarrow$
+preserved raw observations $\rightarrow$
+derived analysis artifacts $\rightarrow$
+integrity manifest $\rightarrow$
+reproduction comparison.
+\end{quote}
+
+This chain supports bidirectional inspection. A value reported in a
+paper-level table can be traced back through the derived dataset to the
+preserved campaign observations, while a regenerated artifact can be
+checked forward against the reference manifest.
+
+The integrity layer is intentionally separated from experimental
+interpretation. Hash agreement demonstrates correspondence between
+artifact contents; the scientific meaning of those contents remains
+determined by the experimental design, statistical treatment, and claim
+boundaries described elsewhere in the paper.
+
+\subsection{Reproducibility boundaries}
+\label{subsec:reproducibility-boundaries}
+
+The artifact supports several forms of reproducibility, but each has a
+specific scope.
+
+First, the scientific sources, frozen protocol, raw observations,
+derived outputs, and integrity metadata can be inspected together. This
+supports auditability of the evidence path used by the manuscript.
+
+Second, the representative smoke suite permits partial re-execution of
+the main verification and implementation-facing paths. These executions
+confirm that the artifact machinery remains operational in the
+reproduction workspace for selected valid, mutated, and trace cases.
+
+Third, the complete paper-level analysis can be regenerated from the
+preserved definitive raw observations. The successful independent
+reproduction demonstrated that the regenerated analysis artifacts can
+be compared deterministically with the preserved reference outputs.
+
+Fourth, content hashes and reproduction reports provide integrity and
+process evidence. They make unexpected changes observable and record
+whether the documented reproduction gates succeed.
+
+These capabilities do not imply full experimental replication. The
+independent reproduction did not re-execute every task in the definitive
+campaign. The preserved raw observations remained the empirical source
+for regeneration of the complete analysis.
+
+The evaluation also does not establish hardware-independent
+reproducibility. The successful reproduction used a separate clone,
+operating-system user, and workspace, but ran on the same native Linux
+host as the reference campaign. Reproduction on an independent physical
+machine would provide a stronger test of environment portability.
+
+Similarly, the artifact does not claim universal reproducibility across
+arbitrary operating systems, processors, formal-tool versions, Java
+runtimes, or resource configurations. Changes in these components may
+affect execution behavior, verification cost, or generated outputs.
+
+Finally, deterministic integrity checks should not be confused with
+scientific validation. Matching hashes establish correspondence between
+regenerated and reference artifact contents, while the validity of the
+scientific conclusions depends on the experimental design, formal
+abstractions, statistical treatment, and claim boundaries described in
+the preceding sections.
+
+The artifact should therefore be interpreted as supporting reproducible
+inspection, representative re-execution, complete analysis regeneration
+from preserved observations, and integrity verification under the
+documented environment, rather than as evidence of universal or
+hardware-independent replication.
