@@ -1,0 +1,247 @@
+\section{Threats to Validity}
+\label{sec:threats-validity}
+
+\subsection{Construct validity}
+\label{subsec:construct-validity}
+
+A first construct-validity threat concerns the relationship between the
+TLA+ and Alloy representations. Both models address the same
+cross-shard protocol obligations, but they express states, transitions,
+and properties using different formalisms and analysis semantics.
+Consequently, similarly named or conceptually related properties should
+not be interpreted as syntactically or semantically identical
+assertions across the two tools.
+
+This threat is mitigated by defining the experimental claims at the
+protocol-obligation level rather than requiring property-by-property
+identity between the formal representations. The mutation experiments
+make this distinction explicit. For example, the commit-after-abort
+defect is associated with
+\texttt{TerminalStateIrreversibility} in Alloy and
+\texttt{DecisionConsistency} in TLA+. Detection is therefore evaluated
+against the designated property within each formal encoding.
+
+A second threat concerns the use of verification-cost metrics across
+different model checkers. Elapsed time and maximum resident memory are
+observable for both tools, but internal state-space metrics are
+tool-specific and do not necessarily represent equivalent units of
+formal exploration. TLC distinct-state counts, for example, should not
+be treated as directly comparable to Alloy's internal search
+representation.
+
+To reduce this threat, cost trends are interpreted within each formal
+tool. The study does not use absolute TLC-versus-Alloy timing, memory,
+or state counts to establish tool superiority. Cross-tool observations
+are used only as complementary evidence about the same protocol-level
+verification problem.
+
+A third construct-validity threat affects the implementation-model
+conformance experiment. RQ3 does not observe the complete Java program
+state. Instead, the implementation emits a deterministic observable
+trace that is mapped to the action vocabulary expected by the TLA+
+replay procedure. The measured construct is therefore conformance of
+the selected observable abstraction, rather than full semantic
+equivalence between the implementation and the formal specification.
+
+This limitation is addressed by freezing the trace representation,
+scenario catalogue, mapping rules, and replay procedure before the
+definitive campaign. Both valid and deliberately corrupted traces are
+evaluated, and negative cases require agreement with the expected
+rejection point rather than only generic replay failure.
+
+Finally, mutation sensitivity is an operational proxy for the adequacy
+of the formal property suite. The ten scientific mutants exercise
+selected protocol controls related to replay, receipt validation,
+terminal decisions, quorum requirements, and timeout handling. They do
+not represent an exhaustive taxonomy of cross-shard or implementation
+defects.
+
+Accordingly, the mutation score is interpreted only with respect to the
+predefined mutant catalogue. A score of 1.0 supports sensitivity to the
+injected defect classes but does not establish complete defect
+detection or completeness of the formal property suite.
+
+\subsection{Internal validity}
+\label{subsec:internal-validity}
+
+A first internal-validity threat concerns variation in host load and
+execution conditions. Verification time and memory usage may be affected
+by unrelated system activity, which could obscure differences among
+experimental configurations.
+
+This threat is mitigated by executing the definitive campaign on a
+dedicated native Linux environment rather than on a virtualized or
+shared CI runner. Tasks are executed serially with a maximum parallelism
+of one, reducing interference among concurrent verification processes.
+
+A second threat concerns startup and runtime effects that may influence
+timing measurements. The cost experiments therefore separate warmup
+executions from measured repetitions. Warmup observations are retained
+as part of the execution record but are excluded from the statistical
+summaries used to characterize measured verification cost.
+
+A third threat concerns nondeterminism in scenario generation and
+execution ordering. The experimental protocol uses deterministic seeds
+and predefined configuration families. For trace-conformance
+experiments, the definitive seed set is frozen before execution, and
+scenario definitions are not changed in response to observed results.
+
+A fourth threat is measurement instrumentation. Elapsed time and
+maximum resident memory depend on the operating-system measurement
+mechanism, while formal-tool outputs depend on tool-specific parsers.
+Instrumentation failures could therefore be confused with scientific
+outcomes.
+
+To reduce this risk, instrumentation errors are classified separately
+from verification results. A scientific execution is not retried merely
+because its outcome is unfavorable. Retries are permitted only under
+the predefined rule for instrumentation failure, preventing
+result-dependent reruns.
+
+Timeout handling constitutes an additional internal-validity concern.
+A run that reaches the 1800-second resource limit does not reveal its
+eventual completion time or final verification outcome. Treating such a
+run as if it had completed at the timeout threshold would bias timing
+estimates and could distort scalability conclusions.
+
+The protocol therefore retains timeout and out-of-memory outcomes as
+censored observations. They are not removed from the campaign and are
+not converted into successful completion measurements. In particular,
+the TLC-large timeouts remain visible as incomplete executions rather
+than being replaced by selectively repeated runs.
+
+Finally, the definitive experiment is governed by a frozen protocol
+that specifies tool versions, bounds, configuration families,
+repetitions, seeds, execution order, resource limits, and treatment of
+incomplete executions. Freezing these decisions before interpreting the
+definitive results reduces the risk of adapting the experimental design
+to obtain a preferred outcome.
+
+\subsection{External validity}
+\label{subsec:external-validity}
+
+A first external-validity limitation is that the study evaluates one
+specific cross-shard commit protocol and its associated executable and
+formal representations. The findings therefore characterize this
+protocol design and experimental implementation rather than the full
+space of cross-shard transaction mechanisms.
+
+In particular, the results should not be generalized directly to
+production blockchain systems with different consensus protocols,
+network assumptions, cryptographic mechanisms, execution environments,
+or adversarial models. The Java implementation used in the study is an
+experimental simulator and validation artifact rather than a
+production blockchain client.
+
+A second limitation concerns the bounded formal configurations. The
+small, medium, and large profiles provide controlled increases in
+shards, concurrent transfers, validators, quorum requirements, receipt
+copies, and formal-analysis bounds. These profiles are sufficient for
+the predefined comparative experiment but do not represent arbitrarily
+large distributed-ledger deployments.
+
+Consequently, successful bounded verification within the completed
+profiles does not imply that the same properties would remain
+tractable, or that no counterexamples would emerge, under substantially
+larger bounds or different protocol topologies.
+
+A third limitation concerns the mutation catalogue. The experiment
+contains ten scientific mutants selected to exercise important protocol
+controls such as replay prevention, receipt validation, quorum
+requirements, terminal-state behavior, and timeout handling. Other
+defect classes may interact with the protocol in ways not represented
+by this catalogue.
+
+The mutation results should therefore be generalized only to the
+evaluated defect classes and closely related protocol obligations, not
+to arbitrary implementation bugs or adversarial behaviors.
+
+A fourth limitation concerns implementation-model trace conformance.
+The trace experiment uses ten valid and ten deliberately corrupted
+scenario classes, each evaluated under thirty deterministic seeds.
+Although this catalogue exercises multiple normal, timeout, replay,
+quorum, concurrency, and corruption behaviors, it is not an exhaustive
+enumeration of possible Java executions.
+
+The RQ3 result therefore supports generalization to the evaluated trace
+classes under the declared abstraction and bounds, rather than to all
+possible implementation executions or workloads.
+
+Finally, the verification-cost observations depend on the selected
+formal models, tool versions, bounds, failure configurations, execution
+environment, and resource policy. The observed cost trends identify a
+scalability boundary for the evaluated setup, but they should not be
+interpreted as universal complexity laws for TLA+, Alloy, or
+cross-shard verification in general.
+
+These limitations are addressed by restricting the claims to the
+evaluated protocol, bounds, scenarios, mutants, and tool
+configurations, and by preserving the complete experimental protocol
+and artifacts required to reproduce those conditions.
+
+\subsection{Conclusion validity}
+\label{subsec:conclusion-validity}
+
+A first conclusion-validity threat concerns the interpretation of
+absence of detected violations. RQ1 reports no counterexample among the
+completed bounded verification executions, but this observation is not
+a statistical or unbounded proof of protocol correctness. In
+particular, the fully censored TLC-large profile prevents treating all
+scheduled RQ1 executions as completed successful verifications.
+
+The RQ1 conclusion is therefore restricted to the completed bounded
+configurations, and the hypothesis is interpreted with explicit
+censoring rather than by treating incomplete executions as successful
+property checks.
+
+A second threat concerns the mutation result. Detection of all ten
+predefined scientific mutants yields a mutation score of 1.0 for the
+evaluated catalogue. However, ten mutation classes are not a random
+sample from the universe of possible protocol or implementation
+defects. The score is consequently a descriptive measure of sensitivity
+to the injected mutants and should not be interpreted as an estimator
+of detection probability for arbitrary future defects.
+
+A third threat concerns the perfect observed classification rates in
+RQ3. Each of the twenty predefined trace classes is evaluated under
+thirty deterministic seeds, and all measured executions are classified
+as expected. These repeated observations strengthen evidence for the
+frozen scenario catalogue, but the seeds and scenario classes do not
+constitute random sampling from the space of all possible Java
+executions.
+
+Accordingly, the observed classification proportions and their
+associated interval estimates characterize the evaluated experimental
+population. They do not provide a population-level guarantee that
+arbitrary implementation traces will exhibit the same conformance
+behavior.
+
+The principal conclusion-validity limitation affects RQ4. Alloy
+provides only three completed ordered bound profiles. A Spearman rank
+association of 1.0 across three levels establishes monotonic ordering
+for the observations but supplies insufficient evidence to determine a
+functional growth form or to establish nonlinear scaling.
+
+For TLC, only the small and medium profiles provide completed
+measurements. All measured large-profile executions are censored by the
+timeout policy. Consequently, the available TLC data cannot support a
+three-level correlation analysis or estimation of a large-profile
+completion-time distribution.
+
+Censoring also affects descriptive summaries. Medians computed from
+completed executions characterize only the observed completions. When
+more demanding executions are preferentially censored, completed-run
+summaries may underestimate the computational burden of the full
+configuration.
+
+For these reasons, H4 is interpreted as evidence of increasing
+verification cost without sufficient evidence for the preregistered
+nonlinear-growth claim. No asymptotic complexity law is inferred from
+the three Alloy levels, the two completed TLC levels, or the censored
+TLC-large executions.
+
+More generally, the study emphasizes effect direction, bounded
+property outcomes, mutation sensitivity, trace classification, and
+transparent censoring rather than significance claims unsupported by
+the experimental design. The conclusions are therefore limited to the
+strength of evidence directly provided by the frozen campaign.
