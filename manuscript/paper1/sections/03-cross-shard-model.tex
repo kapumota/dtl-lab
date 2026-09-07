@@ -19,14 +19,14 @@ Each transfer is represented by a finite-state session. The implementation conta
 
 \begin{itemize}
 \item \texttt{CREATED};
-\item \texttt{SOURCE_LOCKED};
-\item \texttt{RECEIPT_CREATED};
-\item \texttt{RECEIPT_DELIVERED};
-\item \texttt{DESTINATION_PREPARED};
+\item \texttt{SOURCE\_LOCKED};
+\item \texttt{RECEIPT\_CREATED};
+\item \texttt{RECEIPT\_DELIVERED};
+\item \texttt{DESTINATION\_PREPARED};
 \item \texttt{COMMITTED};
 \item \texttt{ABORTED};
-\item \texttt{TIMED_OUT};
-\item \texttt{FAILED_VALIDATION}.
+\item \texttt{TIMED\_OUT};
+\item \texttt{FAILED\_VALIDATION}.
 \end{itemize}
 
 The normal successful execution follows
@@ -34,16 +34,16 @@ The normal successful execution follows
 \begin{equation}
 \begin{split}
 \texttt{CREATED}
-&\rightarrow \texttt{SOURCE_LOCKED} \\
-&\rightarrow \texttt{RECEIPT_CREATED} \\
-&\rightarrow \texttt{RECEIPT_DELIVERED} \\
-&\rightarrow \texttt{DESTINATION_PREPARED} \\
+&\rightarrow \texttt{SOURCE\_LOCKED} \\
+&\rightarrow \texttt{RECEIPT\_CREATED} \\
+&\rightarrow \texttt{RECEIPT\_DELIVERED} \\
+&\rightarrow \texttt{DESTINATION\_PREPARED} \\
 &\rightarrow \texttt{COMMITTED}.
 \end{split}
 \label{eq:normal-commit-path}
 \end{equation}
 
-The states \texttt{COMMITTED}, \texttt{ABORTED}, \texttt{TIMED_OUT}, and \texttt{FAILED_VALIDATION} are terminal. The transition system does not permit outgoing transitions from these states.
+The states \texttt{COMMITTED}, \texttt{ABORTED}, \texttt{TIMED\_OUT}, and \texttt{FAILED\_VALIDATION} are terminal. The transition system does not permit outgoing transitions from these states.
 
 Abort and validation-failure transitions may occur from nonterminal states. A timeout may occur after source locking and before a terminal decision, but it is not allowed directly from \texttt{CREATED}, where no source resource has yet been locked.
 
@@ -91,7 +91,6 @@ Seven protocol properties define the main bounded verification target.
 
 \begin{description}
 
-```
 \item[\texttt{NoReceiptReplay}.]
 A cross-shard receipt must not be consumed more than once.
 
@@ -112,7 +111,6 @@ An abstract transfer represented as \texttt{Aborted} must have released its sour
 
 \item[\texttt{QuorumRequired}.]
 A commit requires the relevant validator quorum. TLA+ parameterizes this threshold through \texttt{Quorum}, whereas the evaluated Alloy model requires at least two validator votes.
-```
 
 \end{description}
 
