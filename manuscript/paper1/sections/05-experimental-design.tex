@@ -16,8 +16,8 @@ The scientific baseline corresponds to release
 and GNU \texttt{/usr/bin/time -v} for execution-time and memory
 instrumentation.
 
-The definitive design contains valid-model verification, scientific
-mutants, implementation-to-model trace conformance, and TLC fault
+The definitive design contains bounded property verification, scientific
+mutants, bounded implementation-model trace conformance, and TLC fault
 profiles. Configuration families were enumerated before the definitive
 runs; configurations not present in the frozen matrix were not added
 after observing experimental outcomes.
@@ -85,7 +85,7 @@ associated with the complete bounded configuration rather than as
 isolated causal effects of a single parameter.
 
 The \texttt{catalog} profile is reserved for the scenario catalogue used
-for implementation-to-model trace conformance.
+for bounded implementation-model trace conformance.
 
 \subsection{Mutation configurations}
 \label{subsec:mutation-configurations}
