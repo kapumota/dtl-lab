@@ -140,10 +140,10 @@ copies, and formal-analysis bounds. These profiles are sufficient for
 the predefined comparative experiment but do not represent arbitrarily
 large distributed-ledger deployments.
 
-Consequently, successful bounded verification within the completed
-profiles does not imply that the same properties would remain
-tractable, or that no counterexamples would emerge, under substantially
-larger bounds or different protocol topologies.
+Consequently, completion without a counterexample within the bounded profiles
+does not imply that the same properties would remain tractable, or that no
+counterexamples would emerge, under substantially larger bounds or different
+protocol topologies.
 
 A third limitation concerns the mutation catalogue. The experiment
 contains ten scientific mutants selected to exercise important protocol
@@ -187,7 +187,7 @@ absence of detected violations. RQ1 reports no counterexample among the
 completed bounded verification executions, but this observation is not
 a statistical or unbounded proof of protocol correctness. In
 particular, the fully censored TLC-large profile prevents treating all
-scheduled RQ1 executions as completed successful verifications.
+scheduled RQ1 executions as completed checks without detected violations.
 
 The RQ1 conclusion is therefore restricted to the completed bounded
 configurations, and the hypothesis is interpreted with explicit

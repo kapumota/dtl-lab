@@ -22,7 +22,7 @@ prototype evaluation~\cite{albassam2018chainspace}. OmniLedger introduced
 Atomix, a client-driven atomic cross-shard transaction protocol that
 coordinates input and output shards using proofs of acceptance or
 rejection~\cite{kokoriskogias2018omniledger}. These systems establish that
-atomic cross-shard commit and protocol-level correctness guarantees
+atomic cross-shard commit mechanisms and protocol-level correctness arguments
 predate the present work.
 
 More recent systems focus on reducing conflicts, latency, or coordination
@@ -63,8 +63,8 @@ Mutation-based assessment of formal specifications also predates this
 work. Cordy et al. propose mutation model checking as a way to assess and
 strengthen formal specifications by checking whether deliberately mutated
 models are rejected by the property set~\cite{cordy2023mutation}. Their
-work establishes mutation-based specification assessment as an
-independent methodological line. Our RQ2 uses a smaller, protocol-targeted
+work demonstrates prior use of mutation-based specification assessment as a
+methodological approach. Our RQ2 uses a smaller, protocol-targeted
 catalogue of scientific mutants and interprets the resulting mutation
 score only as sensitivity to those predefined defect classes.
 
@@ -98,9 +98,9 @@ The work also publishes a substantial experimental artifact and reports
 partial external reproduction. Smart Casual Verification of CCF applies a
 related philosophy to a production C++ codebase by integrating TLA+ model
 checking, simulation, testing, and trace validation into continuous
-integration~\cite{howard2025ccf}. These studies demonstrate that
-implementation-model trace validation is already a mature technique in
-distributed systems.
+integration~\cite{howard2025ccf}. These studies show that
+implementation-model trace validation has been investigated across multiple
+distributed-systems settings.
 
 Other approaches generate or guide implementation checks directly from
 formal models. Choreographic PlusCal projects distributed protocol
