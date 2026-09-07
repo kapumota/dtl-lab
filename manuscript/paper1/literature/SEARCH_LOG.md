@@ -343,3 +343,28 @@ Las métricas de throughput, latency y scalability de estos protocolos no se com
 Regla de parada:
 
 Con G5 termina la lectura intensiva de comparadores cross-shard core. G6 debe consolidar la matriz y producir la síntesis, ampliando la búsqueda solo si aparece una omisión crítica para un claim concreto.
+
+#### Batch G6: consolidación y síntesis final
+
+Fecha:
+
+`2026-09-07`
+
+Acciones:
+
+- consolidación de los 17 trabajos de la matriz;
+- ordenamiento por `paper_id`;
+- incorporación de `evidence_family`;
+- incorporación de `correctness_evidence_type`;
+- incorporación de `cost_scope`;
+- incorporación de `positioning_role`;
+- creación de `RELATED_WORK_SYNTHESIS.md`;
+- cierre de la búsqueda bibliográfica general.
+
+Resultado:
+
+El gap queda acotado al conjunto de comparadores verificados y no se formula ningún claim de prioridad absoluta.
+
+Siguiente fase:
+
+`8F-G7 references.bib + Background and Related Work drafting`
