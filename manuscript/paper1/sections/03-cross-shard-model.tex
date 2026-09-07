@@ -19,14 +19,14 @@ Each transfer is represented by a finite-state session. The implementation conta
 
 \begin{itemize}
 \item \texttt{CREATED};
-\item \texttt{SOURCE\_LOCKED};
-\item \texttt{RECEIPT\_CREATED};
-\item \texttt{RECEIPT\_DELIVERED};
-\item \texttt{DESTINATION\_PREPARED};
+\item \texttt{SOURCE\_\allowbreak LOCKED};
+\item \texttt{RECEIPT\_\allowbreak CREATED};
+\item \texttt{RECEIPT\_\allowbreak DELIVERED};
+\item \texttt{DESTINATION\_\allowbreak PREPARED};
 \item \texttt{COMMITTED};
 \item \texttt{ABORTED};
-\item \texttt{TIMED\_OUT};
-\item \texttt{FAILED\_VALIDATION}.
+\item \texttt{TIMED\_\allowbreak OUT};
+\item \texttt{FAILED\_\allowbreak VALIDATION}.
 \end{itemize}
 
 The normal successful execution follows
@@ -34,16 +34,16 @@ The normal successful execution follows
 \begin{equation}
 \begin{split}
 \texttt{CREATED}
-&\rightarrow \texttt{SOURCE\_LOCKED} \\
-&\rightarrow \texttt{RECEIPT\_CREATED} \\
-&\rightarrow \texttt{RECEIPT\_DELIVERED} \\
-&\rightarrow \texttt{DESTINATION\_PREPARED} \\
+&\rightarrow \texttt{SOURCE\_\allowbreak LOCKED} \\
+&\rightarrow \texttt{RECEIPT\_\allowbreak CREATED} \\
+&\rightarrow \texttt{RECEIPT\_\allowbreak DELIVERED} \\
+&\rightarrow \texttt{DESTINATION\_\allowbreak PREPARED} \\
 &\rightarrow \texttt{COMMITTED}.
 \end{split}
 \label{eq:normal-commit-path}
 \end{equation}
 
-The states \texttt{COMMITTED}, \texttt{ABORTED}, \texttt{TIMED\_OUT}, and \texttt{FAILED\_VALIDATION} are terminal. The transition system does not permit outgoing transitions from these states.
+The states \texttt{COMMITTED}, \texttt{ABORTED}, \texttt{TIMED\_\allowbreak OUT}, and \texttt{FAILED\_\allowbreak VALIDATION} are terminal. The transition system does not permit outgoing transitions from these states.
 
 Abort and validation-failure transitions may occur from nonterminal states. A timeout may occur after source locking and before a terminal decision, but it is not allowed directly from \texttt{CREATED}, where no source resource has yet been locked.
 
@@ -76,7 +76,7 @@ The executable protocol is complemented by bounded formal models in TLA+ and All
 
 The formal abstractions represent transfer status, source and target shards, resource locks, receipt ownership and consumption, destination credit, released funds, messages, and validator votes. The abstraction deliberately collapses implementation-level states that do not change the protocol-level decision state.
 
-The Java-to-formal projection maps \texttt{CREATED} to \texttt{Pending}; \texttt{SOURCE\_LOCKED}, \texttt{RECEIPT\_CREATED}, and \texttt{RECEIPT\_DELIVERED} to \texttt{Locked}; \texttt{DESTINATION\_PREPARED} to \texttt{Prepared}; \texttt{COMMITTED} to \texttt{Committed}; and \texttt{ABORTED}, \texttt{TIMED\_OUT}, and \texttt{FAILED\_VALIDATION} to \texttt{Aborted}.
+The Java-to-formal projection maps \texttt{CREATED} to \texttt{Pending}; \texttt{SOURCE\_\allowbreak LOCKED}, \texttt{RECEIPT\_\allowbreak CREATED}, and \texttt{RECEIPT\_\allowbreak DELIVERED} to \texttt{Locked}; \texttt{DESTINATION\_\allowbreak PREPARED} to \texttt{Prepared}; \texttt{COMMITTED} to \texttt{Committed}; and \texttt{ABORTED}, \texttt{TIMED\_\allowbreak OUT}, and \texttt{FAILED\_\allowbreak VALIDATION} to \texttt{Aborted}.
 
 TLA+ additionally stores the first abstract terminal decision in \texttt{terminalStatus}. Alloy instead represents bounded executions as an ordered sequence of states and checks terminal-state irreversibility over consecutive states. The two models therefore encode terminal consistency differently while targeting the same protocol concern.
 
@@ -91,25 +91,25 @@ Seven protocol properties define the main bounded verification target.
 
 \begin{description}
 
-\item[\texttt{NoReceiptReplay}.]
+\item[] \texttt{NoReceipt\allowbreak Replay}.
 A cross-shard receipt must not be consumed more than once.
 
-\item[\texttt{DestinationCreditRequiresValidReceipt}.]
+\item[] \texttt{DestinationCreditRequires\allowbreak ValidReceipt}.
 Destination-side credit requires a receipt accepted as valid by the protocol.
 
-\item[\texttt{DecisionConsistency}.]
+\item[] \texttt{Decision\allowbreak Consistency}.
 A committed transfer must not simultaneously be represented as having released its source funds through an abort-like terminal outcome.
 
-\item[\texttt{NoValueLossAtTermination}.]
+\item[] \texttt{NoValueLossAt\allowbreak Termination}.
 At a terminal state, transferred value must either have been committed to the destination or remain recoverable on the source side.
 
-\item[\texttt{TerminalStateIrreversibility}.]
+\item[] \texttt{TerminalState\allowbreak Irreversibility}.
 Once the protocol reaches its first terminal decision, a later execution step must not replace it with an incompatible terminal outcome.
 
-\item[\texttt{EventuallyReleasedAfterTimeout}.]
+\item[] \texttt{EventuallyReleasedAfter\allowbreak Timeout}.
 An abstract transfer represented as \texttt{Aborted} must have released its source funds. This property captures the release obligation associated with the modeled timeout and non-commit terminal behavior.
 
-\item[\texttt{QuorumRequired}.]
+\item[] \texttt{Quorum\allowbreak Required}.
 A commit requires the relevant validator quorum. TLA+ parameterizes this threshold through \texttt{Quorum}, whereas the evaluated Alloy model requires at least two validator votes.
 
 \end{description}
