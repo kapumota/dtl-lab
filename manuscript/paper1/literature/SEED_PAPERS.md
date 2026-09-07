@@ -824,3 +824,26 @@ S20 no se utilizara para afirmaciones comparativas fuertes hasta disponer de su 
 Regla de parada:
 
 La expansion metodologica general termina en G4. La siguiente fase prioriza los comparadores cross-shard S06 a S11 y la sintesis de la matriz.
+
+#### Actualización de screening 8F-G5
+
+Estado después de full-text verification de comparadores cross-shard:
+
+- S06: `include-direct`, `primary_source_verified: yes`;
+- S07: `include-direct`, `primary_source_verified: yes`;
+- S08: `include-direct`, `primary_source_verified: yes`;
+- S09: `include-direct`, `primary_source_verified: yes`;
+- S10: `include-supporting`, `primary_source_verified: no`;
+- S11: `include-direct`, `primary_source_verified: yes`.
+
+Decisión:
+
+Presto no se utilizará para afirmaciones comparativas fuertes mientras no se disponga de full text verificable.
+
+Distinción obligatoria para Related Work:
+
+Los teoremas o argumentos de protocol correctness de Chainspace, Prophet, CSLAP y LightCross no deben describirse como ausencia de verificación. Se debe indicar con precisión que emplean evidencia teórica del protocolo, pero no el workflow de model checking ejecutable utilizado por DTL-Lab.
+
+Regla de parada:
+
+La verificación intensiva de comparadores cross-shard termina en G5. G6 consolida la evidencia y construye la síntesis para la redacción.

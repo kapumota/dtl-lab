@@ -300,3 +300,46 @@ Los nuevos trabajos cubren TLA+ ligado a implementaciones de produccion, trace v
 Regla de parada:
 
 No se ejecuta una tercera ronda general de snowballing metodologico. La siguiente expansion se limita a verificar comparadores cross-shard core que puedan modificar el posicionamiento del dominio.
+
+#### Batch G5: verificación cross-shard core
+
+Fecha:
+
+`2026-09-07`
+
+Seeds procesados:
+
+- S06 Chainspace;
+- S07 OmniLedger;
+- S08 Prophet;
+- S09 CSLAP;
+- S10 Presto;
+- S11 LightCross.
+
+Full text verificado:
+
+- S06;
+- S07;
+- S08;
+- S09;
+- S11.
+
+Full text no recuperado:
+
+- S10 Presto.
+
+Decisión sobre S10:
+
+Se conserva como `include-supporting`. La metadata y el abstract fueron verificados, pero las dimensiones metodológicas no observables desde el abstract se registran como `unclear`.
+
+Hallazgo principal:
+
+Los trabajos cross-shard revisados presentan distintos niveles de evidencia de correctness. Chainspace, Prophet, CSLAP y LightCross contienen argumentos o teoremas sobre propiedades del protocolo, mientras OmniLedger presenta argumentos de seguridad de Atomix. Esto no equivale a model checking basado en TLA+ o Alloy.
+
+Regla de comparación:
+
+Las métricas de throughput, latency y scalability de estos protocolos no se compararán con elapsed time, memory o state-space measurements de RQ4. Las primeras caracterizan desempeño del sistema; las segundas caracterizan costo de la verificación formal.
+
+Regla de parada:
+
+Con G5 termina la lectura intensiva de comparadores cross-shard core. G6 debe consolidar la matriz y producir la síntesis, ampliando la búsqueda solo si aparece una omisión crítica para un claim concreto.

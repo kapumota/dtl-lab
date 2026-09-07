@@ -855,3 +855,480 @@ Para cumplir el objetivo editorial con plazos ajustados:
 - no se formula ningun claim de prioridad;
 - `git diff --check` pasa;
 - el diff permanece dentro de `manuscript/paper1/`.
+
+### Verificación cross-shard core 8F-G5
+
+#### Identificación
+
+Paper:
+
+`DTL-Lab Paper 1`
+
+Fase:
+
+`8F-G5`
+
+Fecha:
+
+`2026-09-07`
+
+Objetivo:
+
+Verificar los comparadores cross-shard S06 a S11 contra fuentes primarias, distinguir protocol correctness de formal verification y ampliar la matriz comparativa antes de la síntesis de Related Work.
+
+#### Dependencia con la fase anterior
+
+Esta fase consume:
+
+`manuscript/paper1/literature/FULL_TEXT_VERIFICATION.md`
+
+`manuscript/paper1/literature/RELATED_WORK_MATRIX.csv`
+
+`manuscript/paper1/literature/SEARCH_LOG.md`
+
+`manuscript/paper1/literature/SEED_PAPERS.md`
+
+Antes de aplicar el parche deben existir los registros S01 a S05 y S18 a S23.
+
+La fase no modifica Java, TLA+, Alloy, resultados raw, protocolo experimental ni scripts científicos.
+
+#### Regla de interpretación para G5
+
+Un paper que presenta teoremas, argumentos de seguridad o análisis de correctitud del protocolo no se clasifica automáticamente como formal verification basada en model checking.
+
+Para esta matriz se distinguen:
+
+- argumentos o teoremas de protocol correctness;
+- model checking o verificación automática;
+- validación de propiedades mediante mutantes;
+- implementation-model conformance;
+- medición de protocol performance;
+- medición del costo de la verificación formal.
+
+Esta separación evita comparar throughput o latencia del protocolo con el verification cost de RQ4.
+
+#### S06 Chainspace
+
+Paper:
+
+`Chainspace: A Sharded Smart Contracts Platform`
+
+Autores:
+
+Mustafa Al-Bassam, Alberto Sonnino, Shehar Bano, Dave Hrycyszyn, George Danezis.
+
+Año:
+
+2018.
+
+Venue:
+
+NDSS 2018.
+
+DOI:
+
+`10.14722/ndss.2018.23241`
+
+Estado de fuente:
+
+`primary_source_verified: yes`
+
+Hallazgos verificados:
+
+- Chainspace es una plataforma sharded para smart contracts;
+- introduce S-BAC, un distributed atomic commit protocol para transacciones que afectan objetos distribuidos entre shards;
+- S-BAC combina BFT agreement dentro de los shards con coordinación entre shards;
+- el protocolo utiliza estados de prepare, accept, abort y commit para preservar atomicidad;
+- el paper presenta resultados de correctitud mediante teoremas sobre consistencia y validez de S-BAC;
+- la evaluación utiliza una implementación completa;
+- el prototipo usa Java y BFT-SMaRt;
+- el paper evalúa throughput y latency al variar shards, nodos, transacciones y contratos;
+- existe código público asociado al prototipo de Chainspace.
+
+Clasificación metodológica:
+
+`theorem-based protocol correctness + executable prototype evaluation`
+
+No se identificó en el paper:
+
+- TLA+;
+- Alloy;
+- model checking;
+- mutation-based property validation;
+- implementation-model trace conformance;
+- verification-cost characterization comparable a RQ4;
+- reproducción independiente del artefacto.
+
+Comparación con DTL-Lab:
+
+Chainspace es un antecedente central por dominio y atomic commit. Su evidencia de correctitud se apoya en el diseño de S-BAC y en argumentos teóricos, mientras DTL-Lab agrega model checking acotado, validación mediante mutantes, conformance de trazas y caracterización del costo de la verificación bajo un protocolo experimental congelado.
+
+Estado:
+
+`include-direct`
+
+Marca:
+
+`seminal`
+
+#### S07 OmniLedger
+
+Paper:
+
+`OmniLedger: A Secure, Scale-Out, Decentralized Ledger via Sharding`
+
+Autores:
+
+Eleftherios Kokoris-Kogias, Philipp Jovanovic, Linus Gasser, Nicolas Gailly, Ewa Syta, Bryan Ford.
+
+Año:
+
+2018.
+
+Venue:
+
+IEEE Symposium on Security and Privacy.
+
+DOI:
+
+`10.1109/SP.2018.000-5`
+
+Estado de fuente:
+
+`primary_source_verified: yes`
+
+Hallazgos verificados:
+
+- OmniLedger introduce un ledger sharded con procesamiento cross-shard;
+- Atomix es el protocolo client-driven utilizado para atomic commit entre shards;
+- una transacción obtiene proofs de aceptación o rechazo desde input shards;
+- si algún input shard rechaza la operación, el cliente inicia el abort y solicita unlock;
+- si todos los input shards aceptan, el cliente envía proofs a los output shards para producir el commit;
+- el paper argumenta la seguridad de Atomix de forma explícitamente informal;
+- los autores reconocen que los fondos pueden permanecer bloqueados si el cliente deja de actuar hasta que otra entidad complete el protocolo;
+- la implementación está escrita en Go;
+- la evaluación se realiza en DeterLab;
+- el paper mide throughput y latency, incluyendo el costo de transacciones cross-shard;
+- existe implementación pública dentro del ecosistema DEDIS/Cothority.
+
+Clasificación metodológica:
+
+`protocol design + informal security argument + executable prototype evaluation`
+
+No se identificó en el paper:
+
+- TLA+;
+- Alloy;
+- model checking;
+- mutation-based property validation;
+- implementation-model trace conformance;
+- verification-cost characterization comparable a RQ4;
+- reproducción independiente del artefacto.
+
+Comparación con DTL-Lab:
+
+OmniLedger es un antecedente central para atomic cross-shard commit. DLT-Lab no compite con su objetivo de escalabilidad de ledger, sino que estudia un protocolo cross-shard experimental mediante una cadena explícita de evidencia formal, de mutación, de conformance y de costo de verificación.
+
+Estado:
+
+`include-direct`
+
+Marca:
+
+`seminal`
+
+#### S08 Prophet
+
+Paper:
+
+`Prophet: Conflict-Free Sharding Blockchain via Byzantine-Tolerant Deterministic Ordering`
+
+Autores:
+
+Zicong Hong, Song Guo, Enyuan Zhou, Jianting Zhang, Wuhui Chen, Jinwen Liang, Jie Zhang, Albert Y. Zomaya.
+
+Año:
+
+2023.
+
+Venue:
+
+IEEE INFOCOM 2023.
+
+DOI:
+
+`10.1109/INFOCOM53939.2023.10228939`
+
+Estado de fuente:
+
+`primary_source_verified: yes`
+
+Hallazgos verificados:
+
+- Prophet aborda conflictos y aborts de cross-shard transactions mediante Byzantine-tolerant deterministic ordering;
+- utiliza una arquitectura con mining, ordering y execution para obtener un orden determinista de transacciones;
+- el paper presenta argumentos y pruebas de determinismo y serializabilidad;
+- el objetivo es reducir conflictos y aborts en la ejecución cross-shard;
+- se implementa un prototipo basado en Geth;
+- la implementación utiliza Go;
+- la evaluación usa un testbed distribuido y workloads derivados de transacciones de Ethereum;
+- el paper reporta hasta 3.11 veces el throughput de baselines y prácticamente elimina aborts en el workload evaluado;
+- la evaluación incluye comportamiento bajo nodos maliciosos y distintas configuraciones de red.
+
+Clasificación metodológica:
+
+`theorem-based ordering correctness + executable prototype evaluation`
+
+No se identificó en el paper:
+
+- TLA+;
+- Alloy;
+- model checking;
+- mutation-based property validation;
+- implementation-model trace conformance;
+- verification-cost characterization comparable a RQ4.
+
+Artefacto:
+
+`unclear`
+
+No se verificó un artefacto de código asociado directamente al paper durante G5.
+
+Comparación con DTL-Lab:
+
+Prophet busca mejorar la ejecución cross-shard y reducir aborts mediante ordering determinista. Sus métricas son métricas de desempeño del protocolo, no métricas del costo de una campaña de verificación formal.
+
+Estado:
+
+`include-direct`
+
+#### S09 CSLAP
+
+Paper:
+
+`Cross shard leader accountability protocol based on two phase atomic commit`
+
+Autores:
+
+Zhiqiang Du, Wendong Zhang, Liangxin Liu y colaboradores.
+
+Año:
+
+2024.
+
+Venue:
+
+Scientific Reports, 14, 14953.
+
+DOI:
+
+`10.1038/s41598-024-64945-1`
+
+Estado de fuente:
+
+`primary_source_verified: yes`
+
+Hallazgos verificados:
+
+- CSLAP se construye sobre two-phase atomic commit;
+- agrega un mecanismo de leader accountability para detectar y sancionar comportamiento incorrecto;
+- el análisis incluye consistency y liveness;
+- el paper presenta teoremas y análisis de complejidad temporal y de comunicación;
+- la evaluación implementa nodos simulados utilizando Go;
+- los experimentos se ejecutan sobre infraestructura de Alibaba Cloud;
+- se miden communication latency y throughput;
+- los autores publican código en GitHub;
+- el propio paper reconoce que la evaluación implementa una simulación de un único protocolo y no una blockchain sharded completa;
+- el modelo de red de la evaluación es síncrono y los autores señalan partially synchronous networks como trabajo futuro.
+
+Clasificación metodológica:
+
+`analytical protocol proofs + complexity analysis + executable simulation`
+
+No se identificó en el método del paper:
+
+- TLA+;
+- Alloy;
+- model checking;
+- mutation-based property validation;
+- implementation-model trace conformance;
+- verification-cost characterization comparable a RQ4.
+
+Comparación con DTL-Lab:
+
+CSLAP es especialmente relevante por compartir 2PC y el dominio cross-shard. Sus teoremas y complejidad caracterizan el protocolo, mientras DLT-Lab estudia propiedades y límites de verificación mediante herramientas formales ejecutables y una campaña reproducible.
+
+Estado:
+
+`include-direct`
+
+#### S10 Presto
+
+Paper:
+
+`Presto: Optimizing Cross-Shard Transactions in Sharded Blockchain Architecture`
+
+Autores:
+
+Qiuyu Ding, Rongkai Zhang, Shenglin Yin, Pengze Li, Shengjie Guan, Zhen Xiao, Jieyi Long.
+
+Año:
+
+2024.
+
+Venue:
+
+IEEE SRDS 2024.
+
+DOI:
+
+`10.1109/SRDS64841.2024.00023`
+
+Estado de fuente:
+
+`primary_source_verified: no`
+
+Evidencia verificada:
+
+- metadata bibliográfica y DOI;
+- abstract de la publicación;
+- Presto aborda account-state sharded blockchains;
+- propone optimistic pre-execution, una pending tree y predistribution basada en erasure coding;
+- el objetivo es reducir cross-shard confirmation latency;
+- el paper reporta un prototipo y evaluación en una plataforma cloud;
+- el abstract reporta mejoras de throughput, confirmation latency y mempool queue size.
+
+Limitación de G5:
+
+No se recuperó un full text primario accesible durante la fase.
+
+Regla de uso:
+
+- no inferir la ausencia de TLA+, Alloy, model checking, mutantes o conformance;
+- registrar como `unclear` las dimensiones que requieren full text;
+- no usar Presto para claims comparativos fuertes;
+- mantenerlo como contexto de cross-shard performance y optimization.
+
+Estado:
+
+`include-supporting`
+
+#### S11 LightCross
+
+Paper:
+
+`LightCross: Sharding with Lightweight Cross-Shard Execution for Smart Contracts`
+
+Autores:
+
+Xiaodong Qi, Yi Li.
+
+Año:
+
+2024.
+
+Venue:
+
+IEEE INFOCOM 2024.
+
+DOI:
+
+`10.1109/INFOCOM52122.2024.10621127`
+
+Estado de fuente:
+
+`primary_source_verified: yes`
+
+Hallazgos verificados:
+
+- LightCross propone cross-shard execution ligera para smart contracts;
+- utiliza off-chain TEE executors;
+- incluye un lightweight cross-shard commit protocol;
+- el paper presenta teoremas de atomicity, serializability y liveness;
+- la propiedad de atomicity establece que si un shard confirma una CSTx, los demás shards involucrados eventualmente la confirman;
+- se implementa un prototipo sobre FISCO-BCOS;
+- la evaluación utiliza transacciones reales de Ethereum;
+- el testbed incluye hasta 16 shards y una red geográficamente simulada;
+- el paper reporta hasta 2.6 veces el throughput de sus baselines;
+- se analizan throughput, latency y escalabilidad del protocolo.
+
+Clasificación metodológica:
+
+`theorem-based correctness + executable prototype evaluation`
+
+No se identificó en el paper:
+
+- TLA+;
+- Alloy;
+- model checking;
+- mutation-based property validation;
+- implementation-model trace conformance;
+- verification-cost characterization comparable a RQ4.
+
+Artefacto:
+
+`unclear`
+
+No se verificó durante G5 un repositorio de código asociado de manera inequívoca al paper.
+
+Comparación con DTL-Lab:
+
+LightCross presenta pruebas teóricas explícitas de atomicity, serializability y liveness, por lo que no debe describirse como trabajo sin verificación. La diferencia es el tipo de evidencia: DLT-Lab usa dos modelos formales ejecutables, mutantes, trazas implementation-model y métricas de costo de model checking.
+
+Estado:
+
+`include-direct`
+
+#### Resultado de 8F-G5
+
+Cinco de los seis comparadores cross-shard core fueron verificados contra texto completo.
+
+Estado:
+
+- S06 Chainspace: `primary_source_verified: yes`;
+- S07 OmniLedger: `primary_source_verified: yes`;
+- S08 Prophet: `primary_source_verified: yes`;
+- S09 CSLAP: `primary_source_verified: yes`;
+- S10 Presto: `primary_source_verified: no`;
+- S11 LightCross: `primary_source_verified: yes`.
+
+El screening permite separar tres tipos de evidencia que no deben mezclarse en Related Work:
+
+- protocol design y argumentos informales de seguridad;
+- theorem-based protocol correctness;
+- formal executable verification mediante model checking.
+
+Los comparadores cross-shard revisados se concentran principalmente en atomicity, consistency, serializability, liveness, throughput, latency y scalability del protocolo.
+
+No se identificó entre los cinco full texts verificados una combinación de:
+
+- TLA+ y Alloy;
+- bounded model checking;
+- targeted mutation-based property validation;
+- implementation-model trace conformance;
+- verification-cost characterization;
+- reproducción independiente del artefacto analítico.
+
+Este resultado no autoriza afirmar que esa combinación sea la primera en la literatura.
+
+#### Hallazgo adicional para la síntesis
+
+El snowballing de los trabajos cross-shard vuelve a destacar trabajos específicos sobre replay attacks y defensas en sharded ledgers.
+
+No se amplía G5 con una nueva ronda general de búsqueda.
+
+Durante G6 debe decidirse si un trabajo específico de replay security es necesario para explicar la propiedad de replay prevention de DTL-Lab. Si se incorpora, se verificará contra fuente primaria antes de citarlo.
+
+#### Cierre de 8F-G5
+
+8F-G5 se considera cerrado cuando:
+
+- S06, S07, S08, S09 y S11 tienen full text verificado;
+- S10 queda marcado explícitamente como no verificado a texto completo;
+- la matriz contiene S01 a S11 y S18 a S23;
+- SEARCH_LOG.md registra la ronda G5;
+- SEED_PAPERS.md registra el estado posterior a G5;
+- no se confunden protocol performance y verification cost;
+- no se formula ningún claim de prioridad;
+- `git diff --check` pasa;
+- el diff permanece dentro de `manuscript/paper1/`.
