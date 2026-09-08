@@ -1,0 +1,20 @@
+{
+  "phase": "8G-C",
+  "status": "PASS",
+  "target": "Science of Computer Programming",
+  "issn": "0167-6423",
+  "route": "Research Papers",
+  "primary_line": "Formal techniques",
+  "secondary_fit": "Experimental software technology",
+  "scientific_freeze_commit": "06bea7d",
+  "scientific_changes_required": 0,
+  "current_title": "Reproducible Multi-Layer Evaluation of Cross-Shard Commit Protocols",
+  "recommended_target_title": "Reproducible Multi-Layer Evaluation of a Cross-Shard Commit Protocol",
+  "abstract_words": 216,
+  "keywords": 7,
+  "highlights": 5,
+  "author_metadata": "PENDING",
+  "ai_declaration": "REQUIRED",
+  "data_statement": "PREPARE",
+  "next_phase": "8G-D"
+}

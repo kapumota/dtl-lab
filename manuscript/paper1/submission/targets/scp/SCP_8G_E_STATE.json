@@ -1,0 +1,13 @@
+{
+  "phase": "8G-E",
+  "status": "PASS_TECHNICAL_WITH_ADMINISTRATIVE_PENDING",
+  "target": "Science of Computer Programming",
+  "build_location": "/home/project/paper1-scp-submission",
+  "manuscript_pdf": "SCP_manuscript.pdf",
+  "latex_source": "SCP_latex_source.zip",
+  "highlights": "Highlights.docx",
+  "cover_letter": "Cover_Letter_SCP_DRAFT.txt",
+  "scientific_status": "READY",
+  "administrative_status": "PENDING",
+  "next_phase": "8G-F"
+}

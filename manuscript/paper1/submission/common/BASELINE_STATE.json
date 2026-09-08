@@ -1,0 +1,30 @@
+{
+  "phase": "8G-A",
+  "status": "PASS",
+  "scientific_freeze_commit": "06bea7d",
+  "baseline_head": "06bea7de70971d5b22d705a2df19137122758c08",
+  "branch": "paper1/fase-8f-g-related-work",
+  "scientific_content_status": "FROZEN",
+  "title": "Reproducible Multi-Layer Evaluation of Cross-Shard Commit Protocols",
+  "abstract_word_count": 216,
+  "keyword_count": 7,
+  "highlight_count": 5,
+  "author_metadata_status": "PENDING",
+  "journal_binding": "NONE",
+  "target_strategy": "SEQUENTIAL_Q3_Q4_CASCADE",
+  "scientific_hashes": {
+    "manuscript/paper1/main.tex": "dd36d0077feee432d3ac9f9f2e6177f51b1073707b6102ea4d1063cb71aa47fb",
+    "manuscript/paper1/references.bib": "5870c07198710b7f34b4a18a2fe8f067c40af6addd795cfe1f00a9d711a59cf0",
+    "manuscript/paper1/highlights.txt": "9eb9cf32a6ee47963cfefa63e26093e29a05b2711843930031c500a4f74dc282",
+    "manuscript/paper1/sections/01-introduction.tex": "6a90363e4c719c2d3807c0fae34bf1141cfcc51c36618fa3dcc394c2d085cf71",
+    "manuscript/paper1/sections/02-background-related-work.tex": "ec8c9ce9904b5318cfceef810ce3c082b99ea59916ca5ff07edac4bb43bac093",
+    "manuscript/paper1/sections/03-cross-shard-model.tex": "16f84791d0f40da8a65a22a9c33acd847dba8808b3cf93fe16a0ca3d73e354cf",
+    "manuscript/paper1/sections/04-research-methodology.tex": "90111bb38f226b31c1fc6840d5903409671a20f5505b6202162e4a2c6add214e",
+    "manuscript/paper1/sections/05-experimental-design.tex": "79c3164109d50d741221197c0ddb065a8cfcf5711a63f44bb957e6e3b4531fd6",
+    "manuscript/paper1/sections/06-results.tex": "39f98a3ae0f71c20ebb753ceeeb5e4d8fed5bc67a7157a0a9bee88d628e28367",
+    "manuscript/paper1/sections/07-discussion.tex": "5e1d65290a9e99abe3d28382f4b5f7f252c65f8d09b410240684a7a52281df55",
+    "manuscript/paper1/sections/08-threats-to-validity.tex": "10eea4bbe4130f6ef58b8790bba5329997532e5503e3040649b7e20bb3516dac",
+    "manuscript/paper1/sections/09-reproducibility-artifact.tex": "515cfe0f3670031ba57035aafe959a48dcea8112fdd28727d9fcffa2b0952851",
+    "manuscript/paper1/sections/10-conclusions.tex": "06e4301c79dd1be90a0c7a0cae81bcf254ba580b0e19164ff6b1786c721fb3ee"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "phase": "8G-D",
+  "status": "PASS_WITH_ADMINISTRATIVE_PENDING",
+  "target": "Science of Computer Programming",
+  "ai_declaration": "READY",
+  "data_availability": "PENDING_8G_F_RELEASE",
+  "cover_letter": "DRAFT_READY",
+  "authorship": "PENDING_AUTHOR_CONFIRMATION",
+  "funding": "PENDING_AUTHOR_CONFIRMATION",
+  "competing_interests": "PENDING_AUTHOR_CONFIRMATION",
+  "scientific_changes": 0,
+  "next_phase": "8G-E"
+}

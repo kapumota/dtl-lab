@@ -76,7 +76,7 @@ H1 is therefore partially supported under censoring. The result is
 restricted to the completed bounded configurations and does not
 constitute an unbounded proof of protocol correctness.
 
-\subsection{RQ2: Mutation-based validation}
+\subsection{RQ2: Mutation-based property validation}
 \label{subsec:rq2-results}
 
 RQ2 evaluates whether the declared property suite detects predefined
@@ -105,61 +105,62 @@ Table~\ref{tab:rq2-summary} summarizes the aggregate result.
 
 \begin{table}[htbp]
 \centering
-\small
+\footnotesize
+\setlength{\tabcolsep}{2pt}
 \caption{RQ2 scientific mutants, target properties, and detection results.}
 \label{tab:rq2-summary}
-\begin{tabular}{llllr}
+\begin{tabular}{lp{0.23\textwidth}p{0.39\textwidth}cr}
 \hline
 Tool & Mutant & Target property & Detected & Runs \\
 \hline
 Alloy &
 commit-after-abort &
-TerminalStateIrreversibility &
+TerminalState\allowbreak Irreversibility &
 Yes & 10/10 \\
 
 Alloy &
 credit-before-receipt &
-DestinationCreditRequiresValidReceipt &
+DestinationCreditRequires\allowbreak ValidReceipt &
 Yes & 10/10 \\
 
 Alloy &
 no-replay &
-NoReceiptReplay &
+NoReceipt\allowbreak Replay &
 Yes & 10/10 \\
 
 Alloy &
 quorum-bypass &
-QuorumRequired &
+Quorum\allowbreak Required &
 Yes & 10/10 \\
 
 Alloy &
 timeout-without-release &
-EventuallyReleasedAfterTimeout &
+EventuallyReleasedAfter\allowbreak Timeout &
 Yes & 10/10 \\
 
 TLC &
 commit-after-abort &
-DecisionConsistency &
+Decision\allowbreak Consistency &
 Yes & 10/10 \\
 
 TLC &
 credit-before-receipt &
-DestinationCreditRequiresValidReceipt &
+DestinationCreditRequires\allowbreak ValidReceipt &
 Yes & 10/10 \\
 
 TLC &
 no-replay &
-NoReceiptReplay &
+NoReceipt\allowbreak Replay &
 Yes & 10/10 \\
 
 TLC &
 quorum-bypass &
-QuorumRequired &
+Quorum\allowbreak Required &
 Yes & 10/10 \\
 
 TLC &
 timeout-without-release &
-EventuallyReleasedAfterTimeout &
+EventuallyReleasedAfter\allowbreak Timeout &
 Yes & 10/10 \\
 \hline
 \end{tabular}
@@ -167,8 +168,8 @@ Yes & 10/10 \\
 
 The commit-after-abort defect is associated with different designated
 target properties in the two formal representations:
-\texttt{TerminalStateIrreversibility} in Alloy and
-\texttt{DecisionConsistency} in TLA+. This difference follows the
+\texttt{TerminalState\allowbreak Irreversibility} in Alloy and
+\texttt{Decision\allowbreak Consistency} in TLA+. This difference follows the
 tool-specific encodings of terminal consistency and does not affect
 the mutant-level detection criterion.
 
@@ -309,7 +310,8 @@ available state-space measurements for the three ordered profiles.
 
 \begin{table}[htbp]
 \centering
-\small
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \caption{RQ4 cost by formal tool and bound profile.}
 \label{tab:rq4-bound-cost}
 \begin{tabular}{llrrrrr}
@@ -319,8 +321,8 @@ Profile &
 Runs &
 Completed &
 Timeout &
-Median time (s) &
-Median RSS (KiB) \\
+\shortstack{Median time\\(s)} &
+\shortstack{Median RSS\\(KiB)} \\
 \hline
 Alloy & Small  & 70 & 70 & 0  & 0.515306 & 179830 \\
 Alloy & Medium & 70 & 70 & 0  & 0.766172 & 299268 \\

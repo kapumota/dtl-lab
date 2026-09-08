@@ -1,0 +1,161 @@
+\section{Background and Related Work}
+\label{sec:background-related-work}
+
+The literature relevant to this study spans four closely related areas:
+cross-shard transaction protocols, formal analysis of distributed and
+blockchain systems, validation between formal models and executable
+implementations, and reproducibility of experimental verification
+artifacts. These areas already contain mature techniques that overlap with
+individual components of our workflow. We therefore position the
+contribution of this work in the integration and controlled evaluation of
+multiple evidence layers for one executable cross-shard protocol, rather
+than in the novelty of any individual verification technique.
+
+\subsection{Sharded ledgers and cross-shard commit}
+\label{subsec:related-cross-shard}
+
+Sharded ledgers have long treated atomic cross-shard processing as a
+central systems problem. Chainspace introduced S-BAC, a Byzantine
+distributed atomic commit protocol for transactions whose objects span
+multiple shards, together with correctness arguments and an executable
+prototype evaluation~\cite{albassam2018chainspace}. OmniLedger introduced
+Atomix, a client-driven atomic cross-shard transaction protocol that
+coordinates input and output shards using proofs of acceptance or
+rejection~\cite{kokoriskogias2018omniledger}. These systems establish that
+atomic cross-shard commit mechanisms and protocol-level correctness arguments
+predate the present work.
+
+More recent systems focus on reducing conflicts, latency, or coordination
+overhead. Prophet uses Byzantine-tolerant deterministic ordering to reduce
+cross-shard conflicts and aborts and provides arguments for determinism
+and serializability~\cite{hong2023prophet}. CSLAP builds leader
+accountability on top of two-phase atomic commit and analyzes consistency,
+liveness, and communication behavior~\cite{du2024cslap}. LightCross
+combines TEE-assisted execution with a lightweight cross-shard commit
+protocol and presents atomicity, serializability, and liveness arguments
+for its design~\cite{qi2024lightcross}.
+
+The cited cross-shard systems are therefore not studies without
+correctness evidence. Their evidence is primarily expressed through
+protocol design, analytical or theorem-based arguments, and system-level
+evaluation using metrics such as throughput and latency. Those metrics
+characterize the behavior of the protocol implementation and should not be
+conflated with the resource cost of formal verification. In contrast, our
+RQ4 characterizes the cost of bounded model checking under a predefined
+experimental protocol. Mutation-based property validation and
+implementation-model trace conformance are also not reported as
+evaluation dimensions in the cited cross-shard works.
+
+\subsection{Formal analysis of distributed and blockchain protocols}
+\label{subsec:related-formal-analysis}
+
+Formal modeling and model checking have been applied directly to
+distributed transaction protocols. Schultz and Demirbas model MongoDB
+distributed transactions in TLA+ and use TLC to analyze protocol
+properties. Their modular treatment additionally generates tests from a
+formal storage model and executes them against WiredTiger, providing a
+direct connection between the model and a production implementation
+interface~\cite{schultz2025mongodb}. This work is particularly close to
+our study because it combines cross-shard distributed transactions,
+bounded formal exploration, and implementation-facing validation.
+
+Mutation-based assessment of formal specifications also predates this
+work. Cordy et al. propose mutation model checking as a way to assess and
+strengthen formal specifications by checking whether deliberately mutated
+models are rejected by the property set~\cite{cordy2023mutation}. Their
+work demonstrates prior use of mutation-based specification assessment as a
+methodological approach. Our RQ2 uses a smaller, protocol-targeted
+catalogue of scientific mutants and interprets the resulting mutation
+score only as sensitivity to those predefined defect classes.
+
+The use of multiple formal encodings and deliberate defects is likewise
+not unique to this study. Konnov et al. translate the executable Ethereum
+3SF specification into TLA+, analyze it with Apalache, and use alternative
+SMT and Alloy encodings for cross-validation~\cite{konnov2025ethereum}.
+Their technical report also evaluates time, memory, timeouts, and
+deliberately injected bugs. Consequently, neither the combination of
+TLA+ and Alloy nor the combination of multi-formalism verification,
+defect injection, and verification-cost measurements should be treated as
+an isolated novelty claim in our manuscript.
+
+\subsection{Specification validation and implementation-model conformance}
+\label{subsec:related-conformance}
+
+A substantial body of work addresses the gap between verified models and
+executable implementations. Cirstea et al. reduce validation of
+distributed-program traces against TLA+ specifications to constrained
+model checking with TLC and provide an API for instrumenting Java
+programs~\cite{cirstea2025traces}. Their framework permits partially
+observed traces and makes explicit the tradeoff between instrumentation
+detail and the search required to determine whether an observed execution
+is compatible with the specification.
+
+TraceLink further automates the relation between distributed
+implementations and verified designs. It links instrumented executions to
+TLA+ models, evaluates different trace-validation strategies, and reports
+previously undetected implementation defects~\cite{hackett2025tracelink}.
+The work also publishes a substantial experimental artifact and reports
+partial external reproduction. Smart Casual Verification of CCF applies a
+related philosophy to a production C++ codebase by integrating TLA+ model
+checking, simulation, testing, and trace validation into continuous
+integration~\cite{howard2025ccf}. These studies show that
+implementation-model trace validation has been investigated across multiple
+distributed-systems settings.
+
+Other approaches generate or guide implementation checks directly from
+formal models. Choreographic PlusCal projects distributed protocol
+descriptions to TLA+ and generates conformance monitors, including an
+evaluation on a two-phase commit implementation~\cite{foo2023choreographic}.
+Mocket uses a verified TLA+ state space to generate systematic tests,
+drive Java implementations through selected behaviors, and compare
+runtime states with their formal counterparts~\cite{wang2023mocket}.
+iMocket extends this strategy to incremental changes by restricting
+testing to affected portions of the state space~\cite{gao2025imocket}.
+Beyond TLA+, the Amazon S3 ShardStore study combines executable reference
+models, property-based testing, failure injection, and stateless model
+checking as a pragmatic multi-technique validation
+workflow~\cite{bornholt2021s3}.
+
+These results constrain the interpretation of our RQ3. We do not present
+trace validation or implementation-model checking as a new general
+method. Instead, RQ3 evaluates bounded implementation-model trace
+conformance for a predefined cross-shard scenario catalogue, including
+valid and deliberately corrupted traces and expected diagnostic
+agreement. Its role is to provide one implementation-facing layer in the
+same evidence chain used for RQ1, RQ2, and RQ4.
+
+\subsection{Positioning of this work}
+\label{subsec:related-positioning}
+
+The reviewed literature shows substantial prior coverage of the individual
+components used in this study. Cross-shard protocols already provide
+atomic commit mechanisms and protocol-level correctness arguments
+\cite{albassam2018chainspace,kokoriskogias2018omniledger,du2024cslap,qi2024lightcross};
+TLA+ has been used to analyze distributed transactions and implementation
+interfaces~\cite{schultz2025mongodb}; mutation model checking evaluates
+the strength of formal specifications~\cite{cordy2023mutation};
+multi-formalism blockchain verification can combine TLA+ and
+Alloy~\cite{konnov2025ethereum}; and implementation-model validation has
+been studied through trace checking, generated monitors, and
+model-checking-guided testing
+\cite{cirstea2025traces,hackett2025tracelink,howard2025ccf,foo2023choreographic,wang2023mocket,gao2025imocket}.
+
+Within the comparator set for which full text was verified in our
+structured review, we did not identify a cross-shard study that reports
+all of the following within one frozen experimental protocol: bounded
+property verification using complementary TLA+ and Alloy models,
+targeted mutation-based property validation, bounded
+implementation-model trace conformance over both valid and deliberately
+corrupted traces, explicit verification-cost characterization, and
+independent reproduction of the analytical artifact. This statement is
+deliberately scoped to the reviewed comparator set and is not a priority
+claim about the complete literature.
+
+Accordingly, the contribution of DLT-Lab is best characterized as an
+integrated and reproducible evidence workflow for an executable
+cross-shard protocol. The study triangulates bounded formal verification,
+mutation sensitivity, implementation-model conformance, and verification
+cost under a frozen protocol, while preserving the limitations of each
+individual evidence layer. This positioning avoids treating TLA+, Alloy,
+mutation testing, trace validation, or artifact publication as novel in
+isolation.

@@ -16,8 +16,8 @@ The scientific baseline corresponds to release
 and GNU \texttt{/usr/bin/time -v} for execution-time and memory
 instrumentation.
 
-The definitive design contains valid-model verification, scientific
-mutants, implementation-to-model trace conformance, and TLC fault
+The definitive design contains bounded property verification, scientific
+mutants, bounded implementation-model trace conformance, and TLC fault
 profiles. Configuration families were enumerated before the definitive
 runs; configurations not present in the frozen matrix were not added
 after observing experimental outcomes.
@@ -56,6 +56,8 @@ parameters.
 
 \begin{table}[htbp]
 \centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \caption{Bound profiles used in the definitive experiment.}
 \label{tab:bound-profiles}
 \begin{tabular}{lrrrrrr}
@@ -66,7 +68,7 @@ Transfers &
 Validators &
 Quorum &
 Receipts &
-Alloy state scope \\
+\shortstack{Alloy state\\scope} \\
 \hline
 Small  & 2 & 1 & 2 & 2 & 1 & 6  \\
 Medium & 3 & 2 & 3 & 2 & 2 & 8  \\
@@ -85,7 +87,7 @@ associated with the complete bounded configuration rather than as
 isolated causal effects of a single parameter.
 
 The \texttt{catalog} profile is reserved for the scenario catalogue used
-for implementation-to-model trace conformance.
+for bounded implementation-model trace conformance.
 
 \subsection{Mutation configurations}
 \label{subsec:mutation-configurations}
@@ -186,9 +188,9 @@ native Linux host.
 
 Virtualized environments, WSL, and shared continuous-integration
 runners are excluded from the primary timing and memory measurements.
-Continuous integration is used for functional correctness, structural
-integrity, and reproducibility checks, but its execution times are not
-mixed with the definitive performance measurements.
+Continuous integration is used for functional checks, structural integrity,
+and reproducibility checks, but its execution times are not mixed with the
+definitive performance measurements.
 
 The recorded environment includes the operating system and kernel,
 processor architecture and processor count, available memory,
