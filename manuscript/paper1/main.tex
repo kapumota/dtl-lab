@@ -12,19 +12,21 @@
 
 \begin{frontmatter}
 
-\title{Working Title}
+\title{Reproducible Multi-Layer Evaluation of Cross-Shard Commit Protocols}
 
 \author{Author Name}
 
 \begin{abstract}
-Abstract to be written after the results and discussion are finalized.
+Cross-shard transactions require consistent terminal outcomes despite duplicated receipts, quorum failures, timeouts, and partially applied commits. This paper presents a reproducible multi-layer evaluation workflow for an executable cross-shard commit protocol implemented in DTL-Lab. The workflow combines bounded property verification with complementary TLA+ and Alloy models, targeted mutation-based property validation, bounded implementation-model trace conformance, verification-cost characterization, and reproduction of the analytical artifact under a frozen experimental protocol. The definitive campaign scheduled 1,272 tasks. For bounded property verification, 420 measured executions were scheduled, 350 completed, and 70 large-profile TLA+ model-checking executions were censored by timeout; no property violations were observed among the completed configurations. All 10 predefined scientific mutants were detected, yielding a mutation score of 1.0 for the evaluated catalogue. Across 600 trace-conformance executions, the valid population was accepted and the deliberately corrupted population was rejected with the expected diagnostics. Alloy median elapsed time increased from 0.515306 to 0.766172 and 1.568320 seconds across the three bound profiles, while all measured large-profile TLA+ executions reached the timeout threshold. A separate clone and workspace on the same native Linux host completed 10/10 reproduction gates and matched 32/32 expected analysis-artifact hashes. The results provide complementary bounded evidence and an empirical verification-cost boundary; they do not constitute an unbounded correctness proof, general refinement, tool-superiority claim, nonlinear scaling law, or hardware-independent reproduction.
 \end{abstract}
 
 \begin{keyword}
+cross-shard transactions \sep
+distributed ledgers \sep
 formal verification \sep
 model checking \sep
-distributed ledger \sep
-cross-shard transactions \sep
+mutation analysis \sep
+trace conformance \sep
 reproducibility
 \end{keyword}
 

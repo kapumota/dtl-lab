@@ -1,0 +1,5 @@
+- Complementary formal models provide bounded cross-shard property evidence
+- Controlled mutations test whether protocol properties detect weakened safeguards
+- Trace checks connect selected implementation behavior to the formal abstraction
+- Verification cost exposes practical limits of the bounded evidence campaign
+- Artifact reproduction recovers expected analysis outputs from a separate clone
