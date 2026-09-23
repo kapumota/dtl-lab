@@ -1,8 +1,12 @@
 ### Hoja de ruta del Paper 1
 
-#### Estado operacional al cierre de 8G-F5
+#### Estado operacional al cierre de 8G-F6
 
-El manuscrito científico permanece congelado en `06bea7de70971d5b22d705a2df19137122758c08`. 8G-F1 a 8G-F5 están cerrados. El `main` auditado al abrir 8G-F5 fue `e499594d29317fbe1652c4ad7ac4124082f07aa9`. La cadena criptográfica de provenance entre raw, derived y el bundle histórico 8E fue verificada. El lineage Git entre las revisiones científicas y de preparación también fue comprobado. Los distintos roles permanecen separados. 8G-F6 es la siguiente fase. Estado de envío: `NOT_READY_TO_CLICK_SUBMIT`.
+El manuscrito científico permanece congelado en `06bea7de70971d5b22d705a2df19137122758c08`. 8G-F1 a 8G-F6 están cerrados. La integridad de la evidencia preservada fue comprobada sin repetir la campaña experimental ni generar nuevos resultados.
+
+El camino crítico continúa con el cierre editorial SCP. 8G-F7 y 8G-F8 quedan diferidos como tareas no bloqueantes del artifact público.
+
+Estado de envío: `NOT_READY_TO_CLICK_SUBMIT`.
 
 #### Principio de integración
 
@@ -278,9 +282,9 @@ Esta descomposición es planificación operativa pendiente de validación en cad
 - 8G-F3, PASS: reconciliar el README raíz y la frontera entre software general y estudio científico.
 - 8G-F4, DONE: recuperar e inventariar el bundle 8E, raw evidence y dependencias.
 - 8G-F5, DONE: cerrar provenance completa.
-- 8G-F6, PENDING: verificar raw evidence, manifests, análisis regenerado y smoke.
-- 8G-F7, PENDING: construir el artifact determinista, incluyendo README, metadata de citación, `ARTIFACT_MANIFEST.json`, `SHA256SUMS.txt` y archive reproducible.
-- 8G-F8, PENDING: auditar el archive y después preparar release y depósito persistente. No inventar DOI ni URL persistente.
+- 8G-F6, DONE: verificar la integridad de la evidencia preservada sin repetir la campaña experimental.
+- 8G-F7, DEFERRED: construir el artifact determinista. No bloquea el cierre editorial del Paper 1.
+- 8G-F8, DEFERRED: preparar release y depósito persistente. No bloquea el cierre editorial del Paper 1.
 
 El bundle histórico 8E no se presume idéntico al artifact final. Primero se audita el archive y solo después se publica o deposita. DOI, release y URL persistente se registran únicamente cuando existen.
 
@@ -290,10 +294,10 @@ El bundle histórico 8E no se presume idéntico al artifact final. Primero se au
 - 8G-G2, PENDING: funding, competing interests, AI declaration y Data Availability definitiva.
 - 8G-G3, PENDING: rebuild final SCP, incluyendo manuscript PDF, LaTeX source ZIP, `Highlights.docx`, cover letter, declarations y hashes.
 - 8G-G4, PENDING: cross-check de todas las cifras del submission contra evidencia regenerable.
-- 8G-G5, PENDING: decisión explícita y documentada sobre una segunda máquina física. No convertirla automáticamente en requisito.
-- 8G-G6, PENDING: final submission audit.
+- 8G-G5, NO REQUERIDO: no se exige una segunda máquina física para el cierre editorial.
+- 8G-G6, INTEGRADO: la revisión final se realiza sobre el PDF y el paquete editorial definitivo.
 
-Solo después de aprobar 8G-G6 puede declararse `READY_TO_SUBMIT`. Hasta entonces permanece `NOT_READY_TO_CLICK_SUBMIT`.
+El estado `READY_TO_SUBMIT` se declara después de completar G1 a G4, revisar el PDF final y congelar el paquete exacto en 8G-H. Hasta entonces permanece `NOT_READY_TO_CLICK_SUBMIT`.
 
 #### Gate 8G-H: freeze exacto del submission
 
