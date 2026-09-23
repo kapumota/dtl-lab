@@ -1,4 +1,4 @@
-### Alcance público del artifact del Paper 1
+### Alcance público del artifacto del Paper 1
 
 #### Propósito
 
