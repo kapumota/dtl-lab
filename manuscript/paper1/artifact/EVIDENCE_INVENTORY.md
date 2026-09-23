@@ -1,4 +1,4 @@
-### Inventario de evidencia para el artifact del Paper 1
+### Inventario de evidencia para el artifacto del Paper 1
 
 #### Estado
 
