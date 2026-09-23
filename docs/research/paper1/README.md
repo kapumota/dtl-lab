@@ -1,18 +1,27 @@
-### Paper 1: commit cross-shard formalmente verificado
+### Paper 1: evaluación reproducible de un protocolo de commit cross-shard
 
 #### Estado
 
-- Fase actual: Fase 8C, ejecución de matriz experimental.
-- Fases 0 a 8B: cerradas.
-- Próxima fase: Fase 8D, análisis, tablas y figuras.
-- Versión visible: `v1.1.0-rc.1`.
+- Fase actual: 8G-F1, reconciliación documental.
+- Fases científicas 8A a 8E y manuscrito 8F-A a 8F-J: cerrados.
+- Submission 8G-A a 8G-E: cerrado técnicamente; metadata administrativa y artifact final pendientes.
+- Scientific manuscript freeze: `06bea7de70971d5b22d705a2df19137122758c08`.
+- `main` auditado para esta fase: `b68aeef7d212fd82c2466180134a51ed460473ee` (PR #29).
+- Baseline experimental: `45cb114d61b1df8c605c50700f3cc72d48d157fe`.
+- Fuente de reproducción independiente: `6cd88c377afd23fee4998882f91142d71e7d963e`.
+- Artifact-release revision y submission revision: pendientes; no hay DOI ni URL persistente confirmados.
+- Target actual: Science of Computer Programming (SCP), `Research Papers`, línea principal `Formal techniques`.
+- Ruta económica prevista: suscripción, sin elegir voluntariamente open access con APC.
+- Estado de envío: `NOT_READY_TO_CLICK_SUBMIT`.
+- Versión visible histórica al cierre de 8B: `v1.1.0-rc.1`.
 - Verificación: acotada, reproducible y con mutantes científicos.
 - Trazas Java: JSONL versionado, determinista y reproducible.
 - Abstracción Java-TLA+: ejecutable y tipada.
 - Replay TLC: ejecutable sobre el catálogo válido.
 - Corpus negativo: diez mutaciones tipadas con rechazo esperado.
 - Conformidad Java-TLA+: acotada a escenarios, seeds y mutaciones declaradas.
-- Matriz Q3: 1272 tareas seriales y reanudables.
+- Campaña definitiva: 1272 tareas programadas, 1160 medidas y 112 warmups; 1188 completadas y 84 timeout.
+- Reproducción independiente: 10/10 gates y 32/32 hashes de artefactos analíticos, en el mismo host Linux nativo, desde otro usuario, clon y workspace; no fue una repetición completa de la campaña.
 
 #### Objetivo
 
@@ -59,4 +68,4 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 
 #### Gate actual
 
-La Fase 8C conecta executors científicos reales con el plan congelado. El smoke cubre TLC válido, TLC mutante, Alloy válido, Alloy mutante, conformidad válida y conformidad negativa. La matriz definitiva solo se ejecuta en Linux nativo dedicado.
+8G-F1 reconcilia únicamente este README, `HOJA_DE_RUTA.md`, `manuscript/paper1/MANUSCRIPT_PLAN.md` y `manuscript/paper1/submission/README.md`. El manuscrito y los datos científicos congelados permanecen intactos. El paquete técnico SCP pasó su gate con pendientes administrativos; faltan artifact, provenance, metadata de autor, Data Availability definitiva y auditoría final antes del envío. La fuente editorial canónica está en `manuscript/paper1/submission/targets/` y la hoja de ruta describe los gates pendientes.

@@ -2,16 +2,17 @@
 
 #### Estado de actualización
 
-Actualizado: 2026-09-07
+Actualizado para estado operacional: 2026-09-23. La planificación original de 2026-09-07 se conserva más abajo como historia.
 
 Estado general:
 
 * Fases científicas 8A a 8E cerradas.
-* Construcción del manuscrito en Fase 8F.
-* PR 28 de reproducibilidad y artefacto integrado en `main`.
-* Fase activa: 8F-G, Background and Related Work.
-* `references.bib` todavía debe poblarse durante 8F-G.
-* Introduction, Conclusions, Abstract, título y cierre editorial permanecen pendientes.
+* Manuscrito 8F-A a 8F-J cerrado; scientific manuscript freeze `06bea7de70971d5b22d705a2df19137122758c08`.
+* Baseline experimental `45cb114d61b1df8c605c50700f3cc72d48d157fe`; fuente de reproducción independiente `6cd88c377afd23fee4998882f91142d71e7d963e`.
+* `main` auditado: `b68aeef7d212fd82c2466180134a51ed460473ee` (PR #29); PR 28 es un antecedente histórico.
+* Submission 8G-A a 8G-E cerrado; fase actual 8G-F1, reconciliación documental.
+* Estado de envío: `NOT_READY_TO_CLICK_SUBMIT`. Artifact-release revision y submission revision pendientes.
+* `references.bib`, Introduction, Conclusions, Abstract, título y highlights científicos se completaron en 8F-J.
 
 #### Objetivo editorial
 
@@ -19,9 +20,11 @@ Objetivo principal:
 
 Publicar el Paper 1 como artículo científico revisado por pares en una revista legítima e indizada que permita reconocimiento en RENACYT, priorizando adecuación temática, calidad editorial y tiempo razonable de publicación.
 
-Target editorial primario:
+Target editorial primario durante la planificación de 8F, sustituido para el submission actual:
 
 Simulation Modelling Practice and Theory.
+
+Target actual de submission: Science of Computer Programming (SCP), ruta `Research Papers`, línea principal `Formal techniques`, con modalidad de suscripción prevista y sin elección voluntaria de APC. La fuente editorial canónica actual es `manuscript/paper1/submission/targets/`, en particular `TARGET_CASCADE.md` y `scp/SCP_ADAPTATION_PROFILE.md`. El `\journal` del `main.tex` congelado conserva SMPT como dato histórico; la adaptación SCP se aplica en el bundle editorial, fuera del scientific freeze.
 
 Publisher:
 
@@ -29,7 +32,7 @@ Elsevier.
 
 Estrategia de publicación:
 
-* Mantener Simulation Modelling Practice and Theory como primera opción mientras conserve un encaje adecuado con el manuscrito.
+* Históricamente se consideró Simulation Modelling Practice and Theory como primera opción; para el envío actual rige SCP y la cascada editorial de `manuscript/paper1/submission/targets/TARGET_CASCADE.md`.
 * No retrasar indefinidamente el envío por perseguir un cuartil específico.
 * Mantener una lista corta de revistas alternativas indizadas en Scopus o Web of Science.
 * Verificar indexación, cuartil, alcance, tipo de artículo, costos y política editorial inmediatamente antes de cada envío.
@@ -98,7 +101,7 @@ Reproducción independiente:
 
 Completada.
 
-Bundle final de reproducción SHA-256:
+Bundle histórico de reproducción independiente 8E, SHA-256 (no es por ello el artifact final de publicación):
 
 `d464888e9f3e5d8cc64ef5d22cc7b7c24f83e3853f5825f18f23de26adf6a6e6`
 
@@ -155,7 +158,7 @@ El Paper 1 presenta un workflow reproducible que conecta:
 * análisis reproducible;
 * reproducción independiente de los artefactos analíticos.
 
-La novedad no debe atribuirse de forma aislada al uso de TLA+, Alloy, mutation testing o trace conformance. La Fase 8F-G debe determinar con literatura primaria qué componentes ya existen por separado, qué combinaciones han sido publicadas y cuál es el gap defendible de la integración propuesta por DLT-Lab.
+La novedad no debe atribuirse de forma aislada al uso de TLA+, Alloy, mutation testing o trace conformance. En 8F-G se examinó la literatura primaria para delimitar la contribución integrada de DTL-Lab; consultar los registros de auditoría de `manuscript/paper1/literature/`.
 
 #### Estrategia de construcción del manuscrito
 
@@ -182,14 +185,16 @@ Orden actualizado:
 * 8F-D, Results RQ1 a RQ4: DONE.
 * 8F-E, Discussion y Threats to Validity: DONE.
 * 8F-F, Reproducibility and Artifact: DONE.
-* 8F-G, Background and Related Work: CURRENT.
-* 8F-H, Introduction: PENDING.
-* 8F-I, Conclusions: PENDING.
-* 8F-J, Abstract, título, keywords, highlights y revisión integral: PENDING.
+* 8F-G, Background and Related Work: DONE.
+* 8F-H, Introduction: DONE.
+* 8F-I, Conclusions: DONE.
+* 8F-J, Abstract, título, keywords, highlights y revisión integral: DONE.
 
-Después de 8F-J comienza la Fase 8G, dedicada al artefacto de envío, release, snapshot editorial, checksums y archivo persistente.
+8G-A, baseline universal: DONE. 8G-B, journal target matrix: DONE. 8G-C, perfil SCP: DONE. 8G-D, declaraciones y cover letter: DONE como drafts con metadata administrativa pendiente. 8G-E, archivos técnicos SCP: DONE con gate `PASS_TECHNICAL_WITH_ADMINISTRATIVE_PENDING`. 8G-F1, reconciliación documental: CURRENT. El resto de 8G está pendiente; ver `docs/research/paper1/HOJA_DE_RUTA.md`.
 
 #### Fase 8F-G, Background and Related Work
+
+Las instrucciones de esta sección registran el plan ejecutado en 8F-G. Su gate quedó cerrado; no son tareas actuales.
 
 Objetivo:
 
@@ -284,16 +289,17 @@ Estas reglas no obligan a traducir el manuscrito científico en LaTeX, que perma
 
 #### Estrategia de ramas para cerrar el paper
 
-Rama actual prevista:
+Rama actual 8G-F1:
 
-`paper1/fase-8f-g-related-work`
+`paper1/fase-8g-f1-reconciliacion-documental`, creada desde `origin/main` auditado.
 
-Ramas siguientes:
+Ramas históricas de 8F, ya completadas:
 
 * `paper1/fase-8f-h-introduction`
 * `paper1/fase-8f-i-conclusions`
 * `paper1/fase-8f-j-final-manuscript`
-* `paper1/fase-8g-submission-artifact`
+
+La rama `paper1/fase-8g-submission-artifact` fue una previsión general anterior. Los siguientes gates 8G se trabajarán en ramas pequeñas definidas al abrir cada fase; no se anticipa su nombre ni su contenido. Para 8G-F1 no hacer commit, push, merge ni PR sin autorización explícita.
 
 Flujo por fase:
 
@@ -302,12 +308,9 @@ Flujo por fase:
 3. inspeccionar la fase anterior;
 4. aplicar el parche de alcance mínimo;
 5. ejecutar gates;
-6. commit;
-7. push;
-8. abrir PR hacia `main`;
-9. revisar y fusionar;
-10. actualizar `main`;
-11. eliminar la rama de fase local y remota.
+6. solicitar autorización explícita antes de commit, push, merge o PR;
+7. tras autorización, revisar y fusionar la fase;
+8. actualizar `main` y cerrar la rama de fase.
 
 #### Estructura objetivo del manuscrito
 
@@ -326,7 +329,7 @@ Flujo por fase:
 
 Abstract:
 
-Máximo de trabajo: 250 palabras mientras se mantenga Simulation Modelling Practice and Theory como target.
+Máximo histórico de trabajo: 250 palabras cuando Simulation Modelling Practice and Theory era el target. Para SCP rige el perfil de adaptación canónico; no reabrir el abstract científico en 8G-F1.
 
 Keywords:
 

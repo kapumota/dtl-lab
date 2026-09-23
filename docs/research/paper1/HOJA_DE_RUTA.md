@@ -1,5 +1,11 @@
 ### Hoja de ruta del Paper 1
 
+#### Estado operacional al inicio de 8G-F1
+
+El estado actual se mantiene en `README.md`. El manuscrito científico está congelado en `06bea7de70971d5b22d705a2df19137122758c08` y el `main` auditado es `b68aeef7d212fd82c2466180134a51ed460473ee`. 8C, 8D y 8E, 8F-A a 8F-J y 8G-A a 8G-E están cerradas. La fase actual es 8G-F1; el target actual es Science of Computer Programming (SCP), `Research Papers`, `Formal techniques`. Estado: `NOT_READY_TO_CLICK_SUBMIT`.
+
+Las descripciones de fases anteriores se conservan como historial de planificación. Para decisiones editoriales vigentes consultar `manuscript/paper1/submission/targets/`.
+
 #### Principio de integración
 
 Cada fase se desarrolla en una rama corta creada desde `main` actualizado y se integra mediante Pull Request antes de abrir la siguiente.
@@ -258,12 +264,42 @@ Objetivos:
 
 #### Fase 8G: artefacto de envío
 
-Objetivos:
+Objetivos históricos generales:
 
 - congelar release;
 - crear snapshot editorial;
 - publicar checksums;
 - archivar el artefacto con identificador persistente.
+
+#### Gates 8G-F: artifact y provenance
+
+Esta descomposición es planificación operativa pendiente de validación en cada gate; no certifica entregables ni anticipa un release, DOI o URL persistente.
+
+- 8G-F1, CURRENT: reconciliación documental.
+- 8G-F2, PENDING: definir inclusión y exclusión del artifact público.
+- 8G-F3, PENDING: reconciliar el README raíz y la frontera entre software general y estudio científico.
+- 8G-F4, PENDING: recuperar e inventariar el bundle 8E, raw evidence y dependencias.
+- 8G-F5, PENDING: cerrar provenance completa.
+- 8G-F6, PENDING: verificar raw evidence, manifests, análisis regenerado y smoke.
+- 8G-F7, PENDING: construir el artifact determinista, incluyendo README, metadata de citación, `ARTIFACT_MANIFEST.json`, `SHA256SUMS.txt` y archive reproducible.
+- 8G-F8, PENDING: auditar el archive y después preparar release y depósito persistente. No inventar DOI ni URL persistente.
+
+El bundle histórico 8E no se presume idéntico al artifact final. Primero se audita el archive y solo después se publica o deposita. DOI, release y URL persistente se registran únicamente cuando existen.
+
+#### Gates 8G-G: cierre editorial SCP
+
+- 8G-G1, PENDING: authorship, affiliations, ORCID, corresponding author y CRediT.
+- 8G-G2, PENDING: funding, competing interests, AI declaration y Data Availability definitiva.
+- 8G-G3, PENDING: rebuild final SCP, incluyendo manuscript PDF, LaTeX source ZIP, `Highlights.docx`, cover letter, declarations y hashes.
+- 8G-G4, PENDING: cross-check de todas las cifras del submission contra evidencia regenerable.
+- 8G-G5, PENDING: decisión explícita y documentada sobre una segunda máquina física. No convertirla automáticamente en requisito.
+- 8G-G6, PENDING: final submission audit.
+
+Solo después de aprobar 8G-G6 puede declararse `READY_TO_SUBMIT`. Hasta entonces permanece `NOT_READY_TO_CLICK_SUBMIT`.
+
+#### Gate 8G-H: freeze exacto del submission
+
+Después del gate final, registrar el commit exacto, tag editorial, checksum del artifact, checksum del manuscrito, DOI o URL persistente real cuando exista y submission record. Establecer una relación inequívoca entre artifact revision y submission revision. Ningún valor se asigna antes de disponer de la evidencia correspondiente.
 
 #### Fase 9 opcional
 
@@ -274,4 +310,4 @@ Objetivos:
 - liveness temporal;
 - relación de refinamiento más fuerte.
 
-Esta fase no debe retrasar el primer envío Q3 o Q4.
+Esta fase no debe retrasar el primer envío del Paper 1.
