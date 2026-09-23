@@ -36,6 +36,6 @@ Faltan artifact final y provenance, autoría y afiliaciones confirmadas, corresp
 - `targets/JOURNAL_TARGET_MATRIX.md` y `targets/TARGET_CASCADE.md`: selección y secuencia editorial.
 - `targets/scp/SCP_ADAPTATION_PROFILE.md`: ruta, alcance y delta de título SCP.
 - `targets/scp/SCP_SUBMISSION_FILES_MANIFEST.md`: build técnico 8G-E y pendientes.
-- `targets/scp/declarations/`: declaraciones y Data Availability en borrador.
+- `targets/scp/declarations/`: declaraciones y Data Availability aun en borrador.
 
 El bundle 8E de reproducción independiente tiene otra función que el artifact final de publicación. El paquete SCP técnico requiere reconstrucción y revisión antes del envío.
