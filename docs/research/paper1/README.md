@@ -2,7 +2,7 @@
 
 #### Estado
 
-- Fase actual: 8G-F3, reconciliación de la frontera entre software general y estudio científico.
+- Fase actual: 8G-F4, inventario de evidencia y dependencias, DONE.
 - Fases científicas 8A a 8E y manuscrito 8F-A a 8F-J: cerrados.
 - Submission 8G-A a 8G-E: cerrado técnicamente; metadata administrativa y artifact final pendientes.
 - Scientific manuscript freeze: `06bea7de70971d5b22d705a2df19137122758c08`.
@@ -68,4 +68,4 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 
 #### Gate actual
 
-8G-F3 hace explícita en el README raíz la frontera entre DLT-Lab como plataforma general, el Paper 1 como estudio científico acotado y el artifact público como subconjunto reproducible. La presencia de software en el repositorio no lo convierte en evidencia del estudio. Los módulos generales solo pertenecen al artifact cuando forman parte directa del Paper 1 o cuando son dependencias necesarias identificadas por el contrato de alcance público.
+8G-F4 está cerrado. El bundle histórico 8E fue localizado físicamente, su SHA-256 fue verificado, su manifest y checksums internos fueron validados, el respaldo raw fue identificado y las dependencias necesarias para el estudio fueron inventariadas. El bundle 8E continúa separado del artifact final. La siguiente fase es 8G-F5, dedicada a cerrar la cadena de provenance.
