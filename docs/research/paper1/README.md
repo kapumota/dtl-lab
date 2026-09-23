@@ -2,7 +2,7 @@
 
 #### Estado
 
-- Fase actual: 8G-F2, definición del alcance público del artifact.
+- Fase actual: 8G-F3, reconciliación de la frontera entre software general y estudio científico.
 - Fases científicas 8A a 8E y manuscrito 8F-A a 8F-J: cerrados.
 - Submission 8G-A a 8G-E: cerrado técnicamente; metadata administrativa y artifact final pendientes.
 - Scientific manuscript freeze: `06bea7de70971d5b22d705a2df19137122758c08`.
@@ -68,4 +68,4 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 
 #### Gate actual
 
-8G-F2 define el alcance público del artifact científico del Paper 1. El contrato está en `manuscript/paper1/artifact/PUBLIC_ARTIFACT_SCOPE.md`. Se distinguen componentes `INCLUDE`, `CONDITIONAL`, `PENDING_F4` y `EXCLUDE`. El software general de DLT-Lab no se presenta como evidencia científica, raw y derived permanecen separados, el bundle histórico 8E no se confunde con el artifact final y el material editorial interno queda fuera del artifact público.
+8G-F3 hace explícita en el README raíz la frontera entre DLT-Lab como plataforma general, el Paper 1 como estudio científico acotado y el artifact público como subconjunto reproducible. La presencia de software en el repositorio no lo convierte en evidencia del estudio. Los módulos generales solo pertenecen al artifact cuando forman parte directa del Paper 1 o cuando son dependencias necesarias identificadas por el contrato de alcance público.

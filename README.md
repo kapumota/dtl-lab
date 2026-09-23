@@ -17,6 +17,51 @@ El proyecto está diseñado como un **simulador modular**, no como una criptomon
 
 DLT-Lab conserva sus cuatro fases funcionales históricas y desarrolla el Paper 1 como una línea de investigación separada sobre commit cross-shard.
 
+#### Frontera entre DLT-Lab y el Paper 1
+
+DLT-Lab es una plataforma de software más amplia que el estudio científico presentado en el Paper 1.
+
+El repositorio contiene módulos generales de blockchain, mempool, MEV, DeFi, consenso, red, minería, seguridad, visualización, wallets y otras capacidades que no deben interpretarse automáticamente como evidencia del Paper 1.
+
+El Paper 1 estudia específicamente el protocolo de commit cross-shard mediante implementación Java, TLA+, Alloy, mutantes científicos, conformidad basada en trazas y una campaña experimental reproducible.
+
+El scientific manuscript freeze es:
+
+`06bea7de70971d5b22d705a2df19137122758c08`
+
+El baseline experimental es:
+
+`45cb114d61b1df8c605c50700f3cc72d48d157fe`
+
+La fuente de reproducción independiente es:
+
+`6cd88c377afd23fee4998882f91142d71e7d963e`
+
+Estos commits cumplen funciones distintas y no deben tratarse como una única revisión canónica.
+
+#### Artifact público del Paper 1
+
+El artifact público del Paper 1 es un subconjunto explícitamente delimitado de DLT-Lab.
+
+Su contrato de inclusión y exclusión se encuentra en:
+
+`manuscript/paper1/artifact/PUBLIC_ARTIFACT_SCOPE.md`
+
+La presencia de un archivo en el repositorio no implica automáticamente que dicho archivo forme parte de la evidencia científica ni del artifact público.
+
+El software general solo se incorpora al artifact cuando forma parte directa del estudio o cuando resulta necesario como dependencia de compilación o ejecución.
+
+Los resultados raw representan evidencia directa de la campaña experimental.
+
+Los resultados derived, las tablas y las figuras se generan a partir de raw mediante scripts versionados.
+
+Los resultados generados localmente bajo `results/` no se consideran parte del artifact final únicamente por existir en un workspace. Su copia canónica, sus hashes y su provenance deben verificarse antes del empaquetado público.
+
+El bundle histórico de reproducción de Fase 8E tampoco se presume idéntico al artifact final de publicación.
+
+El material de estrategia editorial, selección de revistas, cover letters, checklists del portal y estados internos de submission no forma parte del artifact científico público.
+
+
 El baseline científico `v1.1.0-rc.1` incluye:
 
 * máquina de estados Java y protocolo atómico con rollback;
