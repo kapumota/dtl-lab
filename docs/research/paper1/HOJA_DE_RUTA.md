@@ -1,8 +1,8 @@
 ### Hoja de ruta del Paper 1
 
-#### Estado operacional al inicio de 8G-F1
+#### Estado operacional al inicio de 8G-F2
 
-El estado actual se mantiene en `README.md`. El manuscrito científico está congelado en `06bea7de70971d5b22d705a2df19137122758c08` y el `main` auditado es `b68aeef7d212fd82c2466180134a51ed460473ee`. 8C, 8D y 8E, 8F-A a 8F-J y 8G-A a 8G-E están cerradas. La fase actual es 8G-F1; el target actual es Science of Computer Programming (SCP), `Research Papers`, `Formal techniques`. Estado: `NOT_READY_TO_CLICK_SUBMIT`.
+El estado actual se mantiene en `README.md`. El manuscrito científico permanece congelado en `06bea7de70971d5b22d705a2df19137122758c08`. 8G-F1 está cerrado e integrado. El `main` auditado al abrir 8G-F2 es `6ff8534710b7b3a0be5d481d61d26e0346dac3d2`. La fase actual es 8G-F2, definición del alcance público del artifact. El target actual permanece en Science of Computer Programming (SCP), `Research Papers`, `Formal techniques`. Estado de envío: `NOT_READY_TO_CLICK_SUBMIT`.
 
 Las descripciones de fases anteriores se conservan como historial de planificación. Para decisiones editoriales vigentes consultar `manuscript/paper1/submission/targets/`.
 
@@ -275,8 +275,8 @@ Objetivos históricos generales:
 
 Esta descomposición es planificación operativa pendiente de validación en cada gate; no certifica entregables ni anticipa un release, DOI o URL persistente.
 
-- 8G-F1, CURRENT: reconciliación documental.
-- 8G-F2, PENDING: definir inclusión y exclusión del artifact público.
+- 8G-F1, DONE: reconciliación documental.
+- 8G-F2, CURRENT: definir inclusión y exclusión del artifact público.
 - 8G-F3, PENDING: reconciliar el README raíz y la frontera entre software general y estudio científico.
 - 8G-F4, PENDING: recuperar e inventariar el bundle 8E, raw evidence y dependencias.
 - 8G-F5, PENDING: cerrar provenance completa.
