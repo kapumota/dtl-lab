@@ -2,7 +2,9 @@
 
 #### Estado operacional al cierre de 8G-F4
 
-El manuscrito científico permanece congelado en `06bea7de70971d5b22d705a2df19137122758c08`. 8G-F1, 8G-F2, 8G-F3 y 8G-F4 están cerrados. El `main` auditado al abrir 8G-F4 fue `908392f356961b9689a6870aa1abe9b6c3e9f339`. El bundle histórico 8E fue localizado, su SHA-256 externo e interno fue verificado, el raw histórico fue identificado y las dependencias fueron inventariadas. 8G-F5 permanece pendiente. Estado de envío: `NOT_READY_TO_CLICK_SUBMIT`.
+El manuscrito científico permanece congelado en `06bea7de70971d5b22d705a2df19137122758c08`. 8G-F1, 8G-F2, 8G-F3 y 8G-F4 están cerrados. El `main` auditado al abrir 8G-F4 fue `908392f356961b9689a6870aa1abe9b6c3e9f339`. 
+
+El bundle histórico 8E fue localizado, su SHA-256 externo e interno fue verificado, el raw histórico fue identificado y las dependencias fueron inventariadas. 8G-F5 permanece pendiente. Estado de envío: `NOT_READY_TO_CLICK_SUBMIT`.
 
 #### Principio de integración
 
