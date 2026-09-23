@@ -1,4 +1,4 @@
-### Validación reproducible
+### Validación reproducible 
 
 #### Objetivo
 
@@ -26,7 +26,7 @@ bash scripts/validate.sh
 - Compilación opcional con Maven cuando `mvn` está disponible.
 - Compilación por `javac` mediante los scripts del proyecto.
 - Ejecución del `TestRunner` del proyecto.
-- Ejecución de una demo focalizada de mempool para comprobar el CLI y el pipeline de simulación.
+- Ejecución de una demostración focalizada de mempool para comprobar el CLI y el pipeline de simulación.
 - Validación del flujo de seguridad mediante el workflow principal `java-ci.yml`.
 - Validación formal estructural de especificaciones TLA+ y Alloy.
 - Validación de salidas mínimas generadas por demo y verificación formal.
