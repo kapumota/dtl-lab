@@ -2,7 +2,7 @@
 
 #### Estado
 
-- Fase actual: 8G-F1, reconciliación documental.
+- Fase actual: 8G-F2, definición del alcance público del artifact.
 - Fases científicas 8A a 8E y manuscrito 8F-A a 8F-J: cerrados.
 - Submission 8G-A a 8G-E: cerrado técnicamente; metadata administrativa y artifact final pendientes.
 - Scientific manuscript freeze: `06bea7de70971d5b22d705a2df19137122758c08`.
@@ -68,4 +68,4 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 
 #### Gate actual
 
-8G-F1 reconcilia únicamente este README, `HOJA_DE_RUTA.md`, `manuscript/paper1/MANUSCRIPT_PLAN.md` y `manuscript/paper1/submission/README.md`. El manuscrito y los datos científicos congelados permanecen intactos. El paquete técnico SCP pasó su gate con pendientes administrativos; faltan artifact, provenance, metadata de autor, Data Availability definitiva y auditoría final antes del envío. La fuente editorial canónica está en `manuscript/paper1/submission/targets/` y la hoja de ruta describe los gates pendientes.
+8G-F2 define el alcance público del artifact científico del Paper 1. El contrato está en `manuscript/paper1/artifact/PUBLIC_ARTIFACT_SCOPE.md`. Se distinguen componentes `INCLUDE`, `CONDITIONAL`, `PENDING_F4` y `EXCLUDE`. El software general de DLT-Lab no se presenta como evidencia científica, raw y derived permanecen separados, el bundle histórico 8E no se confunde con el artifact final y el material editorial interno queda fuera del artifact público.
