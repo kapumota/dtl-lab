@@ -2,11 +2,11 @@
 
 #### Estado
 
-- Fase actual: 8G-F4, inventario de evidencia y dependencias, DONE.
+- Fase actual: 8G-F5, cierre de provenance, DONE.
 - Fases científicas 8A a 8E y manuscrito 8F-A a 8F-J: cerrados.
 - Submission 8G-A a 8G-E: cerrado técnicamente; metadata administrativa y artifact final pendientes.
 - Scientific manuscript freeze: `06bea7de70971d5b22d705a2df19137122758c08`.
-- `main` auditado para esta fase: `b68aeef7d212fd82c2466180134a51ed460473ee` (PR #29).
+- `main` auditado al abrir 8G-F5: `e499594d29317fbe1652c4ad7ac4124082f07aa9`.
 - Baseline experimental: `45cb114d61b1df8c605c50700f3cc72d48d157fe`.
 - Fuente de reproducción independiente: `6cd88c377afd23fee4998882f91142d71e7d963e`.
 - Artifact-release revision y submission revision: pendientes; no hay DOI ni URL persistente confirmados.
@@ -68,4 +68,4 @@ El Paper 1 estudia un protocolo de commit cross-shard y la relación entre imple
 
 #### Gate actual
 
-8G-F4 está cerrado. El bundle histórico 8E fue localizado físicamente, su SHA-256 fue verificado, su manifest y checksums internos fueron validados, el respaldo raw fue identificado y las dependencias necesarias para el estudio fueron inventariadas. El bundle 8E continúa separado del artifact final. La siguiente fase es 8G-F5, dedicada a cerrar la cadena de provenance.
+8G-F5 está cerrado. La procedencia entre plan, ambiente, evidencia raw, manifest raw, análisis derivado y bundle histórico 8E fue verificada mediante SHA-256. El lineage Git entre experimental baseline, commit de ejecución raw, fuente de reproducción independiente, scientific manuscript freeze y base de preparación para publicación fue verificado mediante ancestry Git. Las revisiones cumplen funciones diferentes y permanecen explícitamente separadas. Artifact-release revision, submission revision, DOI y URL persistente continúan pendientes. La siguiente fase es 8G-F6, verificación ejecutable de raw, manifests, análisis regenerado y smoke.

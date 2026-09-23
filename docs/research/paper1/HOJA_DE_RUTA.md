@@ -1,10 +1,8 @@
 ### Hoja de ruta del Paper 1
 
-#### Estado operacional al cierre de 8G-F4
+#### Estado operacional al cierre de 8G-F5
 
-El manuscrito científico permanece congelado en `06bea7de70971d5b22d705a2df19137122758c08`. 8G-F1, 8G-F2, 8G-F3 y 8G-F4 están cerrados. El `main` auditado al abrir 8G-F4 fue `908392f356961b9689a6870aa1abe9b6c3e9f339`. 
-
-El bundle histórico 8E fue localizado, su SHA-256 externo e interno fue verificado, el raw histórico fue identificado y las dependencias fueron inventariadas. 8G-F5 permanece pendiente. Estado de envío: `NOT_READY_TO_CLICK_SUBMIT`.
+El manuscrito científico permanece congelado en `06bea7de70971d5b22d705a2df19137122758c08`. 8G-F1 a 8G-F5 están cerrados. El `main` auditado al abrir 8G-F5 fue `e499594d29317fbe1652c4ad7ac4124082f07aa9`. La cadena criptográfica de provenance entre raw, derived y el bundle histórico 8E fue verificada. El lineage Git entre las revisiones científicas y de preparación también fue comprobado. Los distintos roles permanecen separados. 8G-F6 es la siguiente fase. Estado de envío: `NOT_READY_TO_CLICK_SUBMIT`.
 
 #### Principio de integración
 
@@ -279,7 +277,7 @@ Esta descomposición es planificación operativa pendiente de validación en cad
 - 8G-F2, DONE: definir inclusión y exclusión del artifact público.
 - 8G-F3, PASS: reconciliar el README raíz y la frontera entre software general y estudio científico.
 - 8G-F4, DONE: recuperar e inventariar el bundle 8E, raw evidence y dependencias.
-- 8G-F5, PENDING: cerrar provenance completa.
+- 8G-F5, DONE: cerrar provenance completa.
 - 8G-F6, PENDING: verificar raw evidence, manifests, análisis regenerado y smoke.
 - 8G-F7, PENDING: construir el artifact determinista, incluyendo README, metadata de citación, `ARTIFACT_MANIFEST.json`, `SHA256SUMS.txt` y archive reproducible.
 - 8G-F8, PENDING: auditar el archive y después preparar release y depósito persistente. No inventar DOI ni URL persistente.
