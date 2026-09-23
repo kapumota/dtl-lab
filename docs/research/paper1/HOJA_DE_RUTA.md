@@ -1,8 +1,8 @@
 ### Hoja de ruta del Paper 1
 
-#### Estado operacional al inicio de 8G-F2
+#### Estado operacional al inicio de 8G-F3
 
-El estado actual se mantiene en `README.md`. El manuscrito científico permanece congelado en `06bea7de70971d5b22d705a2df19137122758c08`. 8G-F1 está cerrado e integrado. El `main` auditado al abrir 8G-F2 es `6ff8534710b7b3a0be5d481d61d26e0346dac3d2`. La fase actual es 8G-F2, definición del alcance público del artifact. El target actual permanece en Science of Computer Programming (SCP), `Research Papers`, `Formal techniques`. Estado de envío: `NOT_READY_TO_CLICK_SUBMIT`.
+El estado actual se mantiene en `README.md`. El manuscrito científico permanece congelado en `06bea7de70971d5b22d705a2df19137122758c08`. 8G-F1 y 8G-F2 están cerrados e integrados. El `main` auditado al abrir 8G-F3 es `93f03f29c44a3ae060d34892081e0586401a7da8`. La fase actual es 8G-F3, reconciliación de la frontera entre software general y estudio científico. El target actual permanece en Science of Computer Programming (SCP), `Research Papers`, `Formal techniques`. Estado de envío: `NOT_READY_TO_CLICK_SUBMIT`.
 
 Las descripciones de fases anteriores se conservan como historial de planificación. Para decisiones editoriales vigentes consultar `manuscript/paper1/submission/targets/`.
 
@@ -276,8 +276,8 @@ Objetivos históricos generales:
 Esta descomposición es planificación operativa pendiente de validación en cada gate, no certifica entregables ni anticipa un release, DOI o URL persistente.
 
 - 8G-F1, DONE: reconciliación documental.
-- 8G-F2, CURRENT: definir inclusión y exclusión del artifact público.
-- 8G-F3, PENDING: reconciliar el README raíz y la frontera entre software general y estudio científico.
+- 8G-F2, DONE: definir inclusión y exclusión del artifact público.
+- 8G-F3, CURRENT: reconciliar el README raíz y la frontera entre software general y estudio científico.
 - 8G-F4, PENDING: recuperar e inventariar el bundle 8E, raw evidence y dependencias.
 - 8G-F5, PENDING: cerrar provenance completa.
 - 8G-F6, PENDING: verificar raw evidence, manifests, análisis regenerado y smoke.
