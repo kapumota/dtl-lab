@@ -119,8 +119,6 @@ These properties cover replay protection, destination authorization, decision co
 \subsection{Scope of the model}
 \label{subsec:model-scope}
 
-The model deliberately excludes several concerns.
-
 First, receipt authenticity is abstracted rather than derived from a complete cryptographic verification protocol. Second, validator quorum is modeled as an approval condition rather than by formally verifying the consensus mechanism that produces the votes. Third, time is represented by logical rounds instead of physical time. Fourth, network behavior remains scenario-bounded. Delay and duplicate-receipt behavior are represented by the evaluated formal configurations, while concrete implementation-level network events that are not structurally represented by the abstraction are projected as stuttering steps during trace conformance.
 
 Most importantly, both formal representations operate over finite configurations. Absence of a counterexample therefore indicates that no violation was found within the evaluated model, property, configuration, and bound. It does not constitute an unbounded proof of protocol correctness.

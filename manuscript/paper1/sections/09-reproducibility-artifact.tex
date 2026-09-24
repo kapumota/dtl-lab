@@ -44,13 +44,6 @@ content hashes, source-version identifiers, and reproduction reports
 connect the preserved campaign to the regenerated outputs and make
 unexpected artifact changes observable.
 
-These layers serve different reproducibility purposes. The scientific
-source defines what was studied, the frozen protocol defines how it was
-evaluated, the preserved results retain the definitive observations,
-the reproduction machinery reconstructs and checks the evidence path,
-and the integrity metadata verifies correspondence among those
-components.
-
 The artifact is therefore intended to support inspection, partial
 re-execution, analysis regeneration, and integrity verification of the
 reported study. Full re-execution of every definitive experimental task
@@ -208,35 +201,8 @@ paper-level table can be traced back through the derived dataset to the
 preserved campaign observations, while a regenerated artifact can be
 checked forward against the reference manifest.
 
-The integrity layer is intentionally separated from experimental
-interpretation. Hash agreement demonstrates correspondence between
-artifact contents; the scientific meaning of those contents remains
-determined by the experimental design, statistical treatment, and claim
-boundaries described elsewhere in the paper.
-
 \subsection{Reproducibility boundaries}
 \label{subsec:reproducibility-boundaries}
-
-The artifact supports several forms of reproducibility, but each has a
-specific scope.
-
-First, the scientific sources, frozen protocol, raw observations,
-derived outputs, and integrity metadata can be inspected together. This
-supports auditability of the evidence path used by the manuscript.
-
-Second, the representative smoke suite permits partial re-execution of
-the main verification and implementation-facing paths. These executions
-confirm that the artifact machinery remains operational in the
-reproduction workspace for selected valid, mutated, and trace cases.
-
-Third, the complete paper-level analysis can be regenerated from the
-preserved definitive raw observations. The successful independent
-reproduction demonstrated that the regenerated analysis artifacts can
-be compared deterministically with the preserved reference outputs.
-
-Fourth, content hashes and reproduction reports provide integrity and
-process evidence. They make unexpected changes observable and record
-whether the documented reproduction gates succeed.
 
 These capabilities do not imply full experimental replication. The
 independent reproduction did not re-execute every task in the definitive
@@ -260,9 +226,3 @@ regenerated and reference artifact contents, while the validity of the
 scientific conclusions depends on the experimental design, formal
 abstractions, statistical treatment, and claim boundaries described in
 the preceding sections.
-
-The artifact should therefore be interpreted as supporting reproducible
-inspection, representative re-execution, complete analysis regeneration
-from preserved observations, and integrity verification under the
-documented environment, rather than as evidence of universal or
-hardware-independent replication.
