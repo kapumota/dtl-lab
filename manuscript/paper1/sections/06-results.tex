@@ -9,22 +9,20 @@ across the four research questions. This section reports only measured
 runs when evaluating the research hypotheses; warm-up executions are
 reported separately from the principal statistical evidence.
 
-The results are presented in the order of the research questions.
-Incomplete executions are retained according to the censoring policy
-defined in Section~\ref{subsec:censoring}.
+Results follow RQ1--RQ4, with incomplete executions retained under the
+censoring policy in Section~\ref{subsec:censoring}.
 
 \subsection{RQ1: Bounded property verification}
 \label{subsec:rq1-results}
 
-RQ1 asks whether the valid formal models satisfy the seven declared
-protocol properties within the evaluated bounds.
+RQ1 reports the seven declared properties for valid formal models within
+the evaluated bounds.
 
 Across both formal tools and the three bound profiles, RQ1 contained
 420 measured property runs. Of these, 350 completed and 70 were
 censored by timeout. No completed run produced a counterexample.
 
-Table~\ref{tab:rq1-summary} summarizes the result by tool and bound
-profile.
+Table~\ref{tab:rq1-summary} summarizes results by tool and profile.
 
 \begin{table}[htbp]
 \centering
@@ -79,9 +77,8 @@ constitute an unbounded proof of protocol correctness.
 \subsection{RQ2: Mutation-based property validation}
 \label{subsec:rq2-results}
 
-RQ2 evaluates whether the declared property suite detects predefined
-scientific mutations that remove controls from the cross-shard
-protocol.
+RQ2 tests whether predefined scientific mutants expose their designated
+property violations.
 
 The experiment contained ten scientific mutants: five instantiated in
 the TLA+ model and five in the Alloy model. Each mutant was evaluated
@@ -212,10 +209,8 @@ catalogue.
 \subsection{RQ3: Bounded implementation-model trace conformance}
 \label{subsec:rq3-results}
 
-RQ3 evaluates whether observable traces produced by the Java
-implementation correspond to action sequences admitted by the TLA+
-model within the predefined scenario catalogue and experimental
-bounds.
+RQ3 evaluates whether projected Java traces are admitted by the TLA+
+model within the predefined scenarios and bounds.
 
 The experiment contained ten valid scenarios and ten deliberately
 corrupted negative cases. Each case was executed under thirty
@@ -293,9 +288,8 @@ that arbitrary Java executions conform to the formal model.
 \subsection{RQ4: Bounded verification cost}
 \label{subsec:rq4-results}
 
-RQ4 characterizes how the computational cost of bounded verification
-changes as the predefined profiles increase in size and as selected
-fault conditions are enabled.
+RQ4 characterizes bounded verification cost across the predefined size
+and enabled-fault profiles.
 
 The RQ4 evidence comprises 460 measured executions. Of these, 420
 belong to the valid-model small, medium, and large bound profiles
@@ -305,8 +299,8 @@ profiles.
 \subsubsection{Cost across bound profiles}
 \label{subsubsec:rq4-bound-cost}
 
-Table~\ref{tab:rq4-bound-cost} summarizes elapsed time, memory, and
-available state-space measurements for the three ordered profiles.
+Table~\ref{tab:rq4-bound-cost} summarizes time, memory, and profile
+outcomes for the three ordered profiles.
 
 \begin{table}[htbp]
 \centering
