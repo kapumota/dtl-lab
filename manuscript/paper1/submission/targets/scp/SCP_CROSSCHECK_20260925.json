@@ -1,0 +1,462 @@
+{
+  "audited_main": "e41ef499a645107dbbae071508464e6183669a6f",
+  "checks": [
+    {
+      "check": "Cifras de todas las tablas de sections/05-experimental-design.tex",
+      "status": "PASS",
+      "detail": {
+        "rows": [
+          [
+            "2",
+            "1",
+            "2",
+            "2",
+            "1",
+            "2",
+            "6"
+          ],
+          [
+            "3",
+            "2",
+            "3",
+            "2",
+            "2",
+            "4",
+            "8"
+          ],
+          [
+            "4",
+            "3",
+            "4",
+            "3",
+            "2",
+            "6",
+            "10"
+          ]
+        ],
+        "reference": "SCP_latex_source.zip histórico, SHA-256 6d533a0a056f609c0f11f95224325fa142817c16755b0ced426af155041bbc6f"
+      }
+    },
+    {
+      "check": "2026001",
+      "status": "PASS",
+      "detail": "Conservado en fuente histórica y fuente actual"
+    },
+    {
+      "check": "2026030",
+      "status": "PASS",
+      "detail": "Conservado en fuente histórica y fuente actual"
+    },
+    {
+      "check": "1800",
+      "status": "PASS",
+      "detail": "Conservado en fuente histórica y fuente actual"
+    },
+    {
+      "check": "12288",
+      "status": "PASS",
+      "detail": "Conservado en fuente histórica y fuente actual"
+    },
+    {
+      "check": "10,000",
+      "status": "PASS",
+      "detail": "Conservado en fuente histórica y fuente actual"
+    },
+    {
+      "check": "Cifras de todas las tablas de sections/06-results.tex",
+      "status": "PASS",
+      "detail": {
+        "rows": [
+          [
+            "70",
+            "70",
+            "70",
+            "0"
+          ],
+          [
+            "70",
+            "70",
+            "70",
+            "0"
+          ],
+          [
+            "70",
+            "70",
+            "70",
+            "0"
+          ],
+          [
+            "70",
+            "70",
+            "70",
+            "0"
+          ],
+          [
+            "70",
+            "70",
+            "70",
+            "0"
+          ],
+          [
+            "70",
+            "0",
+            "0",
+            "70"
+          ],
+          [
+            "420",
+            "350",
+            "350",
+            "70"
+          ],
+          [
+            "10",
+            "10"
+          ],
+          [
+            "10",
+            "10"
+          ],
+          [
+            "10",
+            "10"
+          ],
+          [
+            "10",
+            "10"
+          ],
+          [
+            "10",
+            "10"
+          ],
+          [
+            "10",
+            "10"
+          ],
+          [
+            "10",
+            "10"
+          ],
+          [
+            "10",
+            "10"
+          ],
+          [
+            "10",
+            "10"
+          ],
+          [
+            "10",
+            "10"
+          ],
+          [
+            "10",
+            "300",
+            "300"
+          ],
+          [
+            "10",
+            "300",
+            "300",
+            "300"
+          ],
+          [
+            "20",
+            "600",
+            "600",
+            "300"
+          ],
+          [
+            "70",
+            "70",
+            "0",
+            "0.515306",
+            "179830"
+          ],
+          [
+            "70",
+            "70",
+            "0",
+            "0.766172",
+            "299268"
+          ],
+          [
+            "70",
+            "70",
+            "0",
+            "1.568320",
+            "317612"
+          ],
+          [
+            "70",
+            "70",
+            "0",
+            "0.666802",
+            "143660"
+          ],
+          [
+            "70",
+            "70",
+            "0",
+            "1.118120",
+            "601428"
+          ],
+          [
+            "70",
+            "0",
+            "70"
+          ],
+          [
+            "10",
+            "0.867343",
+            "379846"
+          ],
+          [
+            "10",
+            "1.068210",
+            "493370"
+          ],
+          [
+            "10",
+            "1.118420",
+            "604258"
+          ],
+          [
+            "10",
+            "1.569610",
+            "822820"
+          ]
+        ],
+        "reference": "SCP_latex_source.zip histórico, SHA-256 6d533a0a056f609c0f11f95224325fa142817c16755b0ced426af155041bbc6f"
+      }
+    },
+    {
+      "check": "0.8865",
+      "status": "PASS",
+      "detail": "Conservado en fuente histórica y fuente actual"
+    },
+    {
+      "check": "24336",
+      "status": "PASS",
+      "detail": "Conservado en fuente histórica y fuente actual"
+    },
+    {
+      "check": "3.043",
+      "status": "PASS",
+      "detail": "Conservado en fuente histórica y fuente actual"
+    },
+    {
+      "check": "1.766",
+      "status": "PASS",
+      "detail": "Conservado en fuente histórica y fuente actual"
+    },
+    {
+      "check": "Perfiles",
+      "status": "PASS",
+      "detail": {
+        "small": {
+          "shards": 2,
+          "concurrent_transfers": 1,
+          "validators": 2,
+          "quorum": 2,
+          "receipt_copies": 1,
+          "alloy_state_scope": 6,
+          "alloy_receipts": 2,
+          "alloy_messages": 10
+        },
+        "medium": {
+          "shards": 3,
+          "concurrent_transfers": 2,
+          "validators": 3,
+          "quorum": 2,
+          "receipt_copies": 2,
+          "alloy_state_scope": 8,
+          "alloy_receipts": 4,
+          "alloy_messages": 20
+        },
+        "large": {
+          "shards": 4,
+          "concurrent_transfers": 3,
+          "validators": 4,
+          "quorum": 3,
+          "receipt_copies": 2,
+          "alloy_state_scope": 10,
+          "alloy_receipts": 6,
+          "alloy_messages": 30
+        }
+      }
+    },
+    {
+      "check": "Herramientas y recursos",
+      "status": "PASS",
+      "detail": {
+        "tools": {
+          "tlc": {
+            "version": "1.7.4",
+            "workers": 1
+          },
+          "alloy": {
+            "version": "6.2.0",
+            "solver": "sat4j"
+          },
+          "java": {
+            "major": 17
+          },
+          "python": {
+            "major_minor": "3.12"
+          },
+          "time_command": "/usr/bin/time -v"
+        },
+        "resources": {
+          "timeout_seconds": 1800,
+          "max_rss_mb": 12288,
+          "max_parallel_runs": 1,
+          "timing_host": "dedicated_native_linux",
+          "ci_timing_allowed": false,
+          "virtualized_timing_allowed": false,
+          "tlc_workers": 1
+        },
+        "sampling": {
+          "seed_file": "experiments/paper1/seeds.txt",
+          "seed_count": 30,
+          "smoke_seed": 2026,
+          "warmup_repetitions": 2,
+          "measured_repetitions": 10,
+          "rq3_repetitions_per_case_seed": 1
+        },
+        "statistics": {
+          "location": "median",
+          "dispersion": "interquartile_range",
+          "report_min_max": true,
+          "report_coefficient_of_variation": true,
+          "confidence_interval": "bootstrap_95_for_median",
+          "bootstrap_resamples": 10000,
+          "proportion_interval": "wilson_95",
+          "rq4_association": "spearman",
+          "cross_tool_absolute_speed_claim_allowed": false
+        }
+      }
+    },
+    {
+      "check": "Seeds",
+      "status": "PASS",
+      "detail": [
+        2026001,
+        2026002,
+        2026003,
+        2026004,
+        2026005,
+        2026006,
+        2026007,
+        2026008,
+        2026009,
+        2026010,
+        2026011,
+        2026012,
+        2026013,
+        2026014,
+        2026015,
+        2026016,
+        2026017,
+        2026018,
+        2026019,
+        2026020,
+        2026021,
+        2026022,
+        2026023,
+        2026024,
+        2026025,
+        2026026,
+        2026027,
+        2026028,
+        2026029,
+        2026030
+      ]
+    },
+    {
+      "check": "Diseño de 1272 tareas",
+      "status": "PASS",
+      "detail": {
+        "total": 1272,
+        "warmups": 112,
+        "measured": 1160,
+        "RQ1_measured": 420,
+        "RQ2_measured": 100,
+        "RQ3_measured": 600,
+        "additional_RQ4_measured": 40,
+        "RQ4_overlap_RQ1": 420
+      }
+    },
+    {
+      "check": "Freeze: src",
+      "status": "PASS",
+      "detail": "Sin diferencias Git respecto del scientific freeze"
+    },
+    {
+      "check": "Freeze: specs",
+      "status": "PASS",
+      "detail": "Sin diferencias Git respecto del scientific freeze"
+    },
+    {
+      "check": "Freeze: experiments/paper1",
+      "status": "PASS",
+      "detail": "Sin diferencias Git respecto del scientific freeze"
+    },
+    {
+      "check": "Freeze: scripts/experiments",
+      "status": "PASS",
+      "detail": "Sin diferencias Git respecto del scientific freeze"
+    },
+    {
+      "check": "Freeze: scripts/formal",
+      "status": "PASS",
+      "detail": "Sin diferencias Git respecto del scientific freeze"
+    },
+    {
+      "check": "Freeze: scripts/conformance",
+      "status": "PASS",
+      "detail": "Sin diferencias Git respecto del scientific freeze"
+    },
+    {
+      "check": "Ancestry",
+      "status": "PASS",
+      "detail": "45cb114d61b1df8c605c50700f3cc72d48d157fe -> 248ff938c9f028745b5e370469e4796bc00755f7"
+    },
+    {
+      "check": "Ancestry",
+      "status": "PASS",
+      "detail": "248ff938c9f028745b5e370469e4796bc00755f7 -> 6cd88c377afd23fee4998882f91142d71e7d963e"
+    },
+    {
+      "check": "Ancestry",
+      "status": "PASS",
+      "detail": "6cd88c377afd23fee4998882f91142d71e7d963e -> 06bea7de70971d5b22d705a2df19137122758c08"
+    },
+    {
+      "check": "Ancestry",
+      "status": "PASS",
+      "detail": "06bea7de70971d5b22d705a2df19137122758c08 -> e41ef499a645107dbbae071508464e6183669a6f"
+    },
+    {
+      "check": "Paquete histórico",
+      "status": "PASS",
+      "detail": "Ocho hashes internos y ZIP íntegros, TAR e471c8c7ea55167250bda69bb721668f5c7cc5655c6e67f66d7a192241e67f79"
+    },
+    {
+      "check": "Reproducción 10/10, 32/32, cero incidencias",
+      "status": "PASS_DOCUMENTARY",
+      "detail": "CIERRE_FASE_8E.md, CONTRIBUTION_EVIDENCE_MATRIX.md, VERIFICATION_REPORT.md y manuscrito histórico concordantes. No repetida."
+    },
+    {
+      "check": "Bundle 8E, raw y derived manifest",
+      "status": "HISTORICAL_VERIFICATION_RETAINED",
+      "detail": "Verificación F6 conservada. Bytes externos no presentes en este clon ni en el paquete editorial histórico. No se recalcularon esos tres hashes."
+    },
+    {
+      "check": "G4",
+      "status": "PASS_DOCUMENTARY",
+      "detail": "Todas las cifras tabuladas coinciden con el candidato histórico, y los contratos y documentos de evidencia son coherentes. No equivale a una nueva comprobación byte a byte del raw externo."
+    }
+  ],
+  "new_experiments": 0
+}

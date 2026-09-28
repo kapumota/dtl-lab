@@ -10,6 +10,10 @@ trace conformance, and verification-cost characterization. The four methods
 address complementary questions rather than serving as interchangeable
 evidence.
 
+Figure~\ref{fig:evidence-workflow} summarizes the organization of these
+complementary evidence layers and the preserved reproducibility artifact.
+\input{sections/evidence-workflow}
+
 The design was frozen before the definitive experimental campaign. Research
 questions, hypotheses, factors, configuration profiles, seeds, repetitions,
 resource limits, statistical procedures, and rules for incomplete executions
@@ -20,7 +24,7 @@ version.
 \subsection{Research questions and hypotheses}
 \label{subsec:research-questions}
 
-\paragraph{RQ1: Preservation of declared properties.}
+\paragraph{RQ1: Preservation of declared properties}
 
 Does the cross-shard commit protocol preserve the declared properties under the
 explored interleavings within the documented bounds?
@@ -35,7 +39,7 @@ bounds.
 RQ1 is interpreted only for the executed property, tool, configuration, and
 bound, not as an unbounded correctness proof.
 
-\paragraph{RQ2: Defect-detection capability.}
+\paragraph{RQ2: Defect-detection capability}
 
 Do TLC and Alloy detect predefined scientific mutations that remove controls
 from the cross-shard protocol?
@@ -50,7 +54,7 @@ target property.
 Detection requires the designated target property to be reported among the
 violations, although a mutant may violate additional properties.
 
-\paragraph{RQ3: Bounded implementation-model trace conformance.}
+\paragraph{RQ3: Bounded implementation-model trace conformance}
 
 Do observable traces produced by the Java implementation correspond to action
 sequences admitted by the TLA+ model within the evaluated scenarios and bounds?
@@ -65,7 +69,7 @@ expected point.
 RQ3 provides bounded implementation-model trace-conformance evidence rather
 than a general refinement proof or behavioral equivalence.
 
-\paragraph{RQ4: Verification cost.}
+\paragraph{RQ4: Verification cost}
 
 How does verification cost change as the number of shards, concurrent
 transfers, bounds, and enabled faults increase?

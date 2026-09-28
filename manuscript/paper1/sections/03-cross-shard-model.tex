@@ -113,6 +113,7 @@ ownership and consumption, destination credit, released funds, messages, and
 validator votes, while collapsing implementation states that do not alter the
 protocol-level decision state.
 
+\begingroup\raggedright
 The Java-to-formal projection maps \texttt{CREATED} to \texttt{Pending};
 \texttt{SOURCE\_\allowbreak LOCKED}, \texttt{RECEIPT\_\allowbreak CREATED}, and
 \texttt{RECEIPT\_\allowbreak DELIVERED} to \texttt{Locked};
@@ -120,6 +121,7 @@ The Java-to-formal projection maps \texttt{CREATED} to \texttt{Pending};
 \texttt{COMMITTED} to \texttt{Committed}; and \texttt{ABORTED},
 \texttt{TIMED\_\allowbreak OUT}, and \texttt{FAILED\_\allowbreak VALIDATION} to
 \texttt{Aborted}.
+\par\endgroup
 
 TLA+ additionally stores the first abstract terminal decision in
 \texttt{terminalStatus}. Alloy instead represents bounded executions as an
@@ -165,6 +167,10 @@ must not replace it with an incompatible terminal outcome.
 An abstract transfer represented as \texttt{Aborted} must have released its
 source funds. This property captures the release obligation associated with the
 modeled timeout and non-commit terminal behavior.
+Despite its historical name, it is a state invariant, essentially
+\texttt{Aborted} $\Rightarrow$ \texttt{fundsReleased}, not a general temporal
+liveness property. The study does not establish fairness, eventual decision
+or commit, or freedom from permanent locking for arbitrary executions.
 
 \item[] \texttt{Quorum\allowbreak Required}.
 A commit requires the relevant validator quorum. TLA+ parameterizes this

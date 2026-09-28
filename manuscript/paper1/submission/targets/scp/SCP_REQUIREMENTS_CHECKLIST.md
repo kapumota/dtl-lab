@@ -1,44 +1,31 @@
-### SCP Requirements Checklist
+### Checklist vigente SCP, 25 de septiembre de 2026
 
-#### Article selection
+#### Completado en el candidato
 
-- [x] Research Papers Track.
-- [x] Primary line: Formal techniques.
-- [x] Secondary fit: Experimental software technology.
-- [x] Software Track descartado.
+- [x] Research Papers, Formal techniques.
+- [x] Título singular y target SCP.
+- [x] Abstract autónomo y siete keywords.
+- [x] Cinco highlights editables separados, hasta 85 caracteres por entrada.
+- [x] Fuentes LaTeX, tablas, bibliografía y figura vectorial editorial.
+- [x] URL pública real en Data Availability y cover letter.
+- [x] Declaración de IA actualizada con el uso confirmado por el autor.
+- [x] Aclaración de ausencia de liveness temporal general.
+- [x] Cross-check documental de cifras, contratos y reproducción histórica.
+- [x] F7 y F8 conservados como diferidos no bloqueantes.
+- [x] Revisión visual de las 42 páginas del candidato, con registro de cambios.
+- [x] ZIP de fuentes íntegro y recompilación en carpeta separada con PDF idéntico.
+- [x] Autoría, afiliación, ORCID, CRediT y declaraciones confirmadas por el autor.
 
-#### Manuscript
+#### Pendiente para el paquete exacto de envío
 
-- [x] LaTeX source disponible.
-- [x] elsarticle compatible con submission Elsevier.
-- [x] title conciso.
-- [x] abstract autónomo.
-- [x] abstract sin referencias.
-- [x] keywords: 7/7.
-- [x] highlights: 5/5.
-- [x] highlights <=85 caracteres.
-- [x] references consistentes.
-- [x] DOI audit ya realizado.
-- [x] zero undefined citations/refs en último gate 8F-J.
-
-#### Pendiente antes de submission
-
-- [ ] adoptar/confirmar título SCP singular.
-- [ ] authorship definitivo.
-- [ ] affiliations.
-- [ ] corresponding author/contact details.
-- [ ] CRediT.
-- [ ] funding.
-- [ ] competing interests.
-- [ ] AI declaration.
-- [ ] Data Availability Statement.
-- [ ] repository/release persistent URL.
-- [ ] cover letter.
-- [ ] originality/concurrent-submission confirmation.
-- [ ] comprobar en portal los campos obligatorios vigentes.
-- [ ] recompilar package final.
-- [ ] final SCP submission audit.
+- [ ] Comprobación de requisitos actuales completos y campos obligatorios del portal.
+- [x] Rebuild técnico con metadata confirmada: 43 páginas y log final limpio.
+- [ ] Revisión visual manual completa de las 43 páginas.
+- [ ] Freeze 8G-H del paquete exacto después de cerrar G3 y confirmar G4.
 
 #### Estado
 
-`PASS_WITH_ADMINISTRATIVE_PENDING_ITEMS`
+`READY_FOR_MANUAL_REVIEW`. No equivale a `READY_TO_SUBMIT`.
+
+La revisión visual del candidato se documenta en el informe final de esta rama.
+No se requiere una segunda máquina, un DOI ni una nueva campaña.

@@ -2,21 +2,22 @@
 
 #### Estado
 
-`PENDING_8G_F_RELEASE`
+`READY_WITHOUT_PERSISTENT_IDENTIFIER`
 
-#### Borrador
+#### Texto para el submission
 
-The source code, TLA+ and Alloy models, frozen experiment specification, preserved raw observations, derived analysis artifacts, analysis scripts, reproduction scripts, and integrity manifests supporting this study will be made available through the public DTL-Lab research artifact associated with this article. The final repository release and persistent identifier will be inserted before submission.
+The source code, TLA+ and Alloy models, frozen experiment specification, analysis scripts, reproduction scripts, and supporting documentation for this study are available in the public DTL-Lab repository at https://github.com/kapumota/dtl-lab. Preserved raw observations and additional integrity materials supporting the reported results are available from the author upon reasonable request. No DOI or persistent research-artifact identifier is claimed at this stage.
 
 #### Regla
 
-No reemplazar el texto anterior por una afirmación de disponibilidad pública hasta que 8G-F:
+No inventar:
 
-- cree el release final;
-- verifique su contenido;
-- calcule los checksums;
-- confirme la URL persistente o DOI.
+- DOI
+- release
+- URL persistente de un depósito que todavía no existe
+
+Si posteriormente se crea un release o depósito persistente, actualizar esta declaración antes del envío únicamente con el identificador real.
 
 #### Portal
 
-Si Editorial Manager solicita un Data Statement separado, usar la versión final consistente con el manuscrito y el artifact release.
+Si Editorial Manager solicita un Data Statement separado, usar exactamente la misma declaración del paquete editorial final.
