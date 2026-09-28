@@ -1,44 +1,33 @@
-### SCP Requirements Checklist
+### Checklist vigente SCP, 25 de septiembre de 2026
 
-#### Article selection
+#### Completado en el candidato
 
-- [x] Research Papers Track.
-- [x] Primary line: Formal techniques.
-- [x] Secondary fit: Experimental software technology.
-- [x] Software Track descartado.
+- [x] Research Papers, Formal techniques.
+- [x] Título singular y target SCP.
+- [x] Abstract autónomo y siete keywords.
+- [x] Cinco highlights editables separados, hasta 85 caracteres por entrada.
+- [x] Fuentes LaTeX, tablas, bibliografía y figura vectorial editorial.
+- [x] URL pública real en Data Availability y cover letter.
+- [x] Declaración de IA incorporada con el alcance documental previo.
+- [x] Aclaración de ausencia de liveness temporal general.
+- [x] Cross-check documental de cifras, contratos y reproducción histórica.
+- [x] F7 y F8 conservados como diferidos no bloqueantes.
 
-#### Manuscript
+#### Pendiente para el paquete exacto de envío
 
-- [x] LaTeX source disponible.
-- [x] elsarticle compatible con submission Elsevier.
-- [x] title conciso.
-- [x] abstract autónomo.
-- [x] abstract sin referencias.
-- [x] keywords: 7/7.
-- [x] highlights: 5/5.
-- [x] highlights <=85 caracteres.
-- [x] references consistentes.
-- [x] DOI audit ya realizado.
-- [x] zero undefined citations/refs en último gate 8F-J.
-
-#### Pendiente antes de submission
-
-- [ ] adoptar/confirmar título SCP singular.
-- [ ] authorship definitivo.
-- [ ] affiliations.
-- [ ] corresponding author/contact details.
-- [ ] CRediT.
-- [ ] funding.
-- [ ] competing interests.
-- [ ] AI declaration.
-- [ ] Data Availability Statement.
-- [ ] repository/release persistent URL.
-- [ ] cover letter.
-- [ ] originality/concurrent-submission confirmation.
-- [ ] comprobar en portal los campos obligatorios vigentes.
-- [ ] recompilar package final.
-- [ ] final SCP submission audit.
+- [ ] Autoría y orden, afiliaciones, contacto y corresponding author.
+- [ ] ORCID si corresponde y CRediT confirmado.
+- [ ] Funding y competing interests confirmados.
+- [ ] Originalidad, ausencia de envío simultáneo y aplicabilidad ética.
+- [ ] Confirmación humana final de la declaración de IA y entrega de datos bajo solicitud.
+- [ ] Comprobación de requisitos actuales completos y campos obligatorios del portal.
+- [ ] Sustitución de metadata pendiente en portada, declaraciones y cover letter.
+- [ ] Rebuild y revisión de las páginas afectadas tras completar metadata.
+- [ ] Freeze 8G-H del paquete exacto, únicamente después de cerrar G1-G4.
 
 #### Estado
 
-`PASS_WITH_ADMINISTRATIVE_PENDING_ITEMS`
+`NOT_READY_TO_SUBMIT`.
+
+La revisión visual del candidato se documenta en el informe final de esta rama.
+No se requiere una segunda máquina, un DOI ni una nueva campaña.

@@ -1,0 +1,30 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw=black!60, rounded corners=2pt, fill=black!3,
+    align=center, text width=4.5cm, minimum height=0.9cm, font=\small},
+  arrow/.style={-{Stealth[length=2mm]}, thick, draw=black!65}]
+\node[box,text width=7cm] (java) at (0,0) {Java executable cross-shard protocol};
+\node[box] (tla) at (-2.5,-1.5) {TLA+ model};
+\node[box] (alloy) at (2.5,-1.5) {Alloy model};
+\node[box,text width=8cm] (rq1) at (0,-3) {RQ1: bounded property verification};
+\node[box,text width=8cm] (rq2) at (0,-4.5) {RQ2: property validation with predefined scientific mutants};
+\node[box,text width=8cm] (rq3) at (0,-6) {RQ3: bounded Java/TLA+ trace conformance};
+\node[box,text width=8cm] (rq4) at (0,-7.5) {RQ4: verification-cost characterization};
+\node[box,text width=8cm] (artifact) at (0,-9) {Reproducibility artifact: preserved raw evidence, derived outputs and integrity manifests};
+\draw[arrow] (java) -- (tla);
+\draw[arrow] (java) -- (alloy);
+\draw[arrow] (tla) -- (rq1);
+\draw[arrow] (alloy) -- (rq1);
+\draw[arrow] (rq1) -- (rq2);
+\draw[arrow] (rq2) -- (rq3);
+\draw[arrow] (rq3) -- (rq4);
+\draw[arrow] (rq4) -- (artifact);
+\end{tikzpicture}
+\caption{Organization of the complementary evidence layers under the frozen
+experimental protocol. Arrows organize the evidence workflow, not formal
+refinement, model equivalence, or cumulative proof. TLA+ and Alloy are parallel
+representations. RQ4 reuses the RQ1 bound-profile measurements and additional
+TLC fault-profile measurements.}
+\label{fig:evidence-workflow}
+\end{figure}

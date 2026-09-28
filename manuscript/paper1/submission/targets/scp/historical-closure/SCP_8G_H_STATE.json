@@ -1,0 +1,22 @@
+{
+  "phase": "8G-H",
+  "status": "READY_FOR_MANUAL_FINAL_REVIEW",
+  "target": "Science of Computer Programming",
+  "scientific_baseline_commit": "06bea7de70971d5b22d705a2df19137122758c08",
+  "initial_audit_commit": "3277639da222cc017dffc9bb99e7655a6c307b3b",
+  "post_audit_manuscript_source_commit": "5195d94b2ade1933a726d1d2106cc35a11c37f47",
+  "pdf_sha256": "9c4bc207b205ec609dc52a4ebf15d73c40913abf17645911ff9aef2b79e91cff",
+  "source_zip_sha256": "6d533a0a056f609c0f11f95224325fa142817c16755b0ced426af155041bbc6f",
+  "audit_archive_sha256": "e471c8c7ea55167250bda69bb721668f5c7cc5655c6e67f66d7a192241e67f79",
+  "pages": 51,
+  "undefined_citations": 0,
+  "undefined_references": 0,
+  "overfull_count": 2,
+  "max_overfull_pt": 5.8798,
+  "post_audit_corrections": "APPLIED_AND_REBUILT",
+  "work_initial_audit": "REQUIRES_CORRECTION",
+  "work_closure_check": "PASS",
+  "manual_review": "PENDING",
+  "administrative_metadata": "PENDING_FINAL_FILL",
+  "ready_to_submit": false
+}
