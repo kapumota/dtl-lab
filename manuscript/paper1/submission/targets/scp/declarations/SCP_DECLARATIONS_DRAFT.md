@@ -1,42 +1,68 @@
-### Declaraciones SCP: hoja de cierre
+### Declaraciones SCP: confirmaciones del autor
 
-Estado: `MANUAL_BLOCKER`. Este documento reúne las decisiones pendientes;
-no declara financiación inexistente ni ausencia de conflictos.
+Estado: `AUTHOR_DECLARATIONS_CONFIRMED`.
 
-#### Confirmación humana requerida
+#### CRediT
 
-| Declaración | Dato o decisión requerida |
-| --- | --- |
-| CRediT | Roles reales de cada autor, confirmados por los autores |
-| Funding | Entidades, ayudas y papel del financiador; o ausencia, si se confirma |
-| Competing interests | Conflictos que correspondan; o ausencia, si se confirma |
-| Originalidad | Aprobación de autoría y confirmación de ausencia de envío simultáneo |
-| Ética | Confirmar aplicabilidad de participantes, animales y datos personales |
-| Asistencia de IA | Confirmar el uso real y la revisión humana descritos en SCP_AI_DECLARATION.tex |
-| Data Availability | Confirmar la capacidad del autor para facilitar los datos y material de integridad bajo solicitud razonable |
+César Jesús Lara Avila:
 
-#### Alcance de la declaración de IA existente
+- Conceptualization
+- Methodology
+- Software
+- Validation
+- Formal analysis
+- Investigation
+- Data curation
+- Visualization
+- Writing - original draft
+- Writing - review & editing
+- Project administration
 
-El texto incorporado al candidato describe organización del manuscrito,
-refinamiento lingüístico, apoyo de redacción y comprobaciones de consistencia.
-La declaración atribuye a los autores la revisión y responsabilidad final.
-Esa confirmación no se sustituye por la auditoría de este Work.
+Todas las contribuciones declaradas fueron realizadas por el autor único.
 
-Este Work realizó ajustes editoriales, un constructor LaTeX y verificaciones
-documentales y de maquetación. No ejecutó experimentos ni alteró implementación
-científica, diseño experimental, resultados o su interpretación.
-El uso histórico de IA en otras fases solo debe declararse conforme a hechos
-confirmados por los autores; no se infiere de este trabajo editorial.
+#### Funding
 
-#### Data Availability disponible en el candidato
+This research received no specific grant from funding agencies in the public,
+commercial, or not-for-profit sectors.
 
-El texto inglés de `SCP_DATA_AVAILABILITY.tex` usa la URL pública real
-https://github.com/kapumota/dtl-lab y distingue los materiales públicos de los
-datos y el material adicional disponibles bajo solicitud razonable.
-No afirma que el raw esté publicado ni inventa un DOI o un depósito.
+#### Competing interests
 
-#### Cierre
+The author declares no competing interests.
 
-Una vez confirmados los datos, completar las declaraciones exigidas por la
-guía y el portal vigentes, sincronizar PDF, cover letter y formularios,
-recompilar y revisar las páginas afectadas. G1/G2 siguen abiertos hasta entonces.
+#### Originalidad y envío simultáneo
+
+El autor confirma que el manuscrito no ha sido publicado previamente como un
+artículo de revista sustancialmente equivalente y que no se encuentra sometido
+simultáneamente a otra revista.
+
+#### Ética
+
+El estudio no involucró participantes humanos, animales ni datos personales
+que requieran aprobación ética.
+
+#### Asistencia de IA
+
+El autor confirma que ChatGPT de OpenAI se utilizó únicamente para revisión
+lingüística y de los escritos. El autor revisó y editó el texto resultante y
+asume la responsabilidad completa por el contenido del artículo.
+
+No se atribuye a la herramienta diseño metodológico, ejecución experimental,
+resultados científicos ni interpretación científica.
+
+#### Data Availability
+
+El autor confirma que puede proporcionar, bajo solicitud razonable, las
+observaciones raw preservadas y los materiales adicionales de integridad que
+no estén públicamente disponibles en el repositorio.
+
+La declaración pública mantiene la URL:
+
+https://github.com/kapumota/dtl-lab
+
+No se declara un DOI ni un identificador persistente que todavía no exista.
+
+#### Estado
+
+Las confirmaciones factuales de G1 y G2 están disponibles. La sincronización
+final con los campos vigentes del portal, el rebuild, la revisión del PDF y la
+aprobación de los bytes exactos permanecen en G3 y 8G-H.

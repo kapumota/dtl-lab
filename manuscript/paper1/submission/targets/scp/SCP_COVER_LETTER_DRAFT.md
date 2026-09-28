@@ -1,10 +1,10 @@
 ### Cover Letter - Science of Computer Programming
 
-`AUDIT CANDIDATE - ADMINISTRATIVE METADATA PENDING`
+`ADMINISTRATIVE METADATA CONFIRMED - PENDING FINAL PORTAL CHECK`
 
 Dear Editor,
 
-Please consider our manuscript, "Reproducible Multi-Layer Evaluation of a Cross-Shard Commit Protocol," for publication in the Research Papers track of Science of Computer Programming, with Formal Techniques as the primary line of work.
+Please consider my manuscript, "Reproducible Multi-Layer Evaluation of a Cross-Shard Commit Protocol," for publication in the Research Papers track of Science of Computer Programming, with Formal Techniques as the primary line of work.
 
 The manuscript studies an executable cross-shard commit protocol through a reproducible multi-layer evaluation workflow. It combines bounded property verification using complementary TLA+ and Alloy models, targeted mutation-based property validation, bounded implementation-model trace conformance, and verification-cost characterization under a frozen experimental protocol. The study also reports an independent reproduction of the analytical artifact from a separate operating-system user, clone, and workspace on the same native Linux host. This establishes process separation and deterministic reconstruction under the documented environment, without a hardware-independence claim.
 
@@ -14,13 +14,13 @@ The definitive campaign scheduled 1,272 tasks. No property violations were obser
 
 The source code, TLA+ and Alloy models, frozen experiment specification, analysis scripts, reproduction scripts, and supporting documentation are available in the public DTL-Lab repository at https://github.com/kapumota/dtl-lab. Preserved raw observations and additional integrity materials supporting the reported results are available from the author upon reasonable request. No DOI or persistent research-artifact identifier is claimed at this stage.
 
-[CONFIRM BEFORE SUBMISSION: The manuscript is original, has not been published previously as a substantially equivalent journal article, and is not under consideration by another journal.]
+I confirm that the manuscript is original, has not been published previously as a substantially equivalent journal article, and is not under consideration by another journal.
 
 Thank you for considering this work for Science of Computer Programming.
 
 Sincerely,
 
-[CORRESPONDING AUTHOR NAME]
-[AFFILIATION]
-[INSTITUTIONAL EMAIL]
-[COUNTRY]
+César Jesús Lara Avila
+Universidad Nacional de Ingeniería, Facultad de Ciencias, Ciencia de la Computación
+claraa@uni.edu.pe
+Peru

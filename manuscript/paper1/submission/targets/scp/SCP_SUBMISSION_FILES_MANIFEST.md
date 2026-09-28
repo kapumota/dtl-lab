@@ -1,6 +1,6 @@
 ### Manifiesto vigente del candidato SCP
 
-Estado: `NOT_READY_TO_SUBMIT`. Actualizado el 26 de septiembre de 2026.
+Estado: `NOT_READY_TO_SUBMIT`. Actualizado el 28 de septiembre de 2026.
 
 Este documento sustituye únicamente el inventario operativo anterior de 8G-E.
 Los cierres y hashes históricos se conservan en Git y en `historical-closure/`.
@@ -33,7 +33,7 @@ El paquete de revisión incluye `SHA256SUMS.txt` para todos sus archivos y
 | --- | --- |
 | Compilación y fuentes | PASS_TECHNICAL_CANDIDATE |
 | Revisión visual | PASS_CANDIDATE_LAYOUT_ONLY, 42 páginas |
-| G1 / G2 | MANUAL_BLOCKER |
+| G1 / G2 | PASS, información y declaraciones confirmadas por el autor |
 | G3 | Candidato preparado; metadata y requisitos completos del portal pendientes |
 | G4 | PASS_DOCUMENTARY, conservado |
 | F6 | PASS histórico conservado |
@@ -42,6 +42,6 @@ El paquete de revisión incluye `SHA256SUMS.txt` para todos sus archivos y
 
 #### Siguiente acción
 
-Completar G1 y G2 con información humana confirmada y terminar G3.
+G1 y G2 están cerrados. Completar G3 y construir el paquete exacto de envío.
 No se requiere crear un DOI, release, nueva campaña ni segunda máquina física.
 El PDF de submission todavía no existe con metadata confirmada.

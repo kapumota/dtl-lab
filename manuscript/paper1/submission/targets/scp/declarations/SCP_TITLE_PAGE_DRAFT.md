@@ -1,6 +1,9 @@
-### Title page SCP: borrador administrativo
+### Title page SCP: metadata administrativa confirmada
 
-Estado: `MANUAL_BLOCKER`. Completar únicamente con datos confirmados por los autores.
+Estado: `AUTHOR_METADATA_CONFIRMED`.
+
+La comprobación final de los campos obligatorios del portal y la aprobación
+del PDF reconstruido corresponden a G3 y 8G-H.
 
 #### Título
 
@@ -10,17 +13,21 @@ Reproducible Multi-Layer Evaluation of a Cross-Shard Commit Protocol
 
 Science of Computer Programming. Tipo previsto: Research Papers. Línea: Formal techniques.
 
-#### Datos que faltan
+#### Autor
 
-| Campo | Estado |
+| Campo | Valor |
 | --- | --- |
-| Nombres completos y orden de autoría | MANUAL_BLOCKER |
-| Afiliación de cada autor y correspondencia autor-institución | MANUAL_BLOCKER |
-| Dirección institucional y país | MANUAL_BLOCKER |
-| Corresponding author y correo | MANUAL_BLOCKER |
-| ORCID, cuando exista o lo requiera el portal | MANUAL_BLOCKER |
-| Aprobación de la versión final por todos los autores | MANUAL_BLOCKER |
+| Nombre completo | César Jesús Lara Avila |
+| Orden de autoría | Autor único |
+| Institución | Universidad Nacional de Ingeniería |
+| Facultad | Facultad de Ciencias |
+| Área | Ciencia de la Computación |
+| Ciudad | Lima |
+| País | Peru |
+| Correo institucional | claraa@uni.edu.pe |
+| ORCID | 0009-0003-8564-615X |
+| Corresponding author | Sí |
+| Aprobación del PDF final | PENDING_G3_REBUILD |
 
-No es una portada lista para subir. Tras la confirmación, trasladar los datos a
-`main.tex`, a la cover letter y al portal. Preparar una portada separada solo
-si lo exige el flujo vigente de la revista.
+La metadata de autoría está confirmada. La aprobación del archivo exacto
+de submission se realizará después del rebuild y la revisión final.

@@ -48,7 +48,7 @@ def main():
     shutil.copyfile(paper / 'highlights.txt', output / 'Highlights.txt')
     shutil.copyfile(target / 'SCP_COVER_LETTER_DRAFT.md', output / 'Cover_Letter_SCP_DRAFT.md')
     shutil.copyfile(target / 'declarations/SCP_DATA_AVAILABILITY_DRAFT.md', output / 'SCP_DATA_AVAILABILITY.md')
-    shutil.copyfile(target / 'declarations/SCP_AUTHOR_CONFIRMATIONS.md', output / 'AUTHOR_CONFIRMATIONS_REQUIRED.md')
+    shutil.copyfile(target / 'declarations/SCP_AUTHOR_CONFIRMATIONS.md', output / 'AUTHOR_CONFIRMATIONS.md')
     shutil.copyfile(target / 'declarations/SCP_AI_DECLARATION.tex', output / 'SCP_AI_DECLARATION.tex')
     with zipfile.ZipFile(output / 'SCP_latex_source_CANDIDATE.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(source.rglob('*')):
