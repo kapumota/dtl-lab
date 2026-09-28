@@ -26,7 +26,7 @@
   "pdf_pages": 43,
   "pdf_pages_inspected": 0,
   "pdf_pages_reinspected_after_last_change": [],
-  "manuscript_source_commit": "e37290a810e235b7039c0820b8062afddf65ab33",
+  "manuscript_source_commit": "616f06e98b769687b99a52e7d1073939a896c96d",
   "candidate_pdf_sha256": "90bbaef6c82682eeddd736ab97dce0cfa26808937f8f5504afa4b90e90276dc9",
   "candidate_source_zip_sha256": "92a9325918acf7fc35077a7888dbd62c4cf543609c0e0a0a6bfab121a68e837e",
   "extracted_source_rebuild": "NOT_REPEATED_FOR_CURRENT_REVIEW_CANDIDATE",

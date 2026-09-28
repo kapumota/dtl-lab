@@ -7,7 +7,7 @@ Los cierres y hashes históricos se conservan en Git y en `historical-closure/`.
 
 #### Fuentes y construcción
 
-Fuente exacta del candidato de revisión: `e37290a810e235b7039c0820b8062afddf65ab33`.
+Fuente exacta del candidato de revisión: `616f06e98b769687b99a52e7d1073939a896c96d`.
 Scientific freeze: `06bea7de70971d5b22d705a2df19137122758c08`.
 Constructor: `build_submission.py`, sin llamadas a scripts científicos.
 
