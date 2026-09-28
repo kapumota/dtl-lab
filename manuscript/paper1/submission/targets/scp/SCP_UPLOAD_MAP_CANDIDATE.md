@@ -29,4 +29,3 @@ científico: el bundle 8E continúa externo y conserva su identidad histórica.
 El archivo contenedor es un paquete de revisión. No debe subirse como si fuera
 el submission final. Tras G1/G2 y la comprobación completa de G3, preparar los
 archivos que solicite el portal y congelar exactamente esos bytes en 8G-H.
-

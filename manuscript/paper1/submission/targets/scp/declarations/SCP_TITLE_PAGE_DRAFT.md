@@ -24,4 +24,3 @@ Science of Computer Programming. Tipo previsto: Research Papers. Línea: Formal 
 No es una portada lista para subir. Tras la confirmación, trasladar los datos a
 `main.tex`, a la cover letter y al portal. Preparar una portada separada solo
 si lo exige el flujo vigente de la revista.
-

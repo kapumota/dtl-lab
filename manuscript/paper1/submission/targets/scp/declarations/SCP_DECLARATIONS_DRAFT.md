@@ -40,4 +40,3 @@ No afirma que el raw esté publicado ni inventa un DOI o un depósito.
 Una vez confirmados los datos, completar las declaraciones exigidas por la
 guía y el portal vigentes, sincronizar PDF, cover letter y formularios,
 recompilar y revisar las páginas afectadas. G1/G2 siguen abiertos hasta entonces.
-

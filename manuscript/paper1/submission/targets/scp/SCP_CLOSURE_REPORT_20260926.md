@@ -287,4 +287,3 @@ submission ID. `ready_to_submit=false`; `submitted=false`.
 #### 17. Veredicto único
 
 **NOT READY TO SUBMIT**
-
