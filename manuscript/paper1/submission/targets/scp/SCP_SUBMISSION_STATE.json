@@ -1,6 +1,6 @@
 {
   "phase": "8G-G",
-  "status": "NOT_READY_TO_SUBMIT",
+  "status": "READY_FOR_MANUAL_REVIEW",
   "target": "Science of Computer Programming",
   "article_type": "Research Papers",
   "primary_line": "Formal techniques",
@@ -9,7 +9,7 @@
   "scientific_freeze_commit": "06bea7de70971d5b22d705a2df19137122758c08",
   "G1": "PASS_AUTHOR_CONFIRMED",
   "G2": "PASS_AUTHOR_DECLARATIONS_CONFIRMED",
-  "G3": "CANDIDATE_BUILT_PENDING_FINAL_PORTAL_REQUIREMENTS",
+  "G3": "REVIEW_CANDIDATE_BUILT_PENDING_MANUAL_REVIEW_AND_FINAL_PORTAL_CHECK",
   "G4": "PASS_DOCUMENTARY",
   "H": "NOT_FROZEN",
   "F7": "DEFERRED_NON_BLOCKING",
@@ -19,26 +19,27 @@
   "new_scientific_executions": 0,
   "raw_hashes_recomputed_this_session": false,
   "historical_F6": "PRESERVED_PASS",
-  "pdf_visual_audit": "PASS_CANDIDATE_LAYOUT_ONLY",
+  "pdf_visual_audit": "PENDING_MANUAL_REVIEW_43_PAGES",
   "administrative_fields": [],
   "last_updated": "2026-09-28",
   "resumed_head": "bc905f8e15fea9d6b48a66c7a269aaa661255a25",
-  "pdf_pages": 42,
-  "pdf_pages_inspected": 42,
-  "pdf_pages_reinspected_after_last_change": [
-    11,
-    13,
-    18,
-    26
-  ],
-  "manuscript_source_commit": "bc905f8e15fea9d6b48a66c7a269aaa661255a25",
-  "candidate_pdf_sha256": "b25d29574fe722bfe698c1205c1010b5bf7a9e69e179a8b6dd7ac8fa0530663a",
-  "candidate_source_zip_sha256": "8d8de950407eff817e1fe5d5d2d53e6dc87fc16bbb88d5e03d2bb42b3f2d1294",
-  "extracted_source_rebuild": "PASS_EXACT_PDF_SHA256",
+  "pdf_pages": 43,
+  "pdf_pages_inspected": 0,
+  "pdf_pages_reinspected_after_last_change": [],
+  "manuscript_source_commit": "e37290a810e235b7039c0820b8062afddf65ab33",
+  "candidate_pdf_sha256": "90bbaef6c82682eeddd736ab97dce0cfa26808937f8f5504afa4b90e90276dc9",
+  "candidate_source_zip_sha256": "92a9325918acf7fc35077a7888dbd62c4cf543609c0e0a0a6bfab121a68e837e",
+  "extracted_source_rebuild": "NOT_REPEATED_FOR_CURRENT_REVIEW_CANDIDATE",
   "final_submission_pdf_exists": false,
   "manual_blockers": [
-    "G3: complete current guide and portal requirements; final metadata"
+    "G3: manual visual review of the 43-page candidate",
+    "G3: final live SCP portal requirements check before submission"
   ],
   "closure_report": "SCP_CLOSURE_REPORT_20260926.md",
-  "visual_audit_record": "SCP_VISUAL_AUDIT_20260926.json"
+  "visual_audit_record": "SCP_VISUAL_AUDIT_20260926.json",
+  "previous_work_candidate_pdf_sha256": "b25d29574fe722bfe698c1205c1010b5bf7a9e69e179a8b6dd7ac8fa0530663a",
+  "previous_work_candidate_source_zip_sha256": "8d8de950407eff817e1fe5d5d2d53e6dc87fc16bbb88d5e03d2bb42b3f2d1294",
+  "final_latex_log": "PASS_NO_UNDEFINED_CITATIONS_REFERENCES_OR_ERRORS",
+  "final_bibliography": "PASS_MAIN_BBL_PRESENT",
+  "final_overfull_check": "PASS_NO_OVERFULL_BOXES"
 }

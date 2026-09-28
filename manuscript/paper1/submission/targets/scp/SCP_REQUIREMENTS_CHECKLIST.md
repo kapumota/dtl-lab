@@ -19,12 +19,13 @@
 #### Pendiente para el paquete exacto de envío
 
 - [ ] Comprobación de requisitos actuales completos y campos obligatorios del portal.
-- [ ] Rebuild y revisión de las páginas afectadas con la metadata confirmada.
+- [x] Rebuild técnico con metadata confirmada: 43 páginas y log final limpio.
+- [ ] Revisión visual manual completa de las 43 páginas.
 - [ ] Freeze 8G-H del paquete exacto después de cerrar G3 y confirmar G4.
 
 #### Estado
 
-`NOT_READY_TO_SUBMIT`. G1 y G2 están cerrados. G3 es el gate actual.
+`READY_FOR_MANUAL_REVIEW`. No equivale a `READY_TO_SUBMIT`.
 
 La revisión visual del candidato se documenta en el informe final de esta rama.
 No se requiere una segunda máquina, un DOI ni una nueva campaña.
