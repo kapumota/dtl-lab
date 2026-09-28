@@ -22,6 +22,8 @@ smoke científico, regeneración estadística ni nueva reproducción.
 - Ajuste de composición de la proyección Java y fuentes vectoriales legibles.
 - Declaración de IA existente incorporada al PDF, pendiente de confirmación final humana.
 - Constructor editorial que no llama scripts científicos.
+- Espaciado superior de encabezados en tablas 1 y 5 y puntuación de las RQ,
+  verificados en las páginas afectadas sin cambios numéricos.
 - Recuperación de seis documentos del cierre histórico en una carpeta separada.
 
 #### Integridad y G4

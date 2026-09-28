@@ -12,6 +12,9 @@
 - [x] Aclaración de ausencia de liveness temporal general.
 - [x] Cross-check documental de cifras, contratos y reproducción histórica.
 - [x] F7 y F8 conservados como diferidos no bloqueantes.
+- [x] Revisión visual de las 42 páginas del candidato, con registro de cambios.
+- [x] ZIP de fuentes íntegro y recompilación en carpeta separada con PDF idéntico.
+- [x] Hojas de portada y declaraciones preparadas para confirmación humana.
 
 #### Pendiente para el paquete exacto de envío
 

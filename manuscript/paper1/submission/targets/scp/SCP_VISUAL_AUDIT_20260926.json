@@ -1,0 +1,432 @@
+{
+  "status": "PASS_CANDIDATE_LAYOUT_ONLY",
+  "pdf_sha256": "b25d29574fe722bfe698c1205c1010b5bf7a9e69e179a8b6dd7ac8fa0530663a",
+  "source_commit": "bc905f8e15fea9d6b48a66c7a269aaa661255a25",
+  "previous_pdf_sha256": "9cc8279f532fd4b31c0a371e69e308be7cf93ea963fd87a580a3e592fd097c7f",
+  "render_dpi": 100,
+  "page_count": 42,
+  "previous_full_visual_inspection": true,
+  "pages": [
+    {
+      "page": 1,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "d7f8a8643ff0759a40584ae6843ec9842550605f04109379bfa5a6eced30ac7a",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "MANUAL_BLOCKER"
+    },
+    {
+      "page": 2,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "1b200628d1022ed89756df199bacbb4a409bef3670dced43691daaa2f09d6893",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 3,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "b2e338bae89fccefb7fd44686194807c6c171acbad03f3531ae81a80c2f806d4",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 4,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "16b9ec75be54a222f29aef6fd661efc5ba1c40814e6516d9df2de743810affea",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 5,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "c72d191bbdee898431214f33651e9834d1a080fc996a665ac3162cbe16454c3f",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 6,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "89a19a7855a4a94d87f508652231cb6697d550c5b2d853b6ba434b8c60795912",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 7,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "6a157f047f77878e0345b591890605480ca2c6915b89aac6e77d6aca1fc951ad",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 8,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "1d281b99f025753aae5167bf9739e550fc936cc7162c57fd86c9f504b5bd45e8",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 9,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "6cb8794846e85d5a410665abc845b31d25502b2acb90316a2c8910d2429c2486",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 10,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "7854f23b0501e1cb2eb490fea875f9189156d09ec1f65d08ed31528d2170628b",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 11,
+      "pixels_unchanged": false,
+      "visual_review": "reinspected_after_direct_editorial_change",
+      "raster_rgb_sha256": "831244da6044c141294bfa84652e7e89df5dacba454a484e144bac1f0a4451f4",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 12,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "eb30254071d803b4a60b8de54160ca20beb7ad2bb5106c69da75ae8cce897ddc",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 13,
+      "pixels_unchanged": false,
+      "visual_review": "reinspected_after_direct_editorial_change",
+      "raster_rgb_sha256": "272d190e2f41f21ccba3ccbd1d31331fd67d7d55f6cb1e5981d1d4a88daaa373",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 14,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "450cf7c2d3f74641869cceb71159452adb687179066ac2dc14b9922d3d1611d8",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 15,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "25dcffdf16603045647f82c8dd1e5a2485ed6a8068cc6c4f2b81e49eef33a853",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 16,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "5019529f0a15dab042153819620e795cd8c5857e037be4be5a12a6470245ec5c",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 17,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "89b9a5862a12e9fa7428f6eef4cefe42585f1707d570e067551e6286782d63bf",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 18,
+      "pixels_unchanged": false,
+      "visual_review": "reinspected_after_direct_editorial_change",
+      "raster_rgb_sha256": "b68447607485b0ea9711bc005360de91b06c30b8069e8de0684a6f60ade5e268",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 19,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "ac21f5c3be29c3f3cd7def27bb1986afdbb481227cc56fcc55526edea1b82874",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 20,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "377ee07e27a6561d5c0cbc9fff247abee2c02003fce664c40512b3a23f880b65",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 21,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "acfda0b1e14102485cd4a8d1126a74a09d359103ef80ae24ecadcb87d325cdf7",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 22,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "c642f8e00548d022d41eddce2dfe9e689300f875f96209bc2cb627ffe0c7a633",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 23,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "b4d1306608f10d6f726f1597f4cecad58026cd93e9d0c2f6ec5a2a9a81f4f9cb",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 24,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "2e03f0c2c6368793a5bcbdbfee5a9da02c384b7a37819170acdbbd21ab804c42",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 25,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "60972ab897afe7da7a8b42311e407eecb13701b9641e2650a05c022e1436ebc1",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 26,
+      "pixels_unchanged": false,
+      "visual_review": "reinspected_after_direct_editorial_change",
+      "raster_rgb_sha256": "8582a95e211eafe0a34981bcd08cebe3b27e10c16d8b8e5e113948ee5d9e8a6c",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 27,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "b36a7f6e6f20954ff84690522f0abc80604d1e305858b78c7fa9d4d0080540d4",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 28,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "5a5458de6a86450b82be12fbe22c5e2cebceea57fb0d99156c4b0845285a9047",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 29,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "4eaeba6791463ba61461c6de6bf1aa3c33d530ba38508db9c9e5e24bee36f9ac",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 30,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "a4ba1337ef08659454e46237ea3017f5055b7ab6572cf1bf32db12aab9380b9f",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 31,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "d7a990812dc6cd54b5a1733d9ba8faaf39c3f64c87d5775dacfd098452f7f4a5",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 32,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "4521ebf2b6cf7e0a954939da722500f6ea9dd8346ee96da771e5e0955506a064",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 33,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "41d56fc9ab7bc116524b2fff48e9d30764601366bc9f1ab4d4164d9cd8ccfc54",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 34,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "b8a9dccd2b7d15f6f69994d25c9a4edcba94f06feb3acc7e1ba77fb438844c78",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 35,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "69e33312a6fe280c9ee07f2d2c570db60f1d0598f0c02c28543821135b5152fd",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 36,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "1ec36d04a24b39896738ce4fa6688ef511eaa3fb46e9db31fcff04a3cd2704da",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 37,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "8262690fff3ce51b1f96e109e67623554dd99b7a2cfa0161ddaf609aa50e3e91",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 38,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "d8e93118c394bd7bc3861e0dc8fb818868ffe9099698eac49ec3597a14be3082",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 39,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "722701b0522f697094f5f5e60d9509fb66ec29b03fba5fe3c4ded895556d1f1b",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 40,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "86c9b576e81c7ab70171d11a62e8c69d37d8f0d7339c9d881dce0cf486f63fd8",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "MANUAL_BLOCKER"
+    },
+    {
+      "page": 41,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "0bafb214cefb113c34824dd69c686b3238f537488af6541a5c168a1ae6897b7b",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    },
+    {
+      "page": 42,
+      "pixels_unchanged": true,
+      "visual_review": "inherited_same_pixels",
+      "raster_rgb_sha256": "665636c8991b4c5685453a1387784813034afbff9bdc78e94deb440688d913eb",
+      "width": 850,
+      "height": 1100,
+      "layout": "PASS",
+      "administrative_content": "not_applicable"
+    }
+  ],
+  "final_submission_pdf": false
+}

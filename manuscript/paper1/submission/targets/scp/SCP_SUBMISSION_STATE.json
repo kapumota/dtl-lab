@@ -19,7 +19,7 @@
   "new_scientific_executions": 0,
   "raw_hashes_recomputed_this_session": false,
   "historical_F6": "PRESERVED_PASS",
-  "pdf_visual_audit": "PENDING",
+  "pdf_visual_audit": "PASS_CANDIDATE_LAYOUT_ONLY",
   "administrative_fields": [
     "authors and order",
     "affiliations",
@@ -31,5 +31,27 @@
     "originality and concurrent submission",
     "ethics applicability",
     "final AI declaration and data-on-request confirmation"
-  ]
+  ],
+  "last_updated": "2026-09-26",
+  "resumed_head": "bc905f8e15fea9d6b48a66c7a269aaa661255a25",
+  "pdf_pages": 42,
+  "pdf_pages_inspected": 42,
+  "pdf_pages_reinspected_after_last_change": [
+    11,
+    13,
+    18,
+    26
+  ],
+  "manuscript_source_commit": "bc905f8e15fea9d6b48a66c7a269aaa661255a25",
+  "candidate_pdf_sha256": "b25d29574fe722bfe698c1205c1010b5bf7a9e69e179a8b6dd7ac8fa0530663a",
+  "candidate_source_zip_sha256": "8d8de950407eff817e1fe5d5d2d53e6dc87fc16bbb88d5e03d2bb42b3f2d1294",
+  "extracted_source_rebuild": "PASS_EXACT_PDF_SHA256",
+  "final_submission_pdf_exists": false,
+  "manual_blockers": [
+    "G1: confirmed author information and CRediT",
+    "G2: confirmed declarations and data-on-request availability",
+    "G3: complete current guide and portal requirements; final metadata"
+  ],
+  "closure_report": "SCP_CLOSURE_REPORT_20260926.md",
+  "visual_audit_record": "SCP_VISUAL_AUDIT_20260926.json"
 }
