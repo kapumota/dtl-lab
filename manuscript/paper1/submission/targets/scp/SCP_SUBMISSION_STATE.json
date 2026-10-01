@@ -4,12 +4,12 @@
   "target": "Science of Computer Programming",
   "article_type": "Research Papers",
   "primary_line": "Formal techniques",
-  "audited_main": "e41ef499a645107dbbae071508464e6183669a6f",
-  "branch": "paper1/cierre-editorial-scp-final",
+  "audited_main": "bea8811bce393c05233be31f620b113d6defca27",
+  "branch": "paper1/correcciones-finales-revision-manual",
   "scientific_freeze_commit": "06bea7de70971d5b22d705a2df19137122758c08",
   "G1": "PASS_AUTHOR_CONFIRMED",
   "G2": "PASS_AUTHOR_DECLARATIONS_CONFIRMED",
-  "G3": "REVIEW_CANDIDATE_BUILT_PENDING_MANUAL_REVIEW_AND_FINAL_PORTAL_CHECK",
+  "G3": "CORRECTED_REVIEW_CANDIDATE_BUILT_PENDING_AUTHOR_APPROVAL_AND_FINAL_PORTAL_CHECK",
   "G4": "PASS_DOCUMENTARY",
   "H": "NOT_FROZEN",
   "F7": "DEFERRED_NON_BLOCKING",
@@ -19,20 +19,22 @@
   "new_scientific_executions": 0,
   "raw_hashes_recomputed_this_session": false,
   "historical_F6": "PRESERVED_PASS",
-  "pdf_visual_audit": "PENDING_MANUAL_REVIEW_43_PAGES",
+  "pdf_visual_audit": "INDEPENDENT_AUDIT_PASS_43_PAGES_AUTHOR_APPROVAL_PENDING",
   "administrative_fields": [],
-  "last_updated": "2026-09-28",
+  "last_updated": "2026-10-01",
   "resumed_head": "bc905f8e15fea9d6b48a66c7a269aaa661255a25",
   "pdf_pages": 43,
   "pdf_pages_inspected": 0,
-  "pdf_pages_reinspected_after_last_change": [],
-  "manuscript_source_commit": "616f06e98b769687b99a52e7d1073939a896c96d",
-  "candidate_pdf_sha256": "90bbaef6c82682eeddd736ab97dce0cfa26808937f8f5504afa4b90e90276dc9",
-  "candidate_source_zip_sha256": "92a9325918acf7fc35077a7888dbd62c4cf543609c0e0a0a6bfab121a68e837e",
-  "extracted_source_rebuild": "NOT_REPEATED_FOR_CURRENT_REVIEW_CANDIDATE",
+  "pdf_pages_reinspected_after_last_change": [
+    3
+  ],
+  "manuscript_source_commit": "7ac0a4faa6a145639704fe2e92f08110f9561acc",
+  "candidate_pdf_sha256": "c1ab7ad8c512062136017d1797d9e3cbcd17b1e3d970b8c887b8d9363e65d2a2",
+  "candidate_source_zip_sha256": "1ba404d576f20b65a92abc27ca98bf408abff1de3dead6f390613cce50723fae",
+  "extracted_source_rebuild": "PASS_CURRENT_CORRECTED_CANDIDATE",
   "final_submission_pdf_exists": false,
   "manual_blockers": [
-    "G3: manual visual review of the 43-page candidate",
+    "G3: author approval of the corrected 43-page candidate",
     "G3: final live SCP portal requirements check before submission"
   ],
   "closure_report": "SCP_CLOSURE_REPORT_20260926.md",
@@ -41,5 +43,14 @@
   "previous_work_candidate_source_zip_sha256": "8d8de950407eff817e1fe5d5d2d53e6dc87fc16bbb88d5e03d2bb42b3f2d1294",
   "final_latex_log": "PASS_NO_UNDEFINED_CITATIONS_REFERENCES_OR_ERRORS",
   "final_bibliography": "PASS_MAIN_BBL_PRESENT",
-  "final_overfull_check": "PASS_NO_OVERFULL_BOXES"
+  "final_overfull_check": "PASS_NO_OVERFULL_BOXES",
+  "resumed_head_context": "HISTORICAL_PRE_AUTHORSHIP_REWRITE_REFERENCE",
+  "independent_visual_audit_baseline": "bea8811bce393c05233be31f620b113d6defca27",
+  "independent_visual_audit_pages": 43,
+  "independent_visual_audit_result": "SAFE_FOR_FINAL_MANUAL_REVIEW",
+  "minor_findings": {
+    "M1": "RESOLVED_DOCUMENTARY_TRACEABILITY",
+    "M2": "ACCEPTED_LAYOUT_AS_IS",
+    "M3": "RESOLVED_PUNCTUATION_ONLY"
+  }
 }
