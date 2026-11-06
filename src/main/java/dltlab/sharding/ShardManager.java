@@ -4,6 +4,7 @@ import dltlab.sharding.protocol.AtomicCommitProtocol;
 import dltlab.sharding.protocol.CrossShardProtocol;
 import dltlab.sharding.protocol.ProtocolContext;
 import dltlab.sharding.protocol.ProtocolResult;
+import dltlab.sharding.protocol.ReceiptObservation;
 
 import dltlab.transaction.Transaction;
 import dltlab.transaction.UTXO;
@@ -58,12 +59,14 @@ public class ShardManager {
 
     public List<Shard> getShards() {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             return shards.stream().map(Shard::snapshot).toList();
         }
     }
 
     public Shard getShard(int id) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             return shards.get(id).snapshot();
         }
     }
@@ -120,11 +123,16 @@ public class ShardManager {
     /** Sincroniza el reloj logico sin ejecutar expiraciones automaticas. */
     public void advanceClockTo(int round) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             if (round < currentRound) {
                 throw new IllegalArgumentException("La ronda logica no puede retroceder.");
             }
             currentRound = round;
         }
+    }
+
+    public List<ReceiptObservation> receiptObservations() {
+        return protocol.receiptObservations();
     }
 
     public CrossShardProtocol getProtocol() {
@@ -133,18 +141,21 @@ public class ShardManager {
 
     public List<CrossShardSession> getSessions() {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             return sessions.values().stream().map(CrossShardSession::snapshot).toList();
         }
     }
 
     public List<ShardRoundMetric> getRoundMetrics() {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             return List.copyOf(roundMetrics);
         }
     }
 
     public CrossShardSession getSession(String transferId) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             CrossShardSession session = sessions.get(transferId);
             return session == null ? null : session.snapshot();
         }
@@ -158,6 +169,7 @@ public class ShardManager {
     /** Cambia disponibilidad de todos los validadores de un shard para simular fallos. */
     public void setShardOnline(int shardId, boolean online) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             for (ShardValidator validator : shards.get(shardId).getValidators()) {
                 validator.setOnline(online);
             }
@@ -167,6 +179,7 @@ public class ShardManager {
     /** Cambia disponibilidad de un validador puntual para simular fallos parciales. */
     public void setValidatorOnline(int shardId, int validatorIndex, boolean online) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             shards.get(shardId).getValidators().get(validatorIndex).setOnline(online);
         }
     }
@@ -174,6 +187,7 @@ public class ShardManager {
     /** Marca un validador como honesto o malicioso. */
     public void setValidatorHonest(int shardId, int validatorIndex, boolean honest) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             shards.get(shardId).getValidators().get(validatorIndex).setHonest(honest);
         }
     }
@@ -186,6 +200,7 @@ public class ShardManager {
     /** API simple de fases anteriores delegada al protocolo. */
     public boolean commitReceipt(Receipt receipt) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             boolean committed = protocol.commitReceipt(receipt);
             snapshotMetrics();
             return committed;
@@ -195,6 +210,7 @@ public class ShardManager {
     /** Inicia una transferencia atomica y conserva la firma publica anterior. */
     public CrossShardSession beginAtomicTransfer(CrossShardTransfer transfer, int timeoutRounds) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             protocol.begin(transfer, timeoutRounds);
             snapshotMetrics();
             return getSession(transfer.id());
@@ -204,6 +220,7 @@ public class ShardManager {
     /** Entrega explicitamente el recibo al shard destino. */
     public boolean deliverAtomicReceipt(String transferId) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             ProtocolResult result = protocol.deliverReceipt(transferId);
             snapshotMetrics();
             return result.success();
@@ -213,6 +230,7 @@ public class ShardManager {
     /** Intenta confirmar atomicamente una transferencia mediante el protocolo extraido. */
     public boolean commitAtomicTransfer(String transferId) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             ProtocolResult result = protocol.commit(transferId);
             snapshotMetrics();
             return result.success();
@@ -222,6 +240,7 @@ public class ShardManager {
     /** Aborta una sesion mediante el protocolo extraido. */
     public boolean abortAtomicTransfer(String transferId, String reason) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             ProtocolResult result = protocol.abort(transferId, reason);
             snapshotMetrics();
             return result.success();
@@ -231,6 +250,7 @@ public class ShardManager {
     /** Ejecuta un timeout explicito para simulaciones con orden controlado. */
     public boolean timeoutAtomicTransfer(String transferId) {
         synchronized (protocol) {
+            protocol.requireOutsideHook();
             ProtocolResult result = protocol.timeout(transferId);
             snapshotMetrics();
             return result.success();
@@ -240,7 +260,8 @@ public class ShardManager {
     /** Avanza la ronda logica, expira sesiones vencidas y captura metricas. */
     public void advanceRound() {
         synchronized (protocol) {
-            currentRound++;
+            protocol.requireOutsideHook();
+            currentRound = Math.incrementExact(currentRound);
             expireTimedOutSessions();
             snapshotMetrics();
         }
