@@ -121,12 +121,16 @@ final class P0AdditionalChecks {
         Block genesis = new Block(null, OWNER.getPublicKey(), List.of(), 1);
         BlockChain chain = new BlockChain(genesis);
         var before = contents(chain.getMaxHeightUTXOPool());
-        Block invalid = new Block(genesis.getHash(), OTHER.getPublicKey(), List.of(), 2);
-        invalid.getCoinbase().addOutput(Long.MAX_VALUE, OTHER.getPublicKey());
-        check(!chain.addBlock(invalid) && chain.getMaxHeight() == 1
-                && chain.getKnownBlocks().size() == 1 && before.equals(contents(chain.getMaxHeightUTXOPool())),
-                "Una coinbase invalida no debe alterar la cadena.");
-        check(chain.addBlock(new Block(genesis.getHash(), OTHER.getPublicKey(), List.of(), 2)),
+        Block block = new Block(genesis.getHash(), OTHER.getPublicKey(), List.of(), 2);
+        try {
+            block.getCoinbase().addOutput(Long.MAX_VALUE, OTHER.getPublicKey());
+            throw new AssertionError("Una coinbase comprometida no debe aceptar salidas adicionales.");
+        } catch (IllegalStateException expected) {
+            check(chain.getMaxHeight() == 1 && chain.getKnownBlocks().size() == 1
+                    && before.equals(contents(chain.getMaxHeightUTXOPool())),
+                    "La mutacion rechazada debe conservar la cadena.");
+        }
+        check(chain.addBlock(block),
                 "Una coinbase dedicada con recompensa fija debe seguir siendo valida.");
     }
 

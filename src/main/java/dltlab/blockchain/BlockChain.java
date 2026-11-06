@@ -41,7 +41,7 @@ public class BlockChain {
         if (genesisBlock.getPreviousBlockHash() != null) {
             throw new IllegalArgumentException("El bloque genesis no debe tener padre.");
         }
-        if (!validCoinbase(genesisBlock)) {
+        if (genesisBlock.getDeclaredHeight() != 1 || !genesisBlock.hasValidHash() || !validCoinbase(genesisBlock)) {
             throw new IllegalArgumentException("La coinbase genesis no es valida.");
         }
         UTXOPool pool = new UTXOPool();
@@ -68,8 +68,12 @@ public class BlockChain {
     }
 
     public boolean addBlock(Block block) {
-        if (block.getPreviousBlockHash() == null || !validCoinbase(block)) {
-            return false; // No se aceptan nuevos bloques genesis.
+        if (block.getPreviousBlockHash() == null || !block.hasValidHash() || !validCoinbase(block)) {
+            return false;
+        }
+        String blockId = Hashing.hex(block.getHash());
+        if (nodes.containsKey(blockId)) {
+            return false;
         }
 
         BlockNode parent = nodes.get(Hashing.hex(block.getPreviousBlockHash()));
@@ -78,7 +82,7 @@ public class BlockChain {
         }
 
         int newHeight = parent.height + 1;
-        if (newHeight <= maxHeightNode.height - CUT_OFF_AGE) {
+        if (block.getDeclaredHeight() != newHeight || newHeight <= maxHeightNode.height - CUT_OFF_AGE) {
             return false;
         }
 
@@ -91,7 +95,7 @@ public class BlockChain {
         UTXOPool newPool = validator.getUtxoPool();
         addCoinbaseToPool(block, newPool);
         BlockNode node = new BlockNode(block, newHeight, newPool, creationCounter++);
-        nodes.put(Hashing.hex(block.getHash()), node);
+        nodes.put(blockId, node);
 
         for (Transaction tx : block.getTransactions()) {
             transactionPool.remove(tx);
