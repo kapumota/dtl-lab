@@ -41,7 +41,7 @@ public final class ProtocolContext {
         return sessions.containsKey(transferId);
     }
 
-    public void putSession(CrossShardSession session) {
+    void putSession(CrossShardSession session) {
         sessions.put(session.transfer().id(), session);
     }
 

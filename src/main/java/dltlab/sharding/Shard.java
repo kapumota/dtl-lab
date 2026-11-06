@@ -20,6 +20,20 @@ public class Shard {
         this.id = id;
     }
 
+    Shard snapshot() {
+        Shard copy = new Shard(id);
+        for (var utxo : utxoPool.getAllUTXO()) {
+            copy.utxoPool.addUTXO(utxo, utxoPool.getOutput(utxo));
+        }
+        copy.lockedUtxos.addAll(lockedUtxos);
+        copy.consumedReceipts.addAll(consumedReceipts);
+        for (ShardValidator validator : validators) {
+            copy.addValidator(new ShardValidator(validator.id(), id, validator.weight(),
+                    validator.online(), validator.honest()));
+        }
+        return copy;
+    }
+
     public int getId() {
         return id;
     }

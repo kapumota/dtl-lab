@@ -1,6 +1,7 @@
 package dltlab.sharding.protocol;
 
 import dltlab.crypto.Hashing;
+import dltlab.wallet.Wallet;
 import dltlab.sharding.CrossShardSession;
 import dltlab.sharding.CrossShardStatus;
 import dltlab.sharding.CrossShardTransfer;
@@ -28,12 +29,12 @@ public final class AtomicCommitProtocolTest {
 
         ProtocolResult delivery = protocol.deliverReceipt(fixture.transfer().id());
         assertTrue(delivery.success(), "La entrega explicita del recibo debe completarse.");
-        assertEquals(CrossShardStatus.RECEIPT_DELIVERED, fixture.session().status(),
+        assertEquals(CrossShardStatus.RECEIPT_DELIVERED, fixture.manager().getSession(fixture.transfer().id()).status(),
                 "La sesion debe registrar la entrega del recibo.");
 
         ProtocolResult commit = protocol.commit(fixture.transfer().id());
         assertTrue(commit.success(), "El commit explicito debe completarse.");
-        assertEquals(CrossShardStatus.COMMITTED, fixture.session().status(),
+        assertEquals(CrossShardStatus.COMMITTED, fixture.manager().getSession(fixture.transfer().id()).status(),
                 "La sesion debe terminar como COMMITTED.");
         assertCommittedLedger(fixture);
     }
@@ -42,7 +43,7 @@ public final class AtomicCommitProtocolTest {
         Fixture fixture = newFixture(12, ProtocolContext.FailureInjector.none());
         assertTrue(fixture.manager().commitAtomicTransfer(fixture.transfer().id()),
                 "La API anterior debe delegar y completar el commit.");
-        assertEquals(CrossShardStatus.COMMITTED, fixture.session().status(),
+        assertEquals(CrossShardStatus.COMMITTED, fixture.manager().getSession(fixture.transfer().id()).status(),
                 "La compatibilidad debe conservar el estado COMMITTED.");
         assertCommittedLedger(fixture);
     }
@@ -51,14 +52,14 @@ public final class AtomicCommitProtocolTest {
         Fixture fixture = newFixture(13, ProtocolContext.FailureInjector.none());
         assertTrue(fixture.manager().commitAtomicTransfer(fixture.transfer().id()),
                 "El commit debe completarse una sola vez.");
-        long terminalEvents = fixture.session().events().stream()
+        long terminalEvents = fixture.manager().getSession(fixture.transfer().id()).events().stream()
                 .filter(event -> event.nextStatus().isTerminal())
                 .count();
         assertEquals(1L, terminalEvents,
                 "La traza debe contener una unica decision terminal.");
         assertFalse(fixture.manager().commitAtomicTransfer(fixture.transfer().id()),
                 "Un segundo commit debe rechazarse.");
-        long terminalEventsAfterRetry = fixture.session().events().stream()
+        long terminalEventsAfterRetry = fixture.manager().getSession(fixture.transfer().id()).events().stream()
                 .filter(event -> event.nextStatus().isTerminal())
                 .count();
         assertEquals(1L, terminalEventsAfterRetry,
@@ -66,11 +67,13 @@ public final class AtomicCommitProtocolTest {
     }
 
     private static Fixture newFixture(int marker, ProtocolContext.FailureInjector injector) {
-        ShardManager manager = new ShardManager(2, 4, 3, injector);
+        ShardManager.Setup setup = new ShardManager.Setup(2, 4, 3, injector);
+        Wallet owner = new Wallet("propietario");
         UTXO sourceUtxo = new UTXO(new byte[]{(byte) marker, 4, 7}, 0);
-        manager.getShard(0).getUtxoPool().addUTXO(sourceUtxo,
-                new Transaction.Output(10_000L, null));
-        CrossShardTransfer transfer = new CrossShardTransfer(0, 1, sourceUtxo, 4_000L, null);
+        setup.addInitialUtxo(0, sourceUtxo,
+                new Transaction.Output(10_000L, owner.getPublicKey()));
+        ShardManager manager = setup.start();
+        CrossShardTransfer transfer = new CrossShardTransfer(0, 1, sourceUtxo, 4_000L, owner.getPublicKey()).sign(owner.getPrivateKey());
         CrossShardSession session = manager.beginAtomicTransfer(transfer, 4);
         assertEquals(CrossShardStatus.RECEIPT_CREATED, session.status(),
                 "El inicio debe dejar la sesion en RECEIPT_CREATED.");

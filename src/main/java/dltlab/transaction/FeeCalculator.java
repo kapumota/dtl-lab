@@ -5,15 +5,24 @@ public final class FeeCalculator {
     private FeeCalculator() {}
 
     public static long fee(Transaction tx, UTXOPool pool) {
-        long inputs = 0L;
-        for (Transaction.Input input : tx.getInputs()) {
-            Transaction.Output previous = pool.getOutput(new UTXO(input.getPreviousTxHash(), input.getOutputIndex()));
-            if (previous == null) {
-                return Long.MIN_VALUE;
-            }
-            inputs += previous.getValue();
+        if (tx.getInputs().isEmpty() || tx.getOutputs().isEmpty()) {
+            return Long.MIN_VALUE;
         }
-        return inputs - tx.outputSum();
+        try {
+            long inputs = 0L;
+            var claimed = new java.util.HashSet<UTXO>();
+            for (Transaction.Input input : tx.getInputs()) {
+                UTXO utxo = new UTXO(input.getPreviousTxHash(), input.getOutputIndex());
+                Transaction.Output previous = pool.getOutput(utxo);
+                if (previous == null || previous.getValue() < 0 || !claimed.add(utxo)) {
+                    return Long.MIN_VALUE;
+                }
+                inputs = Math.addExact(inputs, previous.getValue());
+            }
+            return Math.subtractExact(inputs, tx.outputSum());
+        } catch (ArithmeticException | IllegalArgumentException error) {
+            return Long.MIN_VALUE;
+        }
     }
 
     public static FeeRate feeRate(Transaction tx, UTXOPool pool) {

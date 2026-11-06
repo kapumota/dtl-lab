@@ -148,7 +148,10 @@ public class Transaction {
     public long outputSum() {
         long sum = 0L;
         for (Output output : outputs) {
-            sum += output.value;
+            if (output.value < 0 || output.recipient == null || output.recipient.getEncoded() == null) {
+                throw new IllegalArgumentException("La salida monetaria no es valida.");
+            }
+            sum = Math.addExact(sum, output.value);
         }
         return sum;
     }

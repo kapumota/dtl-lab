@@ -46,6 +46,13 @@ public class CrossShardSession {
                 null, CrossShardStatus.CREATED, reason));
     }
 
+    CrossShardSession snapshot() {
+        CrossShardSession copy = new CrossShardSession(transfer, receipt, startRound, timeoutRound,
+                sourceApprovals, sourceValidators);
+        copy.restore(checkpoint());
+        return copy;
+    }
+
     public CrossShardTransfer transfer() { return transfer; }
     public Receipt receipt() { return receipt; }
     public int startRound() { return startRound; }

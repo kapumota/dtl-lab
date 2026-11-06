@@ -41,6 +41,9 @@ public class BlockChain {
         if (genesisBlock.getPreviousBlockHash() != null) {
             throw new IllegalArgumentException("El bloque genesis no debe tener padre.");
         }
+        if (!validCoinbase(genesisBlock)) {
+            throw new IllegalArgumentException("La coinbase genesis no es valida.");
+        }
         UTXOPool pool = new UTXOPool();
         addCoinbaseToPool(genesisBlock, pool);
         BlockNode genesis = new BlockNode(genesisBlock, 1, pool, creationCounter++);
@@ -65,7 +68,7 @@ public class BlockChain {
     }
 
     public boolean addBlock(Block block) {
-        if (block.getPreviousBlockHash() == null) {
+        if (block.getPreviousBlockHash() == null || !validCoinbase(block)) {
             return false; // No se aceptan nuevos bloques genesis.
         }
 
@@ -118,6 +121,18 @@ public class BlockChain {
 
     public boolean containsBlock(byte[] hash) {
         return nodes.containsKey(Hashing.hex(hash));
+    }
+
+    private static boolean validCoinbase(Block block) {
+        Transaction coinbase = block.getCoinbase();
+        if (coinbase == null || !coinbase.getInputs().isEmpty() || coinbase.getOutputs().size() != 1) {
+            return false;
+        }
+        try {
+            return coinbase.outputSum() == Block.COINBASE_REWARD;
+        } catch (ArithmeticException | IllegalArgumentException error) {
+            return false;
+        }
     }
 
     private void addCoinbaseToPool(Block block, UTXOPool pool) {

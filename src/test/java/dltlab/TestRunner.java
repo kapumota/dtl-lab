@@ -39,7 +39,6 @@ import dltlab.security.InvalidSignatureAttack;
 import dltlab.security.PropertyBasedSecuritySuite;
 import dltlab.security.SecurityReportCsvExporter;
 import dltlab.security.SecurityScoreReport;
-import dltlab.sharding.CrossShardSession;
 import dltlab.sharding.CrossShardStatus;
 import dltlab.sharding.CrossShardTransfer;
 import dltlab.sharding.Receipt;
@@ -164,10 +163,11 @@ public class TestRunner {
     private static void testCrossShardReplayRejected() {
         Wallet alice = new Wallet("alice");
         Wallet bob = new Wallet("bob");
-        ShardManager manager = new ShardManager(2);
+        ShardManager.Setup setup = new ShardManager.Setup(2);
         UTXO utxo = new UTXO(new byte[]{1, 2, 3}, 0);
-        manager.getShard(0).getUtxoPool().addUTXO(utxo, new Transaction.Output(10_000L, alice.getPublicKey()));
-        Receipt receipt = manager.lockAndCreateReceipt(new CrossShardTransfer(0, 1, utxo, 5000L, bob.getPublicKey()));
+        setup.addInitialUtxo(0, utxo, new Transaction.Output(10_000L, alice.getPublicKey()));
+        ShardManager manager = setup.start();
+        Receipt receipt = manager.lockAndCreateReceipt(new CrossShardTransfer(0, 1, utxo, 5000L, bob.getPublicKey()).sign(alice.getPrivateKey()));
         assertTrue(manager.commitReceipt(receipt), "El primer uso del recibo debe aceptarse.");
         assertFalse(manager.commitReceipt(receipt), "El replay del recibo debe rechazarse.");
     }
@@ -678,35 +678,36 @@ public class TestRunner {
         Wallet bob = new Wallet("bob");
         Wallet carol = new Wallet("carol");
         Wallet dan = new Wallet("dan");
-        ShardManager manager = new ShardManager(3, 4, 3);
+        ShardManager.Setup setup = new ShardManager.Setup(3, 4, 3);
 
         UTXO successUtxo = new UTXO(new byte[]{10, 1, 1}, 0);
-        manager.getShard(0).getUtxoPool().addUTXO(successUtxo, new Transaction.Output(7000L, alice.getPublicKey()));
-        CrossShardTransfer success = new CrossShardTransfer(0, 1, successUtxo, 4000L, bob.getPublicKey());
-        CrossShardSession successSession = manager.beginAtomicTransfer(success, 3);
+        setup.addInitialUtxo(0, successUtxo, new Transaction.Output(7000L, alice.getPublicKey()));
+        UTXO timeoutUtxo = new UTXO(new byte[]{10, 2, 2}, 0);
+        setup.addInitialUtxo(1, timeoutUtxo, new Transaction.Output(8000L, carol.getPublicKey()));
+        UTXO failedUtxo = new UTXO(new byte[]{10, 3, 3}, 0);
+        setup.addInitialUtxo(0, failedUtxo, new Transaction.Output(6000L, alice.getPublicKey()));
+        ShardManager manager = setup.start();
+        CrossShardTransfer success = new CrossShardTransfer(0, 1, successUtxo, 4000L, bob.getPublicKey()).sign(alice.getPrivateKey());
+        manager.beginAtomicTransfer(success, 3);
         assertTrue(manager.getShard(0).isLocked(successUtxo.key()), "El UTXO origen debe quedar bloqueado mientras esta pendiente.");
         assertTrue(manager.commitAtomicTransfer(success.id()), "El commit atomico debe completarse con quorum en destino.");
-        assertTrue(successSession.status() == CrossShardStatus.COMMITTED, "La sesion exitosa debe terminar como COMMITTED.");
+        assertTrue(manager.getSession(success.id()).status() == CrossShardStatus.COMMITTED, "La sesion exitosa debe terminar como COMMITTED.");
         assertFalse(manager.getShard(0).isLocked(successUtxo.key()), "El commit debe liberar el bloqueo del origen.");
         assertFalse(manager.getShard(0).getUtxoPool().contains(successUtxo), "El UTXO origen debe consumirse al confirmar.");
         assertTrue(manager.getShard(1).getUtxoPool().totalValue() >= 4000L, "El shard destino debe recibir el monto transferido.");
 
-        UTXO timeoutUtxo = new UTXO(new byte[]{10, 2, 2}, 0);
-        manager.getShard(1).getUtxoPool().addUTXO(timeoutUtxo, new Transaction.Output(8000L, carol.getPublicKey()));
-        CrossShardTransfer timeout = new CrossShardTransfer(1, 2, timeoutUtxo, 5000L, dan.getPublicKey());
-        CrossShardSession timeoutSession = manager.beginAtomicTransfer(timeout, 1);
+        CrossShardTransfer timeout = new CrossShardTransfer(1, 2, timeoutUtxo, 5000L, dan.getPublicKey()).sign(carol.getPrivateKey());
+        manager.beginAtomicTransfer(timeout, 1);
         manager.advanceRounds(2);
-        assertTrue(timeoutSession.status() == CrossShardStatus.TIMED_OUT, "La sesion sin commit debe expirar por timeout.");
+        assertTrue(manager.getSession(timeout.id()).status() == CrossShardStatus.TIMED_OUT, "La sesion sin commit debe expirar por timeout.");
         assertFalse(manager.getShard(1).isLocked(timeoutUtxo.key()), "El timeout debe liberar el bloqueo del origen.");
         assertTrue(manager.getShard(1).getUtxoPool().contains(timeoutUtxo), "El timeout no debe consumir el UTXO origen.");
 
-        UTXO failedUtxo = new UTXO(new byte[]{10, 3, 3}, 0);
-        manager.getShard(0).getUtxoPool().addUTXO(failedUtxo, new Transaction.Output(6000L, alice.getPublicKey()));
-        CrossShardTransfer failed = new CrossShardTransfer(0, 2, failedUtxo, 3000L, bob.getPublicKey());
-        CrossShardSession failedSession = manager.beginAtomicTransfer(failed, 3);
+        CrossShardTransfer failed = new CrossShardTransfer(0, 2, failedUtxo, 3000L, bob.getPublicKey()).sign(alice.getPrivateKey());
+        manager.beginAtomicTransfer(failed, 3);
         manager.setShardOnline(2, false);
         assertFalse(manager.commitAtomicTransfer(failed.id()), "El commit debe fallar si el shard destino no alcanza quorum.");
-        assertTrue(failedSession.status() == CrossShardStatus.FAILED_VALIDATION, "La sesion debe registrar fallo de validacion.");
+        assertTrue(manager.getSession(failed.id()).status() == CrossShardStatus.FAILED_VALIDATION, "La sesion debe registrar fallo de validacion.");
         assertFalse(manager.getShard(0).isLocked(failedUtxo.key()), "El fallo de validacion debe liberar el bloqueo del origen.");
         manager.setShardOnline(2, true);
 

@@ -21,7 +21,7 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
     }
 
     @Override
-    public ProtocolResult begin(CrossShardTransfer transfer, int timeoutRounds) {
+    public synchronized ProtocolResult begin(CrossShardTransfer transfer, int timeoutRounds) {
         Objects.requireNonNull(transfer, "La transferencia es obligatoria.");
         if (timeoutRounds <= 0) {
             throw new IllegalArgumentException("El timeout debe ser positivo.");
@@ -30,12 +30,13 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
             throw new IllegalStateException("Ya existe una sesion para esta transferencia.");
         }
         Shard source = context.shard(transfer.sourceShardId());
+        context.shard(transfer.targetShardId());
         validateSourceTransfer(transfer, source);
         int logicalTime = context.logicalTime();
         int approvals = source.approvingValidators();
         Receipt receipt = createReceipt(transfer);
         CrossShardSession session = new CrossShardSession(transfer, receipt, logicalTime,
-                logicalTime + timeoutRounds, approvals, source.getValidators().size());
+                Math.addExact(logicalTime, timeoutRounds), approvals, source.getValidators().size());
 
         if (approvals < context.quorum()) {
             session.markFailedValidation("El shard origen no alcanzo quorum para bloquear el UTXO.",
@@ -68,7 +69,7 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
     }
 
     @Override
-    public ProtocolResult deliverReceipt(String transferId) {
+    public synchronized ProtocolResult deliverReceipt(String transferId) {
         CrossShardSession session = context.session(transferId);
         if (session == null) {
             return missingResult(transferId);
@@ -90,7 +91,7 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
     }
 
     @Override
-    public CommitResult commit(String transferId) {
+    public synchronized CommitResult commit(String transferId) {
         CrossShardSession session = context.session(transferId);
         if (session == null) {
             return new CommitResult(normalizeTransferId(transferId), false,
@@ -146,7 +147,7 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
         }
     }
 
-    public CommitPlan prepareCommit(CrossShardSession session) {
+    private CommitPlan prepareCommit(CrossShardSession session) {
         Objects.requireNonNull(session, "La sesion es obligatoria.");
         if (session.status() != CrossShardStatus.RECEIPT_DELIVERED) {
             throw new ProtocolException(session.transfer().id(),
@@ -168,7 +169,8 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
         UTXO targetUtxo = createTargetUtxo(session.receipt());
         Transaction.Output targetOutput = new Transaction.Output(session.receipt().amount(),
                 session.receipt().recipient());
-        long change = sourceOutput.getValue() - session.transfer().amount();
+        validateSourceTransfer(session.transfer(), source);
+        long change = Math.subtractExact(sourceOutput.getValue(), session.transfer().amount());
         UTXO changeUtxo = change > 0 ? createChangeUtxo(session.receipt()) : null;
         Transaction.Output changeOutput = change > 0
                 ? new Transaction.Output(change, sourceOutput.getRecipient()) : null;
@@ -199,7 +201,7 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
                 target.approvingValidators(), target.getValidators().size(), snapshot);
     }
 
-    public void applyCommit(CommitPlan plan) {
+    private void applyCommit(CommitPlan plan) {
         Objects.requireNonNull(plan, "El plan de commit es obligatorio.");
         CrossShardSession session = plan.session();
         session.markDestinationPrepared(plan.targetApprovals(), plan.targetValidators(),
@@ -224,7 +226,7 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
         session.markCommitted(plan.targetApprovals(), plan.targetValidators(), context.logicalTime());
     }
 
-    public void rollback(CommitPlan plan) {
+    private void rollback(CommitPlan plan) {
         Objects.requireNonNull(plan, "El plan de commit es obligatorio.");
         LedgerSnapshot snapshot = plan.snapshot();
 
@@ -251,7 +253,7 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
     }
 
     @Override
-    public AbortResult abort(String transferId, String reason) {
+    public synchronized AbortResult abort(String transferId, String reason) {
         CrossShardSession session = context.session(transferId);
         if (session == null) {
             return new AbortResult(normalizeTransferId(transferId), false,
@@ -278,7 +280,7 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
     }
 
     @Override
-    public AbortResult timeout(String transferId) {
+    public synchronized AbortResult timeout(String transferId) {
         CrossShardSession session = context.session(transferId);
         if (session == null) {
             return new AbortResult(normalizeTransferId(transferId), false,
@@ -309,35 +311,20 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
     }
 
     @Override
-    public Receipt lockAndCreateReceipt(CrossShardTransfer transfer) {
-        Objects.requireNonNull(transfer, "La transferencia es obligatoria.");
-        Shard source = context.shard(transfer.sourceShardId());
-        validateSourceTransfer(transfer, source);
-        if (!source.lockUtxo(transfer.sourceUtxo().key())) {
-            throw new IllegalStateException("El UTXO origen ya esta bloqueado.");
+    public synchronized Receipt lockAndCreateReceipt(CrossShardTransfer transfer) {
+        ProtocolResult result = begin(transfer, Integer.MAX_VALUE - context.logicalTime());
+        if (!result.success()) {
+            throw new ProtocolException(transfer.id(), result.message());
         }
-        return createReceipt(transfer);
+        return context.session(transfer.id()).receipt();
     }
 
     @Override
-    public boolean commitReceipt(Receipt receipt) {
+    public synchronized boolean commitReceipt(Receipt receipt) {
         Objects.requireNonNull(receipt, "El recibo es obligatorio.");
-        Shard target = context.shard(receipt.targetShardId());
-        if (!target.markReceiptConsumed(receipt.receiptId())) {
-            return false;
-        }
-        UTXO targetUtxo = new UTXO(Hashing.sha256(
-                ("cross-shard:" + receipt.receiptId()).getBytes(StandardCharsets.UTF_8)), 0);
-        try {
-            target.getUtxoPool().addUTXO(targetUtxo,
-                    new Transaction.Output(receipt.amount(), receipt.recipient()));
-            return true;
-        } catch (RuntimeException error) {
-            target.unmarkReceiptConsumed(receipt.receiptId());
-            target.getUtxoPool().removeUTXO(targetUtxo);
-            throw new ProtocolException(receipt.transferId(),
-                    "No se pudo acreditar el recibo en el shard destino.", true, error);
-        }
+        CrossShardSession session = context.session(receipt.transferId());
+        return session != null && session.receipt().equals(receipt)
+                && commit(session.transfer().id()).success();
     }
 
     private void failValidationAndRelease(CrossShardSession session, String reason) {
@@ -365,6 +352,9 @@ public class AtomicCommitProtocol implements CrossShardProtocol {
         Transaction.Output output = source.getUtxoPool().getOutput(transfer.sourceUtxo());
         if (transfer.amount() <= 0) {
             throw new IllegalArgumentException("El monto cross-shard debe ser positivo.");
+        }
+        if (!transfer.isAuthorizedBy(output.getRecipient())) {
+            throw new IllegalArgumentException("La firma del propietario del UTXO es obligatoria.");
         }
         if (transfer.amount() > output.getValue()) {
             throw new IllegalArgumentException("El monto cross-shard excede el valor disponible.");
