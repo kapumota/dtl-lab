@@ -17,6 +17,7 @@ java -cp build/classes:build/test-classes dltlab.conformance.NegativeTraceCatalo
 java -cp build/classes:build/test-classes dltlab.P0RegressionTest
 java -cp build/classes:build/test-classes dltlab.P1ABlockIntegrityTest
 java -cp build/classes:build/test-classes dltlab.verification.P1BReplayTest
+java -cp build/classes:build/test-classes dltlab.sharding.protocol.P1CIsolationTest
 bash scripts/conformance/check_conformance_structure.sh
 bash scripts/experiments/check_experimental_structure.sh
 
