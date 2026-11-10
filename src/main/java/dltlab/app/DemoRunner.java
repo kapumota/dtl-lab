@@ -556,24 +556,25 @@ public class DemoRunner {
 
 
     private ShardManager buildAdvancedShardingDemo(Wallet alice, Wallet bob, Wallet carol, Wallet dan) {
-        ShardManager shardManager = new ShardManager(3, 4, 3);
+        ShardManager.Setup setup = new ShardManager.Setup(3, 4, 3);
 
         UTXO successUtxo = new UTXO(Hashing.sha256("utxo-shard-success".getBytes()), 0);
         UTXO timeoutUtxo = new UTXO(Hashing.sha256("utxo-shard-timeout".getBytes()), 0);
         UTXO failedUtxo = new UTXO(Hashing.sha256("utxo-shard-failed".getBytes()), 0);
-        shardManager.getShard(0).getUtxoPool().addUTXO(successUtxo, new Transaction.Output(7000L, alice.getPublicKey()));
-        shardManager.getShard(1).getUtxoPool().addUTXO(timeoutUtxo, new Transaction.Output(8000L, bob.getPublicKey()));
-        shardManager.getShard(0).getUtxoPool().addUTXO(failedUtxo, new Transaction.Output(6000L, carol.getPublicKey()));
+        setup.addInitialUtxo(0, successUtxo, new Transaction.Output(7000L, alice.getPublicKey()));
+        setup.addInitialUtxo(1, timeoutUtxo, new Transaction.Output(8000L, bob.getPublicKey()));
+        setup.addInitialUtxo(0, failedUtxo, new Transaction.Output(6000L, carol.getPublicKey()));
+        ShardManager shardManager = setup.start();
 
-        CrossShardTransfer success = new CrossShardTransfer(0, 1, successUtxo, 4000L, dan.getPublicKey());
+        CrossShardTransfer success = new CrossShardTransfer(0, 1, successUtxo, 4000L, dan.getPublicKey()).sign(alice.getPrivateKey());
         shardManager.beginAtomicTransfer(success, 3);
         shardManager.commitAtomicTransfer(success.id());
 
-        CrossShardTransfer timeout = new CrossShardTransfer(1, 2, timeoutUtxo, 5000L, alice.getPublicKey());
+        CrossShardTransfer timeout = new CrossShardTransfer(1, 2, timeoutUtxo, 5000L, alice.getPublicKey()).sign(bob.getPrivateKey());
         shardManager.beginAtomicTransfer(timeout, 1);
         shardManager.advanceRounds(2);
 
-        CrossShardTransfer failed = new CrossShardTransfer(0, 2, failedUtxo, 3000L, bob.getPublicKey());
+        CrossShardTransfer failed = new CrossShardTransfer(0, 2, failedUtxo, 3000L, bob.getPublicKey()).sign(carol.getPrivateKey());
         shardManager.beginAtomicTransfer(failed, 3);
         shardManager.setShardOnline(2, false);
         shardManager.commitAtomicTransfer(failed.id());

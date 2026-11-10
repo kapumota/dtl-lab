@@ -84,8 +84,8 @@ public final class ScenarioCatalog {
         SimulationRun run = new SimulationRun(3, 4, 3, seed, new NoFaultModel());
         UTXO shared = deterministicUtxo(seed, 6);
         run.addFunds(0, shared, 15_000L);
-        CrossShardTransfer first = new CrossShardTransfer(0, 1, shared, 5_000L, null);
-        CrossShardTransfer second = new CrossShardTransfer(0, 2, shared, 4_000L, null);
+        CrossShardTransfer first = run.fixtureTransfer(0, 1, shared, 5_000L);
+        CrossShardTransfer second = run.fixtureTransfer(0, 2, shared, 4_000L);
         boolean firstWins = run.random().nextBoolean();
         run.scheduleBegin(first, 5, 0, firstWins ? 0 : 1);
         run.scheduleBegin(second, 5, 0, firstWins ? 1 : 0);
@@ -154,7 +154,7 @@ public final class ScenarioCatalog {
                                                       int source, int target, long value, long amount) {
         UTXO utxo = deterministicUtxo(seed, marker);
         run.addFunds(source, utxo, value);
-        return new CrossShardTransfer(source, target, utxo, amount, null);
+        return run.fixtureTransfer(source, target, utxo, amount);
     }
 
     private static UTXO deterministicUtxo(long seed, int marker) {

@@ -5,7 +5,6 @@ import dltlab.blockchain.Block;
 import dltlab.blockchain.BlockChain;
 import dltlab.mining.Miner;
 import dltlab.mempool.HighestFeePolicy;
-import dltlab.sharding.CrossShardSession;
 import dltlab.sharding.CrossShardStatus;
 import dltlab.sharding.CrossShardTransfer;
 import dltlab.sharding.Receipt;
@@ -148,19 +147,20 @@ public class PropertyBasedSecuritySuite {
         Wallet alice = new Wallet("alice_shard");
         Wallet bob = new Wallet("bob_shard");
         for (int i = 0; i < iterations; i++) {
-            ShardManager manager = new ShardManager(3, 4, 3);
+            ShardManager.Setup setup = new ShardManager.Setup(3, 4, 3);
             UTXO replayUtxo = new UTXO(new byte[]{(byte) i, 1, 2, 3}, 0);
-            manager.getShard(0).getUtxoPool().addUTXO(replayUtxo, new Transaction.Output(10_000L, alice.getPublicKey()));
-            Receipt receipt = manager.lockAndCreateReceipt(new CrossShardTransfer(0, 1, replayUtxo, 5000L, bob.getPublicKey()));
+            setup.addInitialUtxo(0, replayUtxo, new Transaction.Output(10_000L, alice.getPublicKey()));
+            UTXO timeoutUtxo = new UTXO(new byte[]{(byte) i, 4, 5, 6}, 0);
+            setup.addInitialUtxo(1, timeoutUtxo, new Transaction.Output(8000L, alice.getPublicKey()));
+            ShardManager manager = setup.start();
+            Receipt receipt = manager.lockAndCreateReceipt(new CrossShardTransfer(0, 1, replayUtxo, 5000L, bob.getPublicKey()).sign(alice.getPrivateKey()));
             boolean firstCommit = manager.commitReceipt(receipt);
             boolean replayRejected = !manager.commitReceipt(receipt);
 
-            UTXO timeoutUtxo = new UTXO(new byte[]{(byte) i, 4, 5, 6}, 0);
-            manager.getShard(1).getUtxoPool().addUTXO(timeoutUtxo, new Transaction.Output(8000L, alice.getPublicKey()));
-            CrossShardTransfer transfer = new CrossShardTransfer(1, 2, timeoutUtxo, 3000L + random.nextInt(1000), bob.getPublicKey());
-            CrossShardSession session = manager.beginAtomicTransfer(transfer, 1);
+            CrossShardTransfer transfer = new CrossShardTransfer(1, 2, timeoutUtxo, 3000L + random.nextInt(1000), bob.getPublicKey()).sign(alice.getPrivateKey());
+            manager.beginAtomicTransfer(transfer, 1);
             manager.advanceRounds(2);
-            boolean timeoutSafe = session.status() == CrossShardStatus.TIMED_OUT
+            boolean timeoutSafe = manager.getSession(transfer.id()).status() == CrossShardStatus.TIMED_OUT
                     && !manager.getShard(1).isLocked(timeoutUtxo.key())
                     && manager.getShard(1).getUtxoPool().contains(timeoutUtxo);
             if (firstCommit && replayRejected && timeoutSafe) {
@@ -195,10 +195,11 @@ public class PropertyBasedSecuritySuite {
             chain.addTransaction(tx);
             new Miner(miner, new HighestFeePolicy(), 5).mineAndAdd(chain);
 
-            ShardManager shardManager = new ShardManager(2, 3, 2);
+            ShardManager.Setup setup = new ShardManager.Setup(2, 3, 2);
             UTXO shardUtxo = new UTXO(new byte[]{(byte) i, 9, 9, 9}, 0);
-            shardManager.getShard(0).getUtxoPool().addUTXO(shardUtxo, new Transaction.Output(9000L, alice.getPublicKey()));
-            CrossShardTransfer transfer = new CrossShardTransfer(0, 1, shardUtxo, 4000L, bob.getPublicKey());
+            setup.addInitialUtxo(0, shardUtxo, new Transaction.Output(9000L, alice.getPublicKey()));
+            ShardManager shardManager = setup.start();
+            CrossShardTransfer transfer = new CrossShardTransfer(0, 1, shardUtxo, 4000L, bob.getPublicKey()).sign(alice.getPrivateKey());
             shardManager.beginAtomicTransfer(transfer, 3);
             if (random.nextBoolean()) {
                 shardManager.commitAtomicTransfer(transfer.id());

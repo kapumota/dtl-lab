@@ -19,36 +19,27 @@ public class TxValidator {
     }
 
     public boolean isValidTx(Transaction tx) {
+        if (tx == null || tx.getInputs().isEmpty() || tx.getOutputs().isEmpty()) {
+            return false;
+        }
         Set<UTXO> claimed = new HashSet<>();
         long inputSum = 0L;
-        long outputSum = 0L;
-
-        for (int i = 0; i < tx.getInputs().size(); i++) {
-            Transaction.Input input = tx.getInputs().get(i);
-            UTXO utxo = new UTXO(input.getPreviousTxHash(), input.getOutputIndex());
-
-            if (!utxoPool.contains(utxo)) {
-                return false;
+        try {
+            long outputSum = tx.outputSum();
+            for (int i = 0; i < tx.getInputs().size(); i++) {
+                Transaction.Input input = tx.getInputs().get(i);
+                UTXO utxo = new UTXO(input.getPreviousTxHash(), input.getOutputIndex());
+                Transaction.Output previous = utxoPool.getOutput(utxo);
+                if (previous == null || previous.getValue() < 0 || previous.getRecipient() == null
+                        || !claimed.add(utxo) || !tx.verifyInputSignature(i, previous.getRecipient())) {
+                    return false;
+                }
+                inputSum = Math.addExact(inputSum, previous.getValue());
             }
-            if (!claimed.add(utxo)) {
-                return false;
-            }
-
-            Transaction.Output previousOutput = utxoPool.getOutput(utxo);
-            if (!tx.verifyInputSignature(i, previousOutput.getRecipient())) {
-                return false;
-            }
-            inputSum += previousOutput.getValue();
+            return inputSum >= outputSum;
+        } catch (ArithmeticException | IllegalArgumentException error) {
+            return false;
         }
-
-        for (Transaction.Output output : tx.getOutputs()) {
-            if (output.getValue() < 0) {
-                return false;
-            }
-            outputSum += output.getValue();
-        }
-
-        return inputSum >= outputSum;
     }
 
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
@@ -62,7 +53,7 @@ public class TxValidator {
             List<Transaction> nextRound = new ArrayList<>();
             for (Transaction tx : remaining) {
                 if (isValidTx(tx)) {
-                    applyTransaction(tx);
+                    applyValidatedTransaction(tx);
                     accepted.add(tx);
                     progress = true;
                 } else {
@@ -76,11 +67,19 @@ public class TxValidator {
     }
 
     public void applyTransaction(Transaction tx) {
+        if (!isValidTx(tx)) {
+            throw new IllegalArgumentException("La transaccion ordinaria no es valida.");
+        }
+        applyValidatedTransaction(tx);
+    }
+
+    private void applyValidatedTransaction(Transaction tx) {
+        byte[] hash = tx.getHash();
         for (Transaction.Input input : tx.getInputs()) {
             utxoPool.removeUTXO(new UTXO(input.getPreviousTxHash(), input.getOutputIndex()));
         }
         for (int i = 0; i < tx.getOutputs().size(); i++) {
-            utxoPool.addUTXO(new UTXO(tx.getHash(), i), tx.getOutputs().get(i));
+            utxoPool.addUTXO(new UTXO(hash, i), tx.getOutputs().get(i));
         }
     }
 }

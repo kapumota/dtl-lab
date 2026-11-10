@@ -2,19 +2,28 @@ package dltlab.sharding.protocol;
 
 import dltlab.sharding.CrossShardSession;
 import dltlab.sharding.Shard;
+import dltlab.transaction.Transaction;
+import dltlab.transaction.UTXO;
+
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.IntSupplier;
 
-/** Dependencias controladas que necesita el protocolo para operar sobre el ledger. */
+/**
+ * Dependencias de confianza que el propietario del ledger entrega al protocolo.
+ * El gestor conserva en privado su contexto y sus colecciones vivas.
+ */
 public final class ProtocolContext {
     private final List<Shard> shards;
     private final Map<String, CrossShardSession> sessions;
     private final int quorum;
     private final IntSupplier logicalTimeSupplier;
     private final FailureInjector failureInjector;
+    private final List<ReceiptObservation> observations = new ArrayList<>();
+    private boolean insideFailureHook;
 
     public ProtocolContext(List<Shard> shards, Map<String, CrossShardSession> sessions, int quorum,
                            IntSupplier logicalTimeSupplier, FailureInjector failureInjector) {
@@ -29,32 +38,75 @@ public final class ProtocolContext {
         this.failureInjector = failureInjector == null ? FailureInjector.none() : failureInjector;
     }
 
-    public Shard shard(int shardId) {
+    Shard shard(int shardId) {
         return shards.get(shardId);
     }
 
-    public CrossShardSession session(String transferId) {
+    CrossShardSession session(String transferId) {
         return sessions.get(transferId);
     }
 
-    public boolean hasSession(String transferId) {
+    boolean hasSession(String transferId) {
         return sessions.containsKey(transferId);
     }
 
-    public void putSession(CrossShardSession session) {
+    void putSession(CrossShardSession session) {
         sessions.put(session.transfer().id(), session);
     }
 
-    public int quorum() {
+    int quorum() {
         return quorum;
     }
 
-    public int logicalTime() {
+    int logicalTime() {
         return logicalTimeSupplier.getAsInt();
     }
 
-    public void checkFailure(FailurePoint point) {
-        failureInjector.check(point);
+    void observe(String receiptId, ReceiptObservation.Kind kind) {
+        observations.add(new ReceiptObservation(receiptId, kind));
+    }
+
+    List<ReceiptObservation> observations() {
+        return List.copyOf(observations);
+    }
+
+    void debit(String receiptId, Shard shard, UTXO utxo) {
+        var pool = shard.getUtxoPool();
+        var before = pool.getOutput(utxo);
+        pool.removeUTXO(utxo);
+        if (before != null && !pool.contains(utxo)) {
+            observeEffect(receiptId, ReceiptObservation.Kind.DEBIT, shard, utxo, before);
+        }
+    }
+
+    void credit(String receiptId, Shard shard, UTXO utxo, Transaction.Output output) {
+        var pool = shard.getUtxoPool();
+        var before = pool.getOutput(utxo);
+        pool.addUTXO(utxo, output);
+        if (before != output && pool.getOutput(utxo) == output) {
+            observeEffect(receiptId, ReceiptObservation.Kind.CREDIT, shard, utxo, output);
+        }
+    }
+
+    private void observeEffect(String receiptId, ReceiptObservation.Kind kind, Shard shard,
+                               UTXO utxo, Transaction.Output output) {
+        observations.add(new ReceiptObservation(receiptId, kind,
+                new ReceiptObservation.LedgerEffect(shard.getId(), utxo.key(), output.getValue())));
+    }
+
+    void requireOutsideHook() {
+        if (insideFailureHook) {
+            throw new IllegalStateException("El hook de fallos no puede reentrar en el gestor ni en el protocolo.");
+        }
+    }
+
+    void checkFailure(FailurePoint point) {
+        insideFailureHook = true;
+        try {
+            failureInjector.check(point);
+        } finally {
+            insideFailureHook = false;
+        }
     }
 
     /** Puntos controlados para probar rollback sin alterar el ledger de produccion. */

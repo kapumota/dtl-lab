@@ -1,6 +1,7 @@
 package dltlab.sharding.protocol;
 
 import dltlab.crypto.Hashing;
+import dltlab.wallet.Wallet;
 import dltlab.sharding.CrossShardSession;
 import dltlab.sharding.CrossShardStatus;
 import dltlab.sharding.CrossShardTransfer;
@@ -45,11 +46,13 @@ public final class AtomicCommitRollbackTest {
                 throw new IllegalStateException("Fallo inyectado para comprobar rollback.");
             }
         };
-        ShardManager manager = new ShardManager(2, 4, 3, injector);
+        ShardManager.Setup setup = new ShardManager.Setup(2, 4, 3, injector);
+        Wallet owner = new Wallet("propietario");
         UTXO sourceUtxo = new UTXO(new byte[]{(byte) marker, 8, 9}, 0);
-        Transaction.Output original = new Transaction.Output(10_000L, null);
-        manager.getShard(0).getUtxoPool().addUTXO(sourceUtxo, original);
-        CrossShardTransfer transfer = new CrossShardTransfer(0, 1, sourceUtxo, 4_000L, null);
+        Transaction.Output original = new Transaction.Output(10_000L, owner.getPublicKey());
+        setup.addInitialUtxo(0, sourceUtxo, original);
+        ShardManager manager = setup.start();
+        CrossShardTransfer transfer = new CrossShardTransfer(0, 1, sourceUtxo, 4_000L, owner.getPublicKey()).sign(owner.getPrivateKey());
         CrossShardSession session = manager.beginAtomicTransfer(transfer, 4);
 
         ProtocolException error = assertThrows(ProtocolException.class,
@@ -74,9 +77,9 @@ public final class AtomicCommitRollbackTest {
                 "El rollback debe eliminar el credito parcial.");
         assertFalse(manager.getShard(1).getConsumedReceipts().contains(session.receipt().receiptId()),
                 "El rollback debe restaurar el recibo como no consumido.");
-        assertEquals(CrossShardStatus.RECEIPT_DELIVERED, session.status(),
+        assertEquals(CrossShardStatus.RECEIPT_DELIVERED, manager.getSession(transfer.id()).status(),
                 "El rollback debe restaurar el estado previo a la preparacion.");
-        assertEquals(0L, session.events().stream()
+        assertEquals(0L, manager.getSession(transfer.id()).events().stream()
                         .filter(event -> event.nextStatus().isTerminal()).count(),
                 "Un commit fallido no debe dejar una decision terminal.");
     }

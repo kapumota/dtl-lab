@@ -10,6 +10,10 @@ import dltlab.transaction.Transaction;
 import dltlab.transaction.UTXO;
 
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -19,8 +23,29 @@ import java.util.Objects;
 
 /** Ejecucion determinista que coordina reloj, eventos, red y protocolo real. */
 public final class SimulationRun {
+    // Identidad publica de prueba, reproducible entre procesos. Solo para escenarios simulados.
+    private static final KeyPair FIXTURE_OWNER = fixtureOwner();
+
+    private static KeyPair fixtureOwner() {
+        try {
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            random.setSeed("dltlab:simulation:fixture:v2".getBytes(StandardCharsets.UTF_8));
+            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA", "SunRsaSign");
+            generator.initialize(2048, random);
+            return generator.generateKeyPair();
+        } catch (GeneralSecurityException error) {
+            throw new IllegalStateException("No se pudo crear la identidad simulada.", error);
+        }
+    }
+
+    CrossShardTransfer fixtureTransfer(int source, int target, UTXO utxo, long amount) {
+        return new CrossShardTransfer(source, target, utxo, amount, FIXTURE_OWNER.getPublic())
+                .sign(FIXTURE_OWNER.getPrivate());
+    }
+
     private final long seed;
-    private final ShardManager manager;
+    private final ShardManager.Setup setup;
+    private ShardManager manager;
     private final SimulationClock clock;
     private final EventScheduler scheduler;
     private final DeterministicRandom random;
@@ -33,9 +58,9 @@ public final class SimulationRun {
     public SimulationRun(int shardCount, int validatorsPerShard, int quorum,
                          long seed, NetworkFaultModel faultModel) {
         this.seed = seed;
-        this.manager = new ShardManager(shardCount, validatorsPerShard, quorum);
+        this.setup = new ShardManager.Setup(shardCount, validatorsPerShard, quorum);
         this.clock = new SimulationClock();
-        this.scheduler = new EventScheduler(clock, manager::advanceClockTo);
+        this.scheduler = new EventScheduler(clock, round -> manager().advanceClockTo(round));
         this.random = new DeterministicRandom(seed);
         this.faultModel = Objects.requireNonNull(faultModel,
                 "El modelo de fallos de red es obligatorio.");
@@ -46,6 +71,9 @@ public final class SimulationRun {
     }
 
     public ShardManager manager() {
+        if (manager == null) {
+            manager = setup.start();
+        }
         return manager;
     }
 
@@ -65,8 +93,8 @@ public final class SimulationRun {
         if (value <= 0) {
             throw new IllegalArgumentException("El valor inicial debe ser positivo.");
         }
-        manager.getShard(shardId).getUtxoPool().addUTXO(utxo,
-                new Transaction.Output(value, null));
+        setup.addInitialUtxo(shardId, utxo,
+                new Transaction.Output(value, FIXTURE_OWNER.getPublic()));
     }
 
     public void scheduleBegin(CrossShardTransfer transfer, int timeoutRounds,
@@ -136,6 +164,7 @@ public final class SimulationRun {
     }
 
     public void runAll() {
+        manager();
         while (scheduler.hasNext()) {
             ScheduledEvent event = scheduler.next();
             record(event.type(), event.transferId(), "EJECUTADO", event.description());

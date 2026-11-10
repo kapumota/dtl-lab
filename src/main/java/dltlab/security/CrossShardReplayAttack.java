@@ -14,11 +14,12 @@ public class CrossShardReplayAttack implements Attack {
     public AttackResult run() {
         Wallet alice = new Wallet("alice");
         Wallet bob = new Wallet("bob");
-        ShardManager manager = new ShardManager(2);
+        ShardManager.Setup setup = new ShardManager.Setup(2);
         UTXO source = new UTXO(Hashing.sha256("origen".getBytes()), 0);
-        manager.getShard(0).getUtxoPool().addUTXO(source, new Transaction.Output(5000L, alice.getPublicKey()));
+        setup.addInitialUtxo(0, source, new Transaction.Output(5000L, alice.getPublicKey()));
+        ShardManager manager = setup.start();
 
-        CrossShardTransfer transfer = new CrossShardTransfer(0, 1, source, 3000L, bob.getPublicKey());
+        CrossShardTransfer transfer = new CrossShardTransfer(0, 1, source, 3000L, bob.getPublicKey()).sign(alice.getPrivateKey());
         Receipt receipt = manager.lockAndCreateReceipt(transfer);
         boolean first = manager.commitReceipt(receipt);
         boolean replay = manager.commitReceipt(receipt);

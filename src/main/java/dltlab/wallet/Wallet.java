@@ -41,11 +41,12 @@ public class Wallet {
 
     public Transaction createSpend(UTXO input, Transaction.Output previousOutput, PublicKey recipient,
                                    long amount, long fee) {
-        long change = previousOutput.getValue() - amount - fee;
-        if (change < 0) {
+        if (amount < 0 || fee < 0 || previousOutput.getValue() < amount
+                || previousOutput.getValue() - amount < fee) {
             throw new IllegalArgumentException("Fondos insuficientes para crear la transaccion.");
         }
 
+        long change = Math.subtractExact(Math.subtractExact(previousOutput.getValue(), amount), fee);
         Transaction tx = new Transaction();
         tx.addInput(input.getTxHash(), input.getOutputIndex());
         tx.addOutput(amount, recipient);
