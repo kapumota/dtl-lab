@@ -8,6 +8,7 @@ import dltlab.sharding.Receipt;
 import dltlab.sharding.Shard;
 import dltlab.transaction.Transaction;
 import dltlab.transaction.UTXO;
+import dltlab.verification.LedgerValueOracle;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -18,6 +19,9 @@ import static dltlab.sharding.protocol.ReceiptObservation.Kind.*;
 /** Implementa inicio, commit, abort, timeout y rollback del protocolo cross-shard. */
 public final class AtomicCommitProtocol implements CrossShardProtocol {
     private final ProtocolContext context;
+    private final CommitAttemptJournal attemptJournal = new CommitAttemptJournal();
+    private long nextAttemptNumber;
+    private long auditFailureCount;
 
     public AtomicCommitProtocol(ProtocolContext context) {
         this.context = Objects.requireNonNull(context, "El contexto del protocolo es obligatorio.");
@@ -30,6 +34,37 @@ public final class AtomicCommitProtocol implements CrossShardProtocol {
     public synchronized List<ReceiptObservation> receiptObservations() {
         requireOutsideHook();
         return context.observations();
+    }
+
+    /** Los eventos del journal sobreviven al rollback de la sesion. */
+    public synchronized List<CommitAttemptJournal.Entry> commitAttemptEvents() {
+        requireOutsideHook();
+        return attemptJournal.events();
+    }
+
+    /** Si es distinto de cero, la instrumentacion no ofrece evidencia completa. */
+    public synchronized long auditFailureCount() {
+        requireOutsideHook();
+        return auditFailureCount;
+    }
+
+    private void recordAttempt(String attemptId, CrossShardSession session,
+                               CommitAttemptJournal.Stage stage, String detail) {
+        try {
+            attemptJournal.append(attemptId, session.transfer().id(),
+                    context.logicalTime(), stage, session.status(), session.stateVersion(),
+                    LedgerValueOracle.capture(context.liveShardsForAudit()), detail);
+        } catch (RuntimeException auditError) {
+            // La instrumentacion de diagnostico no debe alterar el commit.
+            auditFailureCount++;
+        }
+    }
+
+    private void checkObservedFailure(String attemptId, CrossShardSession session,
+                                      ProtocolContext.FailurePoint point) {
+        recordAttempt(attemptId, session,
+                CommitAttemptJournal.Stage.FAILURE_POINT_REACHED, point.name());
+        context.checkFailure(point);
     }
 
     @Override
@@ -152,15 +187,26 @@ public final class AtomicCommitProtocol implements CrossShardProtocol {
         CommitPlan plan = prepareCommit(session);
         String receiptId = session.receipt().receiptId();
         context.observe(receiptId, ATTEMPT);
+        String attemptId = transferId + "/attempt-" + (++nextAttemptNumber);
+        recordAttempt(attemptId, session, CommitAttemptJournal.Stage.BEGIN,
+                "Intento de commit con plan validado");
         try {
-            applyCommit(plan);
+            applyCommit(plan, attemptId);
             context.observe(receiptId, CONFIRMED);
             return new CommitResult(transferId, true, session.status(), session.reason(), false);
         } catch (RuntimeException error) {
+            recordAttempt(attemptId, session, CommitAttemptJournal.Stage.ROLLBACK_STARTED,
+                    error.getClass().getSimpleName());
             try {
                 rollback(plan);
                 context.observe(receiptId, ROLLED_BACK);
+                recordAttempt(attemptId, session,
+                        CommitAttemptJournal.Stage.ROLLBACK_COMPLETED,
+                        "Checkpoint y ledger restaurados");
             } catch (RuntimeException rollbackError) {
+                recordAttempt(attemptId, session,
+                        CommitAttemptJournal.Stage.ROLLBACK_FAILED,
+                        rollbackError.getClass().getSimpleName());
                 error.addSuppressed(rollbackError);
                 throw new ProtocolException(transferId,
                         "El commit fallo y el rollback no pudo completarse.", false, error);
@@ -224,29 +270,43 @@ public final class AtomicCommitProtocol implements CrossShardProtocol {
                 target.approvingValidators(), target.getValidators().size(), snapshot);
     }
 
-    private void applyCommit(CommitPlan plan) {
+    private void applyCommit(CommitPlan plan, String attemptId) {
         Objects.requireNonNull(plan, "El plan de commit es obligatorio.");
         CrossShardSession session = plan.session();
         session.markDestinationPrepared(plan.targetApprovals(), plan.targetValidators(),
                 context.logicalTime());
+        recordAttempt(attemptId, session, CommitAttemptJournal.Stage.PREPARED,
+                "Destino preparado");
         if (!plan.target().markReceiptConsumed(session.receipt().receiptId())) {
             throw new ProtocolException(session.transfer().id(),
                     "El recibo fue consumido durante la aplicacion del commit.");
         }
-        context.checkFailure(ProtocolContext.FailurePoint.AFTER_RECEIPT_CONSUMED);
+        recordAttempt(attemptId, session, CommitAttemptJournal.Stage.RECEIPT_CONSUMED,
+                "Recibo consumido");
+        checkObservedFailure(attemptId, session,
+                ProtocolContext.FailurePoint.AFTER_RECEIPT_CONSUMED);
 
         context.debit(session.receipt().receiptId(), plan.source(), plan.sourceUtxo());
         plan.source().unlockUtxo(plan.sourceUtxo().key());
         if (plan.changeUtxo() != null) {
             plan.source().getUtxoPool().addUTXO(plan.changeUtxo(), plan.changeOutput());
         }
-        context.checkFailure(ProtocolContext.FailurePoint.AFTER_SOURCE_DEBIT);
+        recordAttempt(attemptId, session, CommitAttemptJournal.Stage.SOURCE_DEBITED,
+                "Debito de origen y salida de cambio aplicados");
+        checkObservedFailure(attemptId, session,
+                ProtocolContext.FailurePoint.AFTER_SOURCE_DEBIT);
 
-        context.checkFailure(ProtocolContext.FailurePoint.DURING_TARGET_CREDIT);
+        checkObservedFailure(attemptId, session,
+                ProtocolContext.FailurePoint.DURING_TARGET_CREDIT);
         context.credit(session.receipt().receiptId(), plan.target(), plan.targetUtxo(), plan.targetOutput());
-        context.checkFailure(ProtocolContext.FailurePoint.AFTER_TARGET_CREDIT);
+        recordAttempt(attemptId, session, CommitAttemptJournal.Stage.DESTINATION_CREDITED,
+                "Credito de destino aplicado");
+        checkObservedFailure(attemptId, session,
+                ProtocolContext.FailurePoint.AFTER_TARGET_CREDIT);
 
         session.markCommitted(plan.targetApprovals(), plan.targetValidators(), context.logicalTime());
+        recordAttempt(attemptId, session, CommitAttemptJournal.Stage.COMMIT_COMPLETED,
+                "Commit concluido");
     }
 
     private void rollback(CommitPlan plan) {

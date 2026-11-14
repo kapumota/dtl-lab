@@ -42,6 +42,11 @@ public final class ProtocolContext {
         return shards.get(shardId);
     }
 
+    /** Solo para snapshots auditados desde el lock del protocolo. */
+    List<Shard> liveShardsForAudit() {
+        return List.copyOf(shards);
+    }
+
     CrossShardSession session(String transferId) {
         return sessions.get(transferId);
     }
