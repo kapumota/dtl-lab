@@ -1,6 +1,7 @@
 package dltlab.sharding;
 
 import dltlab.sharding.protocol.AtomicCommitProtocol;
+import dltlab.sharding.protocol.CommitAttemptJournal;
 import dltlab.sharding.protocol.CrossShardProtocol;
 import dltlab.sharding.protocol.ProtocolContext;
 import dltlab.sharding.protocol.ProtocolResult;
@@ -133,6 +134,15 @@ public class ShardManager {
 
     public List<ReceiptObservation> receiptObservations() {
         return protocol.receiptObservations();
+    }
+
+    public List<CommitAttemptJournal.Entry> commitAttemptEvents() {
+        return protocol.commitAttemptEvents();
+    }
+
+    /** Cero es requisito para certificar integridad de la traza diagnostica. */
+    public long auditFailureCount() {
+        return protocol.auditFailureCount();
     }
 
     public CrossShardProtocol getProtocol() {
