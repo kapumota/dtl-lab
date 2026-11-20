@@ -1,0 +1,13 @@
+Prueba nueva: dltlab.sharding.protocol.CommitAttemptJournalTest
+PASS: journal de commit con snapshots inmutables
+Prueba nueva: dltlab.sharding.protocol.LedgerValueOracleIntegrationTest
+Exception in thread "main" java.lang.AssertionError: La historia funcional debe regresar a su checkpoint
+	at dltlab.sharding.protocol.LedgerValueOracleIntegrationTest.check(LedgerValueOracleIntegrationTest.java:105)
+	at dltlab.sharding.protocol.LedgerValueOracleIntegrationTest.checkRollback(LedgerValueOracleIntegrationTest.java:78)
+	at dltlab.sharding.protocol.LedgerValueOracleIntegrationTest.main(LedgerValueOracleIntegrationTest.java:23)
+Prueba nueva: dltlab.sharding.protocol.CommitAttemptJournalTest
+PASS: journal de commit con snapshots inmutables
+Prueba nueva: dltlab.sharding.protocol.LedgerValueOracleIntegrationTest
+PASS: integración del oráculo con commit y rollback
+Prueba nueva: dltlab.sharding.protocol.CommitAuditIntegrationTest
+PASS: G1 integracion real de commit y rollback (5 escenarios)

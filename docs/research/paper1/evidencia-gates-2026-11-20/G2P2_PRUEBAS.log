@@ -1,0 +1,10 @@
+PASS G2-P2: commit intermedio con consumo, cambio y credito correctos
+PASS G2-P2: negativos, etapas omitidas, hooks y destinatario
+PASS G2-P2: AFTER_RECEIPT_CONSUMED => historial parcial y rollback exacto
+PASS G2-P2: AFTER_SOURCE_DEBIT => historial parcial y rollback exacto
+PASS G2-P2: negativo rollback residual
+PASS G2-P2: DURING_TARGET_CREDIT => historial parcial y rollback exacto
+PASS G2-P2: AFTER_TARGET_CREDIT => historial parcial y rollback exacto
+PASS G2-P2: contencion concurrente mismo UTXO variante=0
+PASS G2-P2: contencion concurrente mismo UTXO variante=1
+PASS G2-P2: estados intermedios, negativos y contencion real (sin refinamiento demostrado)
