@@ -1,0 +1,3 @@
+PASS_P2_PILOTO: etapas intermedias, negativos y competencia concurrente en Java real.
+NO demuestra refinamiento Java-V2 ni irrevocabilidad de DecideCommit.
+G2 sigue abierto: falta reconciliar decision/equivalencia observacional con TLC y ampliar las trazas negativas.

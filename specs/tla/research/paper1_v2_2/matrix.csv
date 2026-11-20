@@ -1,0 +1,6 @@
+mutant,Atomicity,NoDoubleSpend,NoDoubleCredit,NoReceiptReplay,QuorumRequired,Conservation,DecisionStable,TerminalStable
+LocalTimeoutAbort,K,S,S,S,S,K,S,S
+QuorumBypass,S,S,S,S,K,S,S,S
+ReceiptReplay,S,S,K,K,S,K,S,K
+LockWithoutCheck,S,K,S,S,S,S,S,S
+DecisionFlip,K,S,S,S,S,K,K,S

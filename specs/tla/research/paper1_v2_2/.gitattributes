@@ -1,0 +1,2 @@
+# Conservar exactamente los archivos fuente V2.2, incluyendo líneas finales.
+*.cfg whitespace=-blank-at-eof

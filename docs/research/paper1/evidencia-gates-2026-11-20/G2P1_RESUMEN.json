@@ -1,0 +1,59 @@
+{
+  "status": "PASS_PILOTO",
+  "scope": "realizabilidad de cinco rutas finitas abstractas",
+  "not_claimed": [
+    "refinamiento interno Java-V2",
+    "linealizabilidad",
+    "atomicidad observable entre shards",
+    "ausencia de deadlocks"
+  ],
+  "model_sha256": "22aa41d3767d0ff42b9dfeae9b0f103a5baaa4bc66fe7934cbf440c04e9401e7",
+  "witness_sha256": "787c682f2b5ba8eda53086cda2258f8706eb7dfa023575b3f3e754192d9d3eb9",
+  "results": [
+    {
+      "scenario": "normal",
+      "kind": "COMMIT",
+      "status": "REACHABLE",
+      "tlc_exit": 12,
+      "expected": "NotReached",
+      "model_sha256": "22aa41d3767d0ff42b9dfeae9b0f103a5baaa4bc66fe7934cbf440c04e9401e7",
+      "log_sha256": "fbee20217d46db932e2c339e108b10216e7586cdb236e773568708e5c455736f"
+    },
+    {
+      "scenario": "rollback_AFTER_RECEIPT_CONSUMED",
+      "kind": "ROLLBACK",
+      "status": "REACHABLE",
+      "tlc_exit": 12,
+      "expected": "NotReached",
+      "model_sha256": "22aa41d3767d0ff42b9dfeae9b0f103a5baaa4bc66fe7934cbf440c04e9401e7",
+      "log_sha256": "046f0b91977ad0b3c2dd4416181381012492c1ae2c1862fb0f32e8e81944a1bf"
+    },
+    {
+      "scenario": "rollback_AFTER_SOURCE_DEBIT",
+      "kind": "ROLLBACK",
+      "status": "REACHABLE",
+      "tlc_exit": 12,
+      "expected": "NotReached",
+      "model_sha256": "22aa41d3767d0ff42b9dfeae9b0f103a5baaa4bc66fe7934cbf440c04e9401e7",
+      "log_sha256": "92697f753b41c2479ec8876c661390da973c03e231d2e390272a763db30b8f02"
+    },
+    {
+      "scenario": "rollback_DURING_TARGET_CREDIT",
+      "kind": "ROLLBACK",
+      "status": "REACHABLE",
+      "tlc_exit": 12,
+      "expected": "NotReached",
+      "model_sha256": "22aa41d3767d0ff42b9dfeae9b0f103a5baaa4bc66fe7934cbf440c04e9401e7",
+      "log_sha256": "411acfecee13136ec0bb89b93bea1b78a10f43900b3941c0f317f5976f2d5917"
+    },
+    {
+      "scenario": "rollback_AFTER_TARGET_CREDIT",
+      "kind": "ROLLBACK",
+      "status": "REACHABLE",
+      "tlc_exit": 12,
+      "expected": "NotReached",
+      "model_sha256": "22aa41d3767d0ff42b9dfeae9b0f103a5baaa4bc66fe7934cbf440c04e9401e7",
+      "log_sha256": "449413cfa666769cf14578104492db4018127b92feb7f6caf447845aec3c676d"
+    }
+  ]
+}
