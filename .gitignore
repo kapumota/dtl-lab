@@ -57,3 +57,6 @@ results/experiments/*
 # Archivos generados por Python
 __pycache__/
 *.py[cod]
+
+__pycache__/
+*.py[cod]
