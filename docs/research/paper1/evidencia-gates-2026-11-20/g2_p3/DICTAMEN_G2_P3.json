@@ -1,0 +1,34 @@
+{
+  "status": "PASS_LIMITADO_G2_P3",
+  "model_sha256": "22aa41d3767d0ff42b9dfeae9b0f103a5baaa4bc66fe7934cbf440c04e9401e7",
+  "jar_sha1": "bee4a54f3ee3d4afc347c3240ec2d9e93b075104",
+  "java_witnesses": {
+    "count": 5,
+    "commit": 1,
+    "rollback": 4,
+    "debit_then_rollback": 3,
+    "witness_sha256": "caec090481a45b5e74cb34cd660436503d1eb16a8e382e4b0ef866622ea991d6"
+  },
+  "tlc_checks": [
+    {
+      "case": "safety",
+      "pass": true,
+      "exit": 0,
+      "log_sha256": "93c7e82f9ecae65b5b178175564b9d0fa8d47f4c6cd23b33109f91bbe427a901"
+    },
+    {
+      "case": "coverage",
+      "pass": true,
+      "exit": 12,
+      "log_sha256": "a0cd58c27aa5207a87044b6c28be604d3a5b0aad5bab1cae051fc6f4e2e5517c"
+    }
+  ],
+  "conclusion": "Modelo V2.2 finito, sin mutacion: no vuelve al estado Locked despues de Debited; Java registra tres debitos parciales restaurados. No se acredita correspondencia interna uno-a-uno, solo un candidato de equivalencia en fronteras de operacion.",
+  "not_claimed": [
+    "refinamiento completo",
+    "linealizabilidad",
+    "ausencia de deadlocks",
+    "recuperacion tras crash",
+    "atomicidad distribuida"
+  ]
+}
