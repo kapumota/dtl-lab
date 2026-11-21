@@ -53,3 +53,7 @@ results/conformance/*
 !results/conformance/README.md
 results/experiments/*
 !results/experiments/README.md
+
+# Archivos generados por Python
+__pycache__/
+*.py[cod]
