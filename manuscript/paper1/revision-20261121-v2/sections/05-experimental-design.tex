@@ -1,0 +1,340 @@
+\section{Experimental Design}
+\label{sec:experimental-design}
+
+\subsection{Frozen experimental protocol}
+\label{subsec:frozen-protocol}
+
+The definitive experiment follows protocol \texttt{paper1-q3-v1}, frozen before
+execution of the experimental matrix. It specifies the research questions,
+hypotheses, configuration families, seeds, repetitions, resource limits,
+statistical procedures, and treatment of incomplete executions.
+
+The scientific baseline corresponds to release \texttt{v1.1.0-rc.1}. The frozen
+toolchain consists of TLA+ Tools 1.7.4, Alloy 6.2.0 with SAT4J, Java 17,
+Python 3.12, and GNU \texttt{/usr/bin/time -v} for time and memory
+instrumentation.
+
+The definitive design covers bounded property verification, scientific mutants,
+bounded implementation-model trace conformance, and TLC fault profiles.
+Configuration families were enumerated before definitive execution. No
+configuration absent from the frozen matrix was added after observing outcomes.
+
+\subsection{Configuration matrix}
+\label{subsec:configuration-matrix}
+
+The experimental matrix contains fourteen configuration families:
+
+\begin{itemize}
+\item six valid-model scalability families, with small, medium, and large
+profiles for TLC and Alloy
+\item two mutation families, one per formal tool
+\item two trace-conformance families, valid and negative
+\item four TLC fault-profile families covering normal execution, replay
+pressure, timeout behavior, and a unanimity threshold
+\end{itemize}
+
+Table~\ref{tab:all-configuration-families} identifies each frozen family and its
+contribution to the task count, including separately recorded warm-up and
+measured executions. Each identifier corresponds to the configuration ledger
+in \texttt{experiments/paper1/configurations.csv}; the full scenario and
+property catalogs are given in \texttt{experiments/paper1/cases.json}.
+\input{sections/configuration-families-detailed}
+
+In particular, the six valid-model families account for 504 tasks, the two
+formal mutation families for 120, the two conformance families for 600,
+and the four TLC fault-profile families for 48, totaling 1272. Exactly 112
+are warm-ups and 1160 are measured observations. These are the frozen V1
+schedule counts, not results of the subsequent V2.2 pilot.
+
+These families expand through properties, mutants, repetitions, scenarios, and
+seeds into 1272 scheduled tasks. The count includes warm-up and measured
+executions where defined, while RQ3 contributes one replay execution per
+case-seed pair.
+
+Each task records protocol and configuration identifiers, tool, model kind,
+profile, repetition or seed, resource limits, and provenance metadata.
+
+\subsection{Bound profiles}
+\label{subsec:bound-profiles}
+
+Three ordered profiles define the principal bounded scalability configurations
+in Table~\ref{tab:bound-profiles}.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\caption{Bound profiles used in the definitive experiment.}
+\label{tab:bound-profiles}
+\begin{tabular}{lrrrrrrr}
+\hline
+\noalign{\vskip 3pt}
+Profile &
+Shards &
+Transfers &
+Validators &
+\shortstack{TLC\\quorum} &
+\shortstack{TLC receipt\\copies} &
+\shortstack{Alloy Receipt\\scope} &
+\shortstack{Alloy State\\scope} \\
+\hline
+Small  & 2 & 1 & 2 & 2 & 1 & 2 & 6  \\
+Medium & 3 & 2 & 3 & 2 & 2 & 4 & 8  \\
+Large  & 4 & 3 & 4 & 3 & 2 & 6 & 10 \\
+\hline
+\end{tabular}
+\end{table}
+
+Shard, transfer, and validator counts are shared across the profile records.
+TLC quorum and receipt-copy columns are TLC parameters. Alloy instead uses
+Receipt scopes 2, 4, and 6, Message scopes 10, 20, and 30, and State scopes
+6, 8, and 10 for small, medium, and large. Its commit predicate requires at
+least two votes in every profile, so TLC quorum values are not Alloy quorum
+thresholds.
+
+Profiles are experimental bundles, not one-factor perturbations: shared
+configuration sizes and tool-specific bounds vary together. Cost changes are
+therefore associated with the complete profile rather than attributed causally
+to one parameter. The \texttt{catalog} profile is reserved for RQ3 scenarios.
+
+\subsection{Mutation configurations}
+\label{subsec:mutation-configurations}
+
+Mutation experiments use the medium profile. Five scientific defect classes are
+instantiated for each formal representation:
+
+\begin{itemize}
+\item removal of receipt replay protection
+\item destination credit before valid receipt consumption
+\item commit after an abort-like terminal decision
+\item timeout without release of source funds
+\item quorum bypass
+\end{itemize}
+
+Each mutant has a predefined target property. After two warm-ups, ten measured
+repetitions are executed per mutant, and logical detection must remain
+consistent across measured repetitions.
+
+\subsection{Trace-conformance configurations}
+\label{subsec:trace-configurations}
+
+RQ3 uses a separate multiseed design with ten valid scenarios and ten negative
+cases. Each case is evaluated under thirty deterministic seeds, producing
+300 valid and 300 negative trace executions. The definitive seed sequence is
+\texttt{2026001} through \texttt{2026030}.
+
+RQ3 therefore contains 600 TLC replay executions. Each case-seed pair executes
+once without warm-up because the primary outcome is deterministic
+classification, not repeated performance estimation.
+
+\subsection{Repetitions and execution order}
+\label{subsec:repetitions}
+
+Model-checking configurations used for time and memory measurement have two
+warm-up repetitions, ten measured repetitions, serial execution, and exclusion
+of warm-ups from primary statistical analysis. Warm-up observations remain in
+the execution record but do not contribute to the reported cost summaries.
+
+Logical outcomes are expected to remain consistent across repetitions.
+Repetition characterizes elapsed time and memory rather than creating
+independent logical property outcomes. No run is repeated because it produces a
+counterexample, timeout, or other unfavorable scientific result.
+
+\subsection{Resource limits}
+\label{subsec:resource-limits}
+
+Each measured model-checking execution uses:
+
+\begin{itemize}
+\item timeout: 1800 seconds
+\item maximum resident-memory limit: 12288 MiB
+\item maximum concurrent experimental executions: one
+\item TLC workers: one
+\item Alloy solver: SAT4J
+\end{itemize}
+
+Time and maximum resident memory are collected with
+\texttt{/usr/bin/time -v}. Timeout and out-of-memory outcomes remain
+scientifically meaningful scalability observations in the experimental record
+and are not removed from the matrix.
+
+\subsection{Execution environment}
+\label{subsec:execution-environment}
+
+The definitive timing and memory campaign runs on a dedicated native Linux host.
+Virtualized environments, WSL, and shared continuous-integration runners are
+excluded from primary timing and memory measurements. Continuous integration is
+used for functional, structural-integrity, and reproducibility checks, but its
+timings are not mixed with definitive performance measurements.
+
+Recorded environment metadata includes operating system and kernel, processor
+architecture and count, available memory, Java and Python versions, formal-tool
+versions, repository commit, and virtualization status.
+
+\subsection{Measured outcomes}
+\label{subsec:measured-outcomes}
+
+For TLC, recorded measurements include:
+
+\begin{itemize}
+\item property result
+\item generated states
+\item distinct states
+\item exploration depth
+\item elapsed time
+\item maximum resident memory
+\item process exit status
+\item counterexample information when applicable
+\end{itemize}
+
+For Alloy, recorded measurements include:
+
+\begin{itemize}
+\item assertion result
+\item solver and scope
+\item counterexample information
+\item solving and total elapsed time when available
+\item maximum resident memory
+\item process exit status
+\end{itemize}
+
+TLC state counts and Alloy scopes are not equivalent state-space units.
+
+Trace-conformance records include case identifier, seed, case type, acceptance
+or rejection, diagnostic agreement, abstract and concrete steps, action,
+transfer identifier, elapsed time, memory, source commit, and input hashes.
+
+\subsection{Incomplete executions and censoring}
+\label{subsec:censoring}
+
+Executions may terminate as completed runs, counterexamples, timeouts,
+out-of-memory outcomes, tool errors, or instrumentation failures. Timeout and
+out-of-memory outcomes are retained as censored observations without replacing
+their elapsed-time or memory values by configured limits or synthetic values.
+
+Unexpected tool exits remain tool errors. Instrumentation failures may be
+retried only under the frozen retry policy and never on the basis of the
+scientific result. This treatment preserves unfavorable outcomes and prevents
+selective removal of executions that would weaken a hypothesis.
+
+\subsection{Statistical analysis}
+\label{subsec:statistical-analysis}
+
+Time and memory distributions are summarized by median and interquartile range,
+with minimum, maximum, and coefficient of variation also retained. A 95\%
+bootstrap confidence interval for the median uses 10,000 resamples. Wilson 95\%
+confidence intervals are used for proportions, including mutation detection and
+trace classification.
+
+RQ4 reports profile-level medians and within-tool growth ratios. Spearman rank
+association describes monotonic association between ordered profile and cost
+when sufficient completed profiles are available.
+
+TLC and Alloy are not compared through absolute execution-time claims because
+their modelling semantics and state-space representations differ. Such
+measurements are not treated as evidence of intrinsic tool superiority. The
+three ordered profiles provide descriptive bounded-cost evidence but do not
+establish an asymptotic complexity class or a general nonlinear growth law.
+
+% Basado en experiments/paper1/configurations.csv y cases.json congelados.
+\subsection{Exhaustive definition of the fourteen experimental families}
+\label{subsec:individual-families}
+
+The frozen study uses fourteen configuration-family identifiers, not fourteen
+independent protocol implementations. Table~\ref{tab:family-detail} reports
+the exact scheduled unit counts; the raw observations are linked to individual
+\texttt{task\_id} records rather than inferred from this table. A model
+configuration repeated for performance estimation remains one logical
+property/bound question, not ten independent proofs.
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\caption{Exhaustive frozen experiment plan; counts include only tasks defined
+by \texttt{paper1-q3-v1}.}
+\label{tab:family-detail}
+\begin{tabular}{@{}llrr@{}}
+\hline
+Family ID & Unit repeated & Warm-up & Measured \\
+\hline
+\texttt{RQ1R4-TLC-SMALL} & 7 property checks & 14 & 70 \\
+\texttt{RQ1R4-TLC-MEDIUM} & 7 property checks & 14 & 70 \\
+\texttt{RQ1R4-TLC-LARGE} & 7 property checks & 14 & 70 \\
+\texttt{RQ1R4-ALLOY-SMALL} & 7 assertion checks & 14 & 70 \\
+\texttt{RQ1R4-ALLOY-MEDIUM} & 7 assertion checks & 14 & 70 \\
+\texttt{RQ1R4-ALLOY-LARGE} & 7 assertion checks & 14 & 70 \\
+\texttt{RQ2-TLC-MUTANTS} & 5 formal mutants & 10 & 50 \\
+\texttt{RQ2-ALLOY-MUTANTS} & 5 formal mutants & 10 & 50 \\
+\texttt{RQ3-TLC-VALID} & 10 cases $\times$ 30 seeds & 0 & 300 \\
+\texttt{RQ3-TLC-NEGATIVE} & 10 abstract mutations $\times$ 30 seeds & 0 & 300 \\
+\texttt{RQ4-TLC-FAULT-NORMAL} & 1 fault profile & 2 & 10 \\
+\texttt{RQ4-TLC-FAULT-REPLAY} & 1 fault profile & 2 & 10 \\
+\texttt{RQ4-TLC-FAULT-TIMEOUT} & 1 fault profile & 2 & 10 \\
+\texttt{RQ4-TLC-FAULT-QUORUM} & 1 fault profile & 2 & 10 \\
+\hline
+Total & 14 families & 112 & 1160 \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{Six bounded property families.}
+Each of the seven V1 properties is checked separately on TLC and Alloy for
+small, medium and large profiles, with two warm-ups and ten measured runs per
+property. The profiles increase from two shards, one transfer and two
+validators, through three shards, two transfers and three validators, to
+four shards, three transfers and four validators. TLC quorum is respectively
+2, 2 and 3 and receipt copies are 1, 2 and 2. All three base TLC profiles set
+\texttt{EnableTimeout=FALSE}. In the correct V1 model this disables the only
+route to \texttt{Aborted}, so the implication
+\(\texttt{Aborted}\Rightarrow\texttt{fundsReleased}\) holds vacuously in
+completed base TLC checks. The censored large profile yields no completed
+verdict. Alloy uses exactly 6, 8 and 10
+state atoms, with respectively 2, 4 and 6 receipt atoms and 10, 20 and 30
+message atoms. Unlike TLC-large, the frozen Alloy commit condition remains
+at least two votes. Thus cross-tool profile labels are not isomorphic and
+absolute runtime or state-space comparisons would be invalid.
+
+\paragraph{Two formal mutation families.}
+The five TLC and five Alloy model mutations remove controls for receipt
+replay, credit without receipt, commit after abort, timeout without release,
+and quorum bypass. Their predefined target properties are evaluated ten times
+per formal mutant, following two warm-ups. These are ten \emph{formal model}
+mutants, not Java code mutants; repeated checker executions are not new
+defect definitions. Mutation selection directly targets guards, which limits
+its value as evidence of broadly adequate safety specifications.
+
+\paragraph{Two replay families.}
+The valid population consists of ten deterministic Java-simulator scenarios
+projected to V1 TLA+, each run with thirty distinct seeds (2026001--2026030).
+The negative population consists of ten deliberately altered \emph{abstract}
+traces derived from simulator scenarios and replayed under the same seeds.
+The negative cases therefore test rejection of abstract-step violations, not
+the detection of 300 independently introduced Java implementation faults.
+Neither population has warm-up repetitions. The mapping canonicalizes
+approval counts into synthetic validator identities and maps certain network
+observations to stuttering actions.
+
+\paragraph{Four TLC cost/fault families.}
+The frozen medium-base model is separately evaluated with: (i) normal
+execution, one receipt copy and timeout disabled; (ii) replay pressure, two
+copies and timeout disabled; (iii) two copies, timeout enabled and copy 1 delayed; and
+(iv) Unanimity (3 of 3), with two receipt copies, no delayed copies and
+timeout disabled. All three validators remain eligible to vote. The historical
+identifiers are \texttt{RQ4-TLC-FAULT-QUORUM} and
+\texttt{fault-insufficient\_quorum}. Each family
+checks one fixed property, with two warm-ups and ten measurements. The
+normal and replay profiles target \texttt{NoReceiptReplay}, the timeout
+profile targets the historical state invariant
+\texttt{EventuallyReleasedAfterTimeout}, and the quorum profile targets
+\texttt{QuorumRequired}. Fault-profile cost differences are conditional on
+these settings, not causal effects of a single independently varied factor.
+
+\paragraph{Censoring and provenance.}
+Every measured formal-tool invocation is bounded by 1800 seconds, 12288 MiB
+RSS, and serial execution. The historical analysis reports 70 measured
+TLC-large timeouts among the RQ1 checks; they remain censored, not completed
+verifications. The complete run is defined by 112 warm-ups and 1160 measured
+tasks, and requires a one-to-one mapping from the plan to all 1272
+\texttt{result.json} files and their logs. Availability of a matching derived
+CSV or analysis hash alone is insufficient to certify that mapping.

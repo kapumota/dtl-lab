@@ -60,3 +60,14 @@ __pycache__/
 
 __pycache__/
 *.py[cod]
+
+# Archivos generados Paper 1
+/manuscript/paper1/*.aux
+/manuscript/paper1/*.bbl
+/manuscript/paper1/*.blg
+/manuscript/paper1/*.fdb_latexmk
+/manuscript/paper1/*.fls
+/manuscript/paper1/*.out
+/manuscript/paper1/*.spl
+/manuscript/paper1/*.synctex.gz
+/manuscript/paper1/main-revision-20261121-v2.pdf

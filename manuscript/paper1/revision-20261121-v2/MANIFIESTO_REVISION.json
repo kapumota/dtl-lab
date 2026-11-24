@@ -1,0 +1,35 @@
+{
+  "status": "BORRADOR_EDITORIAL_NO_ENVIAR",
+  "source_main_sha256": "f2c6c98ea4119ba9a0232fdff336d794008d25226889fcf509603d861557af0b",
+  "sources_sha256": {
+    "01-introduction.tex": "8fa452e084ac839c11786144bb36a18ebe05e2b7c69f28298eaee816a8a14684",
+    "02-background-related-work.tex": "9c380b9e6de77cd005b6946a22e926c859cdfcc567cb4e8396150240b1201988",
+    "03-cross-shard-model.tex": "21180ba4089822b751b1d0aff4cdf4f3a403a56f2b904e78b485226d48000e4e",
+    "04-research-methodology.tex": "f6bd21976947eaa3d03722633641061fa040724ad32972a7414ae89a133a95a0",
+    "05-experimental-design.tex": "85777c4a10b58a6f11a7eddf2d0af61e7a350266d076600038117ef462681566",
+    "06-results.tex": "15c5bf685dcfdaa759e4ebc463c54efbe453d5afa08b5b08441889ddd42bd751",
+    "07-discussion.tex": "5f9f62fce6f85951861e0716c5efa9f3db6d25edbd98e11ef2a9f407a90e0386",
+    "08-threats-to-validity.tex": "8805538e4a77c8fe3ac0625c6285f055b22deb5f901ca8a3c60f016ed576c54d",
+    "09-reproducibility-artifact.tex": "4b9707dc3e025e635c05368e90e07cc17d1ef330a267292b03c454f821ff9c97",
+    "10-conclusions.tex": "312273c07388b9be4c91a0ddea713e6392670ce7e13cd3a2fcac06dea88b5b6e"
+  },
+  "source_files_modified": false,
+  "v1_raw_evidence_reexamined": false,
+  "new_java_or_formal_runs": 0,
+  "generation": "revision alternativa a partir de fuentes locales actuales",
+  "outputs_sha256": {
+    "main-revision-20261121-v2.tex": "284152d929f5ab488ee4cc6f745e8439ade576f8bc01838704db9d83af822190",
+    "revision-20261121-v2/sections/01-introduction.tex": "1ab128a88479a3ab363604d59e33c33e926505ee1d79b95839bf9e383ed73b80",
+    "revision-20261121-v2/sections/02-background-related-work.tex": "1b68dd1849810250a228ee3dc2d6809eafb8be07174c93fc9de24946a22c7322",
+    "revision-20261121-v2/sections/03-cross-shard-model.tex": "b23ad740cd5eeb9a2d11050fe0620117bfbe4ad5d1d3cb12c25eaf6882e34e84",
+    "revision-20261121-v2/sections/04-research-methodology.tex": "535c4be0ce0abec46b4f9297958e2d34459b0c394688857201e93704994839bf",
+    "revision-20261121-v2/sections/05-experimental-design.tex": "c0f4268311519965c8a57373a288da1d141630e65bd9266d1b558d46f622338b",
+    "revision-20261121-v2/sections/06-results.tex": "82da4ce994e7a9e86f6fe737f32799c5b3ad90230e1570802fab8e69267684e7",
+    "revision-20261121-v2/sections/07-discussion.tex": "1a67093052f0aa88df3d172a6e666e738273e26d35cd5d0cd9293beb4516fb7f",
+    "revision-20261121-v2/sections/08-threats-to-validity.tex": "c18d020cb72cbc490c7b7fa1c099e3c1a16c69b77bf76ac648e26b0cdb138362",
+    "revision-20261121-v2/sections/09-reproducibility-artifact.tex": "186f03047dacbbea77042c4931413ee5e1d825bc2c4c959531ba7caafb4b963b",
+    "revision-20261121-v2/sections/10-conclusions.tex": "82d37ed70d41e14fc8a9df6deca89e0d67bc5f7a8e7507dc4180dd25fa3c9b57",
+    "revision-20261121-v2/references-extra.bib": "a1d304b58a805b84dc4ba1d5418573aa399775bb90f80f8a37819352deaae11d",
+    "revision-20261121-v2/DIFF_SECCIONES.patch": "895d78bb528e0eb88b0a76a7c81997d501b9beebd36715930cf87c18fe0fc3cc"
+  }
+}

@@ -33,6 +33,19 @@ profiles for TLC and Alloy
 pressure, timeout behavior, and insufficient quorum
 \end{itemize}
 
+Table~\ref{tab:all-configuration-families} identifies each frozen family and its
+contribution to the task count, including separately recorded warm-up and
+measured executions. Each identifier corresponds to the configuration ledger
+in \texttt{experiments/paper1/configurations.csv}; the full scenario and
+property catalogs are given in \texttt{experiments/paper1/cases.json}.
+\input{sections/configuration-families-detailed}
+
+In particular, the six valid-model families account for 504 tasks, the two
+formal mutation families for 120, the two conformance families for 600,
+and the four TLC fault-profile families for 48, totaling 1272. Exactly 112
+are warm-ups and 1160 are measured observations. These are the frozen V1
+schedule counts, not results of the subsequent V2.2 pilot.
+
 These families expand through properties, mutants, repetitions, scenarios, and
 seeds into 1272 scheduled tasks. The count includes warm-up and measured
 executions where defined, while RQ3 contributes one replay execution per

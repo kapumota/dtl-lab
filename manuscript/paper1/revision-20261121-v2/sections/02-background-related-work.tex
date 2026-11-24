@@ -1,0 +1,187 @@
+\section{Background and Related Work}
+\label{sec:background-related-work}
+
+The literature relevant to this study spans cross-shard transaction protocols,
+formal analysis of distributed and blockchain systems, implementation-model
+validation, and reproducibility of verification artifacts. These areas contain
+mature techniques used individually in our workflow, so we position the
+contribution in their integration and controlled evaluation for one executable
+cross-shard protocol.
+
+\subsection{Sharded ledgers and cross-shard commit}
+\label{subsec:related-cross-shard}
+
+Sharded ledgers have long treated atomic cross-shard processing as a central
+systems problem. Chainspace introduced S-BAC, a Byzantine distributed atomic
+commit protocol for transactions whose objects span multiple shards, together
+with correctness arguments and an executable prototype
+evaluation~\cite{albassam2018chainspace}. OmniLedger introduced Atomix, a
+client-driven atomic cross-shard transaction protocol that coordinates input
+and output shards using proofs of acceptance or
+rejection~\cite{kokoriskogias2018omniledger}. These systems establish that
+atomic cross-shard commit mechanisms and protocol-level correctness arguments
+predate the present work.
+
+More recent systems focus on reducing conflicts, latency, or coordination
+overhead. Prophet uses Byzantine-tolerant deterministic ordering to reduce
+cross-shard conflicts and aborts and provides arguments for determinism and
+serializability~\cite{hong2023prophet}. CSLAP builds leader accountability on
+top of two-phase atomic commit and analyzes consistency, liveness, and
+communication behavior~\cite{du2024cslap}. LightCross combines TEE-assisted
+execution with a lightweight cross-shard commit protocol and presents
+atomicity, serializability, and liveness arguments for its
+design~\cite{qi2024lightcross}.
+
+The cited cross-shard systems already provide correctness evidence through
+protocol design, analytical or theorem-based arguments, and system-level
+evaluation using metrics such as throughput and latency. Those metrics
+characterize implementation behavior and should not be conflated with the
+resource cost of formal verification. In contrast, RQ4 characterizes bounded
+model-checking cost under a predefined experimental protocol. Mutation-based
+property validation and implementation-model trace conformance are also not
+reported as evaluation dimensions in the cited cross-shard works.
+
+\subsection{Formal analysis of distributed and blockchain protocols}
+\label{subsec:related-formal-analysis}
+
+Formal modeling and model checking have been applied directly to distributed
+transaction protocols. Schultz and Demirbas model MongoDB distributed
+transactions in TLA+ and use TLC to analyze protocol properties. Their modular
+treatment additionally generates tests from a formal storage model and
+executes them against WiredTiger, providing a direct connection between the
+model and a production implementation interface~\cite{schultz2025mongodb}.
+This work is particularly close to our study because it combines cross-shard
+distributed transactions, bounded formal exploration, and implementation-facing
+validation.
+
+Mutation-based assessment of formal specifications also predates this work.
+Cordy et al. propose mutation model checking to assess and strengthen
+specifications by checking whether deliberately mutated models are rejected by
+the property set~\cite{cordy2023mutation}. Their work establishes
+mutation-based specification assessment as a prior methodological approach.
+Our RQ2 uses a smaller, protocol-targeted catalogue of scientific mutants and
+interprets its mutation score only as sensitivity to those predefined defect
+classes.
+
+The use of multiple formal encodings and deliberate defects is likewise not
+unique to this study. Konnov et al. translate the executable Ethereum 3SF
+specification into TLA+, analyze it with Apalache, and use alternative SMT and
+Alloy encodings for cross-validation~\cite{konnov2025ethereum}. Their technical
+report also evaluates time, memory, timeouts, and deliberately injected bugs.
+Consequently, neither the combination of TLA+ and Alloy nor the combination of
+multi-formalism verification, defect injection, and verification-cost
+measurements should be treated as an isolated novelty claim in our manuscript.
+
+\subsection{Specification validation and implementation-model conformance}
+\label{subsec:related-conformance}
+
+A substantial body of work addresses the gap between verified models and
+executable implementations. Cirstea et al. reduce validation of
+distributed-program traces against TLA+ specifications to constrained model
+checking with TLC and provide an API for instrumenting Java
+programs~\cite{cirstea2025traces}. Their framework permits partially observed
+traces and makes explicit the tradeoff between instrumentation detail and the
+search required to determine whether an observed execution is compatible with
+the specification.
+
+TraceLink further automates the relation between distributed implementations
+and verified designs. It links instrumented executions to TLA+ models,
+evaluates trace-validation strategies, reports previously undetected
+implementation defects, and publishes an experimental artifact with partial
+external reproduction~\cite{hackett2025tracelink}. Smart Casual Verification
+of CCF applies a related approach to a production C++ codebase by integrating
+TLA+ model checking, simulation, testing, and trace validation into continuous
+integration~\cite{howard2025ccf}. These studies show implementation-model trace
+validation across multiple distributed-systems settings.
+
+Other approaches generate or guide implementation checks from formal models.
+Choreographic PlusCal projects distributed protocol descriptions to TLA+ and
+generates conformance monitors, including evaluation on two-phase
+commit~\cite{foo2023choreographic}. Mocket uses a verified TLA+ state space to
+generate systematic tests, drive Java implementations through selected
+behaviors, and compare runtime states with formal
+counterparts~\cite{wang2023mocket}. iMocket restricts this strategy to
+state-space regions affected by incremental changes~\cite{gao2025imocket}.
+Beyond TLA+, the Amazon S3 ShardStore study combines executable reference
+models, property-based testing, failure injection, and stateless model
+checking~\cite{bornholt2021s3}.
+
+These results constrain RQ3. We do not present trace validation or
+implementation-model checking as a new general method. RQ3 evaluates bounded
+implementation-model trace conformance for a predefined cross-shard catalogue
+containing valid and deliberately corrupted traces with expected diagnostic
+agreement. Its role is one implementation-facing layer in the evidence chain
+used for RQ1, RQ2, and RQ4.
+
+\subsection{Positioning and evaluated contribution}
+\label{subsec:related-positioning}
+
+The closest precedents already connect formal transaction models,
+implementation-level tests and trace validation
+\cite{schultz2025mongodb,cirstea2025traces,wang2023mocket,hackett2025tracelink}.
+Model-guided fuzzing also uses formal-model coverage to guide implementations
+\cite{gulcan2025modelfuzz}; a 2025 study performs blockchain protocol
+conformance testing within a deterministic simulator
+\cite{drobnjakovic2025blockchains}. The November 2026 OmniLink revision
+further addresses concurrent trace validation with uncertain action order
+\cite{hackett2026omnilink}. Thus neither TLA+/Alloy integration, mutation,
+trace replay, nor simulator-based conformance is claimed as our new method.
+
+This paper contributes a single-system empirical reappraisal of what distinct
+layers of evidence support. The inspected failure modes include limited
+formal-state representations, missing beneficiary-distinguishing scenarios,
+a mismatch between intermediate Java rollback histories and a separate
+formal decision sequence, and rejection of deliberately altered abstract
+traces being mistaken for detection of Java code defects. We retain original
+negative and censored observations and disclose retrospective analysis.
+No detector-level generality, new distributed protocol, or improvement over
+the comparator systems is asserted.
+
+% Comparadores verificados; sin atribuir superioridad o reproducción independiente.
+\subsection{Comparator-relative claims and residual novelty risk}
+\label{subsec:close-comparators}
+
+Table~\ref{tab:closest-comparators} separates what the comparator studies
+already accomplish from the narrower observation offered by the present
+case study. This table is a structured literature comparison, not a
+head-to-head experimental benchmark.
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\caption{Closest research and the bounded contribution not already
+established by the present DTL-Lab evidence.}
+\label{tab:closest-comparators}
+\begin{tabular}{@{}p{0.27\linewidth}p{0.31\linewidth}p{0.32\linewidth}@{}}
+\hline
+Prior work & Verified scope of prior approach & What DTL-Lab can and cannot add \\
+\hline
+Schultz and Demirbas \cite{schultz2025mongodb} & TLA+ model and
+implementation-facing tests for MongoDB transactions. & DTL-Lab has no
+stronger production-system evidence; its own failure classification
+remains simulator-bound. \\
+Cirstea et al. \cite{cirstea2025traces}, TraceLink
+\cite{hackett2025tracelink} & Java trace validation and automated
+linking of implementations with formal designs. & A missing
+beneficiary-discriminating scenario is a local coverage observation,
+not a new trace-validation algorithm. \\
+Gulcan et al. \cite{gulcan2025modelfuzz} & Model coverage
+used to guide implementation-level fuzzing. & DTL-Lab did not
+conduct model-guided fuzzing or a comparable controlled search. \\
+Drobnjakovic et al. \cite{drobnjakovic2025blockchains} &
+Formal-model-guided conformance within a deterministic blockchain
+simulator. & Simulated Java trace replay cannot itself establish
+novelty of simulator-based conformance. \\
+Hackett et al. \cite{hackett2026omnilink} &
+Trace validation under concurrent event-order uncertainty. & DTL-Lab
+does not validate arbitrary uninstrumented concurrent systems. \\
+\hline
+\end{tabular}
+\end{table}
+
+The residual, testable research claim is that different observation
+functions and scenario choices support different assertions about the
+\emph{same} cross-shard implementation, as illustrated by the G3
+beneficiary cases and the G2-P3 internal-history discrepancy. That
+claim is a bounded negative case study. It has not been established
+as a novel generalizable method over independently developed systems.

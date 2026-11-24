@@ -1,0 +1,101 @@
+\documentclass[preprint,12pt]{elsarticle}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{lmodern}
+\usepackage{xurl}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usepackage[hidelinks]{hyperref}
+
+% Local paragraph tolerance for long technical terminology.
+\setlength{\emergencystretch}{3em}
+
+\journal{Journal under evaluation}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{When Layered Verification Evidence Falls Short: A Cross-Shard Commit Case Study}
+
+\author[uni]{César Jesús Lara Avila\corref{cor1}}
+\ead{claraa@uni.edu.pe}
+\address[uni]{Universidad Nacional de Ingeniería, Facultad de Ciencias, Ciencia de la Computación, Lima, Peru}
+\cortext[cor1]{Corresponding author}
+
+\begin{abstract}
+Cross-shard commit assessments can report successful formal checks,
+mutant detection, and trace replay without establishing every end-to-end
+correctness claim. We examine this evidence gap in a research-oriented Java
+simulator using its preserved V1 TLA+ and Alloy experiment, a distinct V2.2
+model, and post-campaign Java mutation diagnostics. The frozen protocol
+scheduled 1,272 tasks: 112 warm-ups and 1,160 measured executions. Across 42 distinct tool--property--bound combinations
+repeated ten times, 35 combinations completed without observed
+counterexamples and seven TLC-large combinations timed out in all ten
+repetitions (350 completed and 70 timed-out invocations). The completed
+base TLC checks include vacuous timeout-release checks with timeout disabled.
+Ten selected formal-model
+mutants were detected. RQ3 accepted 300 Java-simulator-derived projected
+traces and rejected 300 deliberately altered abstract-trace controls; these
+negative traces are not independently executed Java defects. A later Java
+study (G3-v1) examined ten source mutations over 110 tests: ten passing
+controls and 100 mutant runs (51 FAIL, 49 PASS). On the two beneficiary
+scenario attempts with incorrect ownership, the UTXO assertion failed and
+the existing G2 audit reported divergence for the same attempt. Java intermediate debit and
+rollback observations are not matched step-for-step by the examined V2.2
+decision sequence. The contribution is a bounded empirical case study of
+claim--observation mismatches, not a new conformance algorithm, proof of
+Java--model refinement, distributed crash recovery, or independent-node
+atomicity. The historical raw archive remains the source of truth for
+per-task traceability.
+\end{abstract}
+
+\begin{keyword}
+cross-shard transactions \sep
+distributed ledgers \sep
+formal verification \sep
+model checking \sep
+mutation analysis \sep
+trace conformance \sep
+reproducibility
+\end{keyword}
+
+\end{frontmatter}
+
+\input{revision-20261121-v2/sections/01-introduction}
+
+\input{revision-20261121-v2/sections/02-background-related-work}
+
+\input{revision-20261121-v2/sections/03-cross-shard-model}
+
+\input{revision-20261121-v2/sections/04-research-methodology}
+
+\input{revision-20261121-v2/sections/05-experimental-design}
+
+\input{revision-20261121-v2/sections/06-results}
+\input{revision-20261121-v2/sections/07-discussion}
+
+\input{revision-20261121-v2/sections/08-threats-to-validity}
+
+\input{revision-20261121-v2/sections/09-reproducibility-artifact}
+
+\input{revision-20261121-v2/sections/10-conclusions}
+
+
+\section*{Data Availability}
+The version-specific research artifact is publicly archived on Zenodo at
+\url{https://doi.org/10.5281/zenodo.24516596}. The dataset provides the
+preserved V1 reproduction bundle, separate G3-v1 and G3-v2 Java-mutation
+evidence, source snapshots, \path{README_ARTIFACT.md}, and
+\path{SHA256SUMS.txt}. Section~\ref{subsec:artifact-access} identifies the
+source revisions and relevant paths. The source repository is available at
+\url{https://github.com/kapumota/dtl-lab}. The original execution logs of
+the distinct V2.2 matrix of 52 cases are not included in the deposit.
+
+\bibliographystyle{elsarticle-num}
+\small
+\let\path\nolinkurl
+\bibliography{references,revision-20261121-v2/references-extra}
+
+\end{document}
