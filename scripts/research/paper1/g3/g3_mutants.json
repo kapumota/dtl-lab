@@ -1,0 +1,98 @@
+{
+  "schema_version": "g3-pre-registro-1",
+  "source_commit": "e4422ae483ab0eb4c0af48bbb58be1c49c8cf816",
+  "branch_local": "research/paper1-editor-o1-o3",
+  "historical_reference": "G3-M01: prueba piloto aportada por el investigador, no incluida como observación nueva",
+  "mutation_rules": [
+    {
+      "id": "G3-M02",
+      "category": "destinatario",
+      "hypothesis": "Se acredita al propietario original en vez de al beneficiario firmado",
+      "file": "src/main/java/dltlab/sharding/protocol/AtomicCommitProtocol.java",
+      "old": "Transaction.Output targetOutput = new Transaction.Output(session.receipt().amount(),\n                session.receipt().recipient());",
+      "new": "System.err.println(\"G3_ALCANZADO:G3-M02\");\n        Transaction.Output targetOutput = new Transaction.Output(session.receipt().amount(),\n                sourceOutput.getRecipient());",
+      "expected_scenario": "beneficiario"
+    },
+    {
+      "id": "G3-M03",
+      "category": "cambio_utxo",
+      "hypothesis": "La salida de cambio se envía al beneficiario externo",
+      "file": "src/main/java/dltlab/sharding/protocol/AtomicCommitProtocol.java",
+      "old": "? new Transaction.Output(change, sourceOutput.getRecipient()) : null;",
+      "new": "? new Transaction.Output(change, session.receipt().recipient()) : null;\n        System.err.println(\"G3_ALCANZADO:G3-M03\");",
+      "expected_scenario": "beneficiario"
+    },
+    {
+      "id": "G3-M04",
+      "category": "cambio_utxo",
+      "hypothesis": "Se agrega una unidad injustificada al cambio, violando conservación",
+      "file": "src/main/java/dltlab/sharding/protocol/AtomicCommitProtocol.java",
+      "old": "? new Transaction.Output(change, sourceOutput.getRecipient()) : null;",
+      "new": "? new Transaction.Output(Math.addExact(change, 1L), sourceOutput.getRecipient()) : null;\n        System.err.println(\"G3_ALCANZADO:G3-M04\");",
+      "expected_scenario": "beneficiario"
+    },
+    {
+      "id": "G3-M05",
+      "category": "recibo",
+      "hypothesis": "Se consume como identificador de recibo el ID de transferencia",
+      "file": "src/main/java/dltlab/sharding/protocol/AtomicCommitProtocol.java",
+      "old": "if (!plan.target().markReceiptConsumed(session.receipt().receiptId())) {",
+      "new": "System.err.println(\"G3_ALCANZADO:G3-M05\");\n        if (!plan.target().markReceiptConsumed(session.transfer().id())) {",
+      "expected_scenario": "beneficiario"
+    },
+    {
+      "id": "G3-M06",
+      "category": "rollback",
+      "hypothesis": "El rollback omite restaurar el UTXO origen consumido",
+      "file": "src/main/java/dltlab/sharding/protocol/AtomicCommitProtocol.java",
+      "old": "restoreUtxo(plan.source(), plan.sourceUtxo(), snapshot.sourceUtxoPresent(),\n                snapshot.sourceOutput());",
+      "new": "System.err.println(\"G3_ALCANZADO:G3-M06\");\n        // Mutación G3: se omite la restauración del UTXO de origen.",
+      "expected_scenario": "rollback"
+    },
+    {
+      "id": "G3-M07",
+      "category": "rollback_recibo",
+      "hypothesis": "El rollback deja marcado el recibo consumido cuando antes estaba libre",
+      "file": "src/main/java/dltlab/sharding/protocol/AtomicCommitProtocol.java",
+      "old": "plan.target().unmarkReceiptConsumed(plan.session().receipt().receiptId());",
+      "new": "System.err.println(\"G3_ALCANZADO:G3-M07\");\n            plan.target().markReceiptConsumed(plan.session().receipt().receiptId());",
+      "expected_scenario": "rollback"
+    },
+    {
+      "id": "G3-M08",
+      "category": "concurrencia",
+      "hypothesis": "El lock de UTXO declara éxito aunque estaba ocupado",
+      "file": "src/main/java/dltlab/sharding/Shard.java",
+      "old": "return lockedUtxos.add(utxoKey);",
+      "new": "boolean agregado = lockedUtxos.add(utxoKey);\n        if (!agregado) {\n            System.err.println(\"G3_ALCANZADO:G3-M08\");\n        }\n        return true;",
+      "expected_scenario": "contencion"
+    },
+    {
+      "id": "G3-M09",
+      "category": "shard_destino",
+      "hypothesis": "La preparación usa el shard origen como destino del crédito",
+      "file": "src/main/java/dltlab/sharding/protocol/AtomicCommitProtocol.java",
+      "old": "Shard source = context.shard(session.transfer().sourceShardId());\n        Shard target = context.shard(session.transfer().targetShardId());",
+      "new": "Shard source = context.shard(session.transfer().sourceShardId());\n        System.err.println(\"G3_ALCANZADO:G3-M09\");\n        Shard target = context.shard(session.transfer().sourceShardId());",
+      "expected_scenario": "beneficiario"
+    },
+    {
+      "id": "G3-M10",
+      "category": "rollback_destino",
+      "hypothesis": "El rollback no elimina el UTXO de destino acreditado antes del fallo",
+      "file": "src/main/java/dltlab/sharding/protocol/AtomicCommitProtocol.java",
+      "old": "restoreUtxo(plan.target(), plan.targetUtxo(), snapshot.targetUtxoPresent(),\n                snapshot.targetOutput());",
+      "new": "System.err.println(\"G3_ALCANZADO:G3-M10\");\n        // Mutación G3: no se elimina el crédito parcial del destino.",
+      "expected_scenario": "rollback"
+    },
+    {
+      "id": "G3-M11",
+      "category": "aislamiento_concurrente",
+      "hypothesis": "Se exponen snapshots conjuntos sin exclusión mutua frente al commit",
+      "file": "src/main/java/dltlab/sharding/ShardManager.java",
+      "old": "public List<Shard> getShards() {\n        synchronized (protocol) {\n            protocol.requireOutsideHook();\n            return shards.stream().map(Shard::snapshot).toList();\n        }\n    }",
+      "new": "public List<Shard> getShards() {\n        System.err.println(\"G3_ALCANZADO:G3-M11\");\n        // Mutación G3: lectura conjunta sin el monitor del protocolo.\n        return shards.stream().map(Shard::snapshot).toList();\n    }",
+      "expected_scenario": "aislamiento"
+    }
+  ]
+}

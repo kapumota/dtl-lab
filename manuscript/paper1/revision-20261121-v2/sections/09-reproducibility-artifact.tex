@@ -1,0 +1,251 @@
+\section{Reproducibility and Artifact}
+\label{sec:reproducibility-artifact}
+
+\subsection{Artifact scope}
+\label{subsec:artifact-scope}
+
+The reproducibility artifact preserves the evidence path from the executable
+protocol and formal models to the derived results reported in this paper,
+rather than only source code or final tables.
+
+The scientific-source layer contains the Java cross-shard implementation,
+the TLA+ specifications and configurations used for bounded model checking,
+and the Alloy models and commands used for bounded relational analysis.
+These are the executable and formal objects evaluated by the campaign.
+
+The frozen experimental-definition layer records the protocol version,
+research questions and hypotheses, configuration families, bound profiles,
+mutation cases, trace scenarios, deterministic seeds, repetitions, resource
+limits, tool configurations, and rules for incomplete executions, separately
+from the observed outcomes.
+
+The evidence layer retains raw task results, derived datasets, and generated
+tables and figures, preserving the link from reported summaries to the
+underlying definitive observations.
+
+The reproduction layer provides scripts and targets for structural checks,
+isolated workspace preparation, representative verification and
+trace-conformance smoke cases, analysis regeneration from preserved raw
+results, and comparison with the reference artifact.
+
+Integrity metadata, including manifests, content hashes, source-version
+identifiers, and reproduction reports, connects the preserved campaign with
+regenerated outputs and makes unexpected changes observable.
+
+Together, the artifact supports inspection, representative partial
+re-execution, analysis regeneration, and integrity verification. The
+independent workflow does not require re-executing every definitive task and
+distinguishes re-execution from regeneration based on preserved raw evidence.
+
+\subsection{Reproduction workflow}
+\label{subsec:reproduction-workflow}
+
+The workflow separates structural validation, selective re-execution,
+analysis regeneration, and integrity comparison.
+
+First, it validates that the scientific sources, frozen experimental
+definition, preserved raw results, derived outputs, and reproduction scripts
+are available.
+
+Second, it prepares an isolated workspace, records the source revision, and
+creates regenerated-output directories without modifying the reference
+campaign.
+
+The third stage executes a representative smoke suite. The suite covers
+a valid and a mutated TLC configuration, a valid and a mutated Alloy
+configuration, one valid implementation trace, and one deliberately
+corrupted trace. These executions exercise the principal formal and
+implementation-facing paths of the artifact without repeating the full
+definitive campaign.
+
+The fourth stage regenerates the paper-level analysis from the preserved
+raw experimental results. Derived datasets, tables, figures, and
+research-question summaries are reconstructed using the same analysis
+pipeline used for the reference artifact.
+
+Fifth, regenerated outputs are compared with preserved references using
+content hashes and reproduction gates to detect unexpected differences.
+
+A reproduction verdict is issued only after structural checks, representative
+executions, analysis regeneration, and integrity comparisons have completed.
+
+Representative re-execution checks that the principal executable paths remain
+operational, whereas analysis regeneration checks that paper-level evidence
+can be reconstructed from the preserved definitive observations.
+
+Neither operation is a new independent measurement of all definitive tasks.
+Preserved raw results remain the source observations, while the smoke suite
+only exercises selected artifact paths.
+
+\subsection{Same-host reproduction evidence}
+\label{subsec:independent-reproduction}
+
+The 8E reproduction used
+a separate operating-system user, clone, and execution workspace from those
+used to construct the reference campaign.
+
+The reproduction used source revision
+\texttt{6cd88c37\allowbreak 7afd23fe\allowbreak e4998882\allowbreak f91142d7\allowbreak 1e7d963e}
+and packaged-artifact SHA-256 digest
+\texttt{d464888e\allowbreak 9f3e5d8c\allowbreak c64ef5d2\allowbreak 2cc7b7c2\allowbreak 4f83e385\allowbreak 3f5825f1\allowbreak 8f23de26\allowbreak adf6a6e6}.
+
+The reproduction workflow completed all ten predefined validation gates.
+These gates covered artifact structure, workspace preparation,
+representative formal and trace-conformance executions, analysis
+regeneration, and integrity comparison. No reproduction incident was
+recorded during the successful attempt.
+
+All 32 expected output hashes matched their preserved references. The
+successful reproduction therefore obtained 10/10 completed gates and 32/32
+matching analysis artifacts, with zero recorded incidents.
+
+The executable part of the reproduction consisted of the representative
+smoke suite described above rather than a re-execution of the complete
+definitive campaign. The full set of paper-level derived outputs was
+instead regenerated from the preserved definitive raw observations and
+checked against the reference artifact.
+
+The attempt therefore demonstrates representative executable-path validation
+and complete analysis regeneration from preserved raw evidence, not an
+independent repetition of every definitive experimental measurement.
+
+The reproduction provides process separation but not hardware independence:
+a separate operating-system user, clone, and workspace were used on the same
+native Linux host. This reduces dependence on the original working tree and
+user-local execution state, while a second physical machine remains an
+additional possible validation step.
+
+\subsection{Integrity and traceability}
+\label{subsec:artifact-integrity}
+
+Source-version identifiers link the implementation, formal models, and
+reproduction scripts to a repository state, while the frozen experimental
+definition identifies the campaign associated with the reported results.
+
+Preserved raw results are the primary empirical record. Derived datasets,
+research-question summaries, tables, and figures are generated from these
+observations through the documented analysis pipeline.
+
+Integrity manifests record cryptographic hashes for analysis artifacts
+expected to remain unchanged. Regenerated files are hashed again and compared
+with the preserved references.
+
+A matching hash establishes content identity for the corresponding
+artifact. It does not independently establish scientific correctness,
+but it provides a deterministic check that the reproduction pipeline
+reconstructed the expected analysis output from the preserved evidence.
+
+A hash mismatch is an observable reproduction difference requiring
+investigation. The reproduction report records gate outcomes, integrity
+comparisons, and incidents.
+
+The resulting traceability chain can be summarized as:
+
+\begin{quote}
+source revision $\rightarrow$
+frozen experimental protocol $\rightarrow$
+preserved raw observations $\rightarrow$
+derived analysis artifacts $\rightarrow$
+integrity manifest $\rightarrow$
+reproduction comparison.
+\end{quote}
+
+This chain supports bidirectional inspection, from paper-level values back to
+preserved observations and from regenerated artifacts to the reference
+manifest.
+
+\subsection{Reproducibility boundaries}
+\label{subsec:reproducibility-boundaries}
+
+The successful reproduction was not a full experimental replication. It did
+not re-execute every definitive task, and preserved raw observations remained
+the empirical source for complete analysis regeneration.
+
+It also does not establish hardware-independent reproducibility. The separate
+user, clone, and workspace remained on the same native Linux host. A second
+physical machine would provide a stronger test of environment portability.
+
+Similarly, the artifact does not claim universal reproducibility across
+arbitrary operating systems, processors, formal-tool versions, Java
+runtimes, or resource configurations. Changes in these components may
+affect execution behavior, verification cost, or generated outputs.
+
+Finally, matching hashes establish content correspondence, not scientific
+validity. The conclusions remain dependent on the experimental design,
+formal abstractions, statistical treatment, and stated claim boundaries.
+
+\subsection{Distinguishing historical and post-campaign evidence}
+\label{subsec:artifact-two-populations}
+
+The frozen \texttt{paper1-q3-v1} experiment consists of 1272 tasks, of which
+112 are warm-ups and 1160 are measured runs. The archived
+\texttt{raw-manifest.json} identifies every task by \texttt{task\_id},
+individual \texttt{result.json} path and SHA-256 digest; each result links
+back to the execution plan and to stdout, stderr, resource measurements and
+executor-specific output. These links are the provenance units required for
+traceability. The documentary audit joined all 1,272 task identifiers to
+the frozen plan and checked their individual result and log hashes.
+It found 1,188 completed tasks and 84 timeouts, including 14 warm-ups.
+Offline analysis regeneration from the archived observations matched all
+32 reference SHA-256 digests. The original scientific executions supply
+the measurements; the audit and regeneration used those existing records.
+
+The G3-v1 Java mutation archive is separate, later evidence. It contains 274
+SHA-256-verified files describing the control, ten Java mutants and 110 test
+runs. The audit reconciled recorded test exits, logs and mutation diffs.
+G3-v2 has its own archive and contributes no rows to G3-v1. It cannot be merged into RQ2's ten \emph{formal} mutants or counted as
+part of the V1 1272-task denominator. The aggregate findings in this paper
+must remain reproducible from the unmodified historical archive; the G3
+observations provide an explicitly exploratory diagnostic supplement.
+
+\subsection{Files, versions and access}
+\label{subsec:artifact-access}
+
+For source inspection, start with the repository README and its Paper 1
+artifact description at
+\path{manuscript/paper1/artifact/PUBLIC_ARTIFACT_SCOPE.md}.
+The frozen experimental baseline is
+\nolinkurl{45cb114d61b1df8c605c50700f3cc72d48d157fe}.
+The V1 definition is under \path{experiments/paper1/}, starting with
+\path{experiment-spec.json}, \path{configurations.csv} and
+\path{reproduction-spec.json}. The 8E reproduction revision and archive
+digest appear in Section~\ref{subsec:independent-reproduction}.
+The V2.2 source snapshot is in
+\path{specs/tla/research/paper1_v2_2/}; its manifest covers sources and
+configurations. The Java mutation source revision is given in
+Section~\ref{subsec:java-g3-forensics}.
+
+For the V1 evidence, download \path{paper1-q3-v1-reproduction.tar.gz}
+from the public version-specific Zenodo record
+\url{https://doi.org/10.5281/zenodo.24516596}. Within its root, verify
+\path{checksums.sha256} and
+read \path{bundle-manifest.json}. Extract \path{raw/paper1-q3-v1.tar.gz}
+to inspect \path{snapshots/plan.jsonl}, \path{raw-manifest.json}, and
+\path{tasks/<task_id>/result.json} with its adjacent logs. The outer archive
+holds reference outputs under \path{reference/derived/},
+\path{reference/tables/} and \path{reference/figures/}. In particular,
+\path{reference/derived/task-results.csv} links the result records to each
+configuration, property or case, seed or repetition and outcome.
+
+For Table~\ref{tab:g3-full}, download the separate G3-v1 evidence archive
+\path{DTL_G3V1_EVIDENCIA_ADICIONAL_WORK_20261124.tar.gz}
+(SHA-256 \nolinkurl{a0c29257097e6dc3d7ae7727ac10f3c81d95c94eccfe3bd35780516ddc1dd881}).
+Inside
+\path{dtl-g3-campana-completa/}, start with \path{SHA256SUMS.txt},
+\path{matriz_detector_mutante.csv}, and \path{resultado_integral.json}.
+The \path{CONTROL/} and per-mutant directories contain test logs. Each
+mutant directory also has \path{mutacion_java.diff} and
+\path{procedencia.json}. The G3-v2 supplement
+\path{DTL_G3V2_EVIDENCIA_COMPLETA_20261121.tar.gz}
+(SHA-256 \nolinkurl{e77bcd9a636d63862d4ef1014e9a39ee5ed3c52608f73cb25fdf3cfe17af3578})
+uses its own
+\path{SHA256SUMS.txt} and \path{COMPARACION_MISMO_ESCENARIO.csv}.
+
+Archive inspection requires an unpacker and SHA-256 verification. Offline
+regeneration uses Python 3.12 and
+\path{scripts/experiments/build_experiment_analysis.py} on the extracted V1
+raw archive with the frozen experiment and analysis specifications.
+The separate 8E smoke workflow requires Linux, JDK 17, Python 3.12,
+GNU time and the pinned TLC and Alloy tools described by the repository
+workflow. Reviewing the records and regenerating derivatives require no
+new model-checking or Java executions.

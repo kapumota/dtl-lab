@@ -1,0 +1,222 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Bounded verification evidence}
+\label{subsec:discussion-bounded-verification}
+
+RQ1 provides bounded evidence that no declared property was violated in the
+completed valid-model configurations. The property suite covers distinct
+obligations, including replay protection, destination authorization, decision
+consistency, value preservation, quorum enforcement, terminal-state
+irreversibility, and release after timeout. The completed base TLC
+timeout-release checks are vacuous because those profiles disable timeout.
+The timeout-enabled family supplies the relevant abort-branch evidence.
+
+The evidential scope is determined by the explored bounds. Alloy completed all
+three predefined profiles, whereas TLC-large was fully censored by the frozen
+timeout policy. Those timeouts are not property violations; they delimit the
+configurations for which bounded verification completed under the available
+resource budget.
+
+Accordingly, H1 supports only the absence of observed violations in completed
+bounded configurations. It does not extend to unexplored states, censored
+TLC-large executions, or an unbounded correctness claim.
+
+TLC and Alloy provide complementary corroboration rather than interchangeable
+proofs. Their different formal semantics and state representations prevent
+agreement across completed profiles from implying identical explored spaces or
+equivalent proofs.
+
+\subsection{Mutation sensitivity and property adequacy}
+\label{subsec:discussion-mutation}
+
+RQ2 complements RQ1 by asking whether the declared properties react when
+selected protocol controls are removed. All ten predefined scientific mutants
+were detected by their designated target properties, producing a mutation score
+of 1.0. This makes the valid-model results more informative because controlled
+defects in replay protection, receipt-dependent credit, terminal decisions,
+timeout release, and quorum enforcement trigger the expected properties.
+
+Tool-specific encodings can express the same defect intention through different
+properties. For example, commit after abort is associated with
+\texttt{TerminalState\allowbreak Irreversibility} in Alloy and
+\texttt{Decision\allowbreak Consistency} in TLA+. The mutant-level conclusion
+therefore concerns targeted defect detection, not identical property
+formulations across tools.
+
+The perfect mutation score remains restricted to the predefined catalogue. It
+does not establish completeness against arbitrary implementation defects,
+modelling errors, or other cross-shard failure modes.
+
+RQ1 and RQ2 thus support complementary claims: the declared properties hold in
+the completed valid-model configurations, and the evaluated property suite is
+sensitive to the selected protocol controls when they are deliberately
+weakened.
+
+\subsection{Implementation-model trace conformance}
+\label{subsec:discussion-conformance}
+
+RQ3 adds implementation-facing evidence by replaying observable Java traces
+against the TLA+ abstraction. The valid catalogue was accepted and the
+deliberately corrupted catalogue rejected as expected, connecting the formal
+model with the implementation behaviors exercised by the frozen scenarios.
+
+The negative controls strengthen this result because rejection was checked at
+the expected diagnostic point rather than treated as a generic replay failure.
+This provides evidence that deliberately introduced mismatches are localized at
+the intended abstract-action boundary.
+
+The result remains limited to the selected observable abstraction, scenario
+catalogue, negative mutations, and frozen seeds. It therefore supports bounded
+implementation-model trace conformance rather than a statement about every
+possible Java execution.
+
+In particular, this evidence must not be interpreted as a formal
+refinement proof or as behavioral equivalence between the Java
+implementation and the TLA+ specification. Establishing refinement
+would require a stronger semantic relation covering the full relevant
+transition systems, whereas the present experiment validates
+correspondence for the predefined observable traces.
+
+RQ3 therefore complements internal model checking and mutation analysis by
+confronting the formal abstraction with observable implementation executions.
+
+\subsection{Verification cost and scalability}
+\label{subsec:discussion-cost}
+
+RQ4 shows that bounded verification is constrained by computational cost as
+well as logical outcome. Measurements increase within both formal tools, but
+H4 remains unconfirmed in its preregistered nonlinear form.
+
+For Alloy, all three ordered profiles completed, and median elapsed time and
+memory increased monotonically from small to medium and large. The Spearman
+association of 1.0 for both metrics is consistent with that ordering, but three
+ordinal points cannot identify a functional growth law.
+
+TLC exposes a sharper feasibility boundary. The small and medium profiles
+completed with increases in elapsed time, memory, and explored state-space size,
+whereas all seventy TLC-large measured runs reached the frozen 1800-second
+timeout. Complete censoring precludes a completed-run median for the large
+profile and a three-level characterization comparable to Alloy. The timeout is
+therefore a valid censored observation, not an experimental failure, and
+retaining it makes the evaluated verification boundary explicit.
+
+Within the TLC medium-bound configurations, median time and memory varied
+across normal, unanimity (three of three), replay, and
+timeout-oriented cases, indicating that verification cost depends on behavioral
+structure as well as nominal bound size. These differences do not identify a
+universal cost ordering, but they show that enabled behavior is part of the
+verification envelope.
+
+The evidence supports only a descriptive conclusion that bounded verification
+cost increases for the evaluated configurations. It establishes neither a
+nonlinear nor an asymptotic growth law. TLC and Alloy also use different
+semantics, exploration mechanisms, and internal representations, so absolute
+time, memory, or state-space measurements cannot support intrinsic
+tool-superiority claims.
+
+\subsection{Cross-layer evidence triangulation}
+\label{subsec:discussion-triangulation}
+
+The four research questions are intended to provide complementary evidence
+rather than four independent demonstrations of protocol correctness. Each
+addresses a different weakness in the validation argument.
+
+RQ1 evaluates whether the declared properties survive the bounded
+interleavings explored for valid formal models. Because absence of a
+counterexample does not demonstrate sensitivity to relevant defects, RQ2
+deliberately weakens selected protocol controls and checks whether their
+designated properties detect the resulting violations.
+
+Formal verification and mutation detection still concern formal
+representations. RQ3 adds implementation-facing evidence by checking bounded
+conformance of observable Java traces against the TLA+ abstraction, together with
+deliberately corrupted abstract-trace controls. This connects the formal layer with the
+implementation without implying refinement or behavioral equivalence.
+
+RQ4 makes the computational boundary explicit by characterizing verification
+cost as the evaluated bounds become more demanding. The observed increase in
+cost and complete TLC-large censoring show that the formal evidence is obtained
+within a finite resource envelope.
+
+Together, the layers form an evidence chain from bounded property verification
+through mutation-based property validation and bounded implementation-model
+trace conformance to verification-cost characterization. The chain is
+complementary rather than cumulative proof: model checking remains bounded,
+mutation analysis remains catalogue-dependent, trace replay remains limited to
+the chosen abstraction and scenarios, and cost characterization remains tied to
+the evaluated configurations. No layer removes the limitations of another.
+
+The evidence chain consequently cannot be treated as additive assurance.
+Bounded model checks, targeted formal mutants, replay of projected Java
+scenarios, rejection of mutated abstract traces, and artifact reconstruction
+answer different questions. The contribution of this case study is to
+identify the resulting inference boundaries and concrete observational gaps,
+not to establish a novel general-purpose verification workflow.
+
+% Discusión negativa y límites de novedad; no reivindicar un nuevo algoritmo.
+\subsection{When distinct evidence layers fail to support the same claim}
+\label{subsec:observation-adequacy}
+
+The case study yields a falsifiable interpretation of cross-layer evidence:
+a successful check supports only the claim expressible by the state
+representation, test input, and observation function actually used. This
+matters even if all reported verifiers return their expected outcomes.
+
+\paragraph{Ownership cannot be certified by amount-only observation.}
+Consider a UTXO ledger state $L$ and a state $L'$ differing only in the
+recipient of one existing output, with identical output amounts and shard
+assignments. Let $V_s(L)$ be the sum of output amounts in shard $s$. Then
+\[
+ \forall s:\quad V_s(L)=V_s(L'),
+ \qquad\text{although}\qquad L\ne L'.
+\]
+Any deterministic detector whose only input is the vector
+$(V_s(L))_s$ returns the same result for both states. This is a basic
+indistinguishability observation, not a new verification theorem. It explains
+why ownership-preserving observations are necessary to assert recipient
+correctness. The M02/M03 Java executions provide concrete examples of
+wrong-recipient outcomes, while the G2 ledger-journal audit reports divergence on the same
+beneficiary-distinguishing attempts. The empirical finding
+is about what the original workload omitted, not a general weakness of G2.
+
+\paragraph{Boundary correspondence is not internal refinement.}
+V1 abstracts receipt consumption and destination credit into a common step,
+while the Java operation emits intermediate debit/credit events and restores
+state after some injected failures. V2.2 exposes additional intermediate
+states, but the G2-P3 witness shows that its coordinator-decision transition
+structure does not encode the examined Java debit-then-rollback history as a
+step-preserving execution. No inference of internal refinement follows from
+successful V1 boundary-trace replay. In contrast, the incompatibility of that
+particular internal abstraction does not establish impossibility of a more
+coarse-grained refinement relation.
+
+\paragraph{Negative controls are not implementation failures.}
+The 300 RQ3 positive traces are produced by ten deterministic Java-simulator
+scenarios under thirty seeds. The 300 negative RQ3 cases are abstract-trace
+mutations, and their rejection measures replay sensitivity to known
+invalid abstract actions. Treating these controls as 300 Java defects would
+inflate the implementation-facing evidence. Counting repeated seeds as
+independent fault classes would likewise be pseudoreplication.
+
+\paragraph{What the closest literature already establishes.}
+MongoDB's distributed transaction study combines modular formal analysis
+with implementation-facing model-derived tests
+\cite{schultz2025mongodb}. Cirstea et al. validate Java-program traces
+against TLA+; Mocket and TraceLink connect formal models and executable
+systems with stronger automated test/trace support
+\cite{cirstea2025traces,wang2023mocket,hackett2025tracelink}.
+Model-guided Fuzzing investigates model-level coverage of distributed-system
+implementations \cite{gulcan2025modelfuzz}. More specifically, formal
+model-guided blockchain conformance testing already uses a deterministic
+blockchain simulator \cite{drobnjakovic2025blockchains}. The revised 2026
+OmniLink preprint addresses unmodified concurrent systems and trace-order
+uncertainty \cite{hackett2026omnilink}.
+Our experiments do not outperform or replicate these systems, and they cannot
+support methodological priority for combining model checking, mutation, and
+trace validation. Instead, they supply a precisely scoped \emph{negative
+empirical case study}: missing workload variation, non-equivalent abstract
+transitions, and artificial negative controls can coexist with apparently
+complete verification results. A generalizable assessment framework would
+require a separately evaluated detector or protocol implementation and
+paired, causally interpretable comparisons; neither is claimed here.

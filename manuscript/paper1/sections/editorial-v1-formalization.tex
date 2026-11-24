@@ -1,0 +1,121 @@
+% O1, formalización autocontenida del modelo histórico V1.
+% Fuente ejecutable: specs/tla/CrossShardCommit.tla (paper1-q3-v1).
+% No atribuir los 1272 trabajos históricos al modelo posterior V2.2.
+\subsubsection{Executable semantics and the seven V1 property obligations}
+\label{subsubsec:v1-executable-semantics}
+
+The definitive \texttt{paper1-q3-v1} campaign evaluates the executable
+\path{specs/tla/CrossShardCommit.tla} model, not the subsequent V2.2 model. Let $T$,
+$S$, and $V$ denote the finite sets of transfers, shards, and validators.
+The state vector is
+\begin{equation}
+\begin{split}
+X=\langle &\mathit{status},\mathit{terminalStatus},\mathit{sourceShard},
+\mathit{targetShard},\mathit{locked},\\
+&\mathit{receiptOwner},\mathit{receiptUseCount},
+\mathit{destinationCredit},\mathit{fundsReleased},\\
+&\mathit{messages},\mathit{votes}\rangle.
+\end{split}
+\label{eq:editorial-v1-state}
+\end{equation}
+
+\texttt{Init} sets each transfer's status to \texttt{Pending}, terminal
+status to \texttt{None}, lock/credit/release flags to false, receipt
+uses to zero, and message/vote sets to empty. It chooses distinct source
+and destination shards for each transfer. The executable transition
+relation \texttt{Next} comprises \texttt{LockTransfer},
+\texttt{ReleaseDelayedReceipt}, \texttt{ConsumeReceipt}, \texttt{CastVote},
+\texttt{CommitTransfer}, \texttt{TimeoutTransfer}, and \texttt{Stutter},
+with \texttt{CreditBeforeReceipt} and \texttt{CommitAfterAbort} guarded
+by mutation modes and therefore disabled in the correct model. TLC
+checks \(\mathit{Spec}=\mathit{Init}\land\Box[\mathit{Next}]_X\)
+under the finite configurations supplied with the artifact.
+
+In the correct model, \texttt{ConsumeReceipt} requires a locked transfer,
+a non-delayed receipt message, zero previous uses, and no prior credit.
+The same action increments the receipt-use counter and sets the Boolean
+credit flag; this model does not expose an independently fallible
+cross-shard destination-credit operation. \texttt{CommitTransfer}
+requires a prepared transfer, destination credit, and at least the
+configured quorum of votes. An enabled \texttt{TimeoutTransfer} in the
+locked state marks abort and release in the same abstract transition.
+These are substantial modeling restrictions, not implementation-level
+proofs of distributed atomic commit.
+
+The seven invariants checked in the V1 campaign are indexed below to
+keep their full mathematical definitions readable. The index-to-source
+correspondence is exact:
+\begin{center}
+\small
+\begin{tabular}{ll}
+$P_1$ & \texttt{NoReceiptReplay} \\
+$P_2$ & \texttt{DestinationCreditRequiresValidReceipt} \\
+$P_3$ & \texttt{DecisionConsistency} \\
+$P_4$ & \texttt{EventuallyReleasedAfterTimeout} \\
+$P_5$ & \texttt{QuorumRequired} \\
+$P_6$ & \texttt{NoValueLossAtTermination} \\
+$P_7$ & \texttt{TerminalStateIrreversibility}
+\end{tabular}
+\end{center}
+
+Using the actual state variables of the executable V1 model, the seven predicates are
+\begin{align}
+P_1 &\equiv \forall t\in T:\mathit{receiptUseCount}[t]\leq1,\notag\\
+P_2 &\equiv \forall t\in T:
+  \mathit{destinationCredit}[t]\Rightarrow\notag\\
+  &\qquad\bigl(\mathit{locked}[t]\land
+  \mathit{receiptOwner}[t]=\mathit{targetShard}[t]\land\notag\\
+  &\qquad\mathit{receiptUseCount}[t]=1\bigr),\notag\\
+P_3 &\equiv \forall t\in T:
+  \mathit{status}[t]=\texttt{Committed}\Rightarrow\notag\\
+  &\qquad\neg\mathit{fundsReleased}[t],\notag\\
+P_4 &\equiv \forall t\in T:
+  \mathit{status}[t]=\texttt{Aborted}\Rightarrow\notag\\
+  &\qquad\mathit{fundsReleased}[t],\notag\\
+P_5 &\equiv \forall t\in T:
+  \mathit{status}[t]=\texttt{Committed}\Rightarrow\notag\\
+  &\qquad\lvert\mathit{votes}[t]\rvert\geq\mathit{Quorum},\notag\\
+P_6 &\equiv \forall t\in T:\bigl(
+  \mathit{status}[t]\in\{\texttt{Pending},\texttt{Locked},\texttt{Prepared}\}\notag\\
+  &\qquad\lor (\mathit{status}[t]=\texttt{Committed}\land
+     \mathit{destinationCredit}[t])\notag\\
+  &\qquad\lor (\mathit{status}[t]=\texttt{Aborted}\land
+     \mathit{fundsReleased}[t])\bigr),\notag\\
+P_7 &\equiv \forall t\in T:\bigl(
+     \mathit{terminalStatus}[t]=\texttt{None}\land\notag\\
+  &\qquad\mathit{status}[t]\in
+     \{\texttt{Pending},\texttt{Locked},\texttt{Prepared}\}\notag\\
+  &\qquad\lor(\mathit{terminalStatus}[t]=\texttt{Committed}\land\notag\\
+  &\qquad\mathit{status}[t]=\texttt{Committed})\notag\\
+  &\qquad\lor(\mathit{terminalStatus}[t]=\texttt{Aborted}\land\notag\\
+  &\qquad\mathit{status}[t]=\texttt{Aborted})\bigr).
+\label{eq:editorial-v1-invariants}
+\end{align}
+
+These formulas use the actual state variables of the V1 TLA+ module. In
+particular, $P_4$ is an invariant about the \texttt{Aborted} state rather
+than a temporal eventuality. The formulas neither introduce new
+verification outcomes nor retroactively alter the 1,272-task protocol.
+
+Moreover,
+several properties follow closely from action guards and simultaneous
+state updates. Detecting a mutant that removes exactly such a guard
+therefore does not independently establish implementation correctness,
+non-vacuity of every property, or adequacy against broader defect classes.
+The V1 state has a transfer-level terminal decision and Boolean
+credit/release indicators; it cannot express two independently
+irreversible decisions, one per shard, or failures between all concrete
+ledger updates.
+
+The later TLA+ V2.2 specification introduces distinct
+\texttt{srcState}, \texttt{dstState}, and \texttt{decision} variables
+and explicit \texttt{ApplySrc}/\texttt{ApplyDst} transitions. G2-P3
+recorded three Java failure-injection traces with partial source debit
+followed by an exact rollback, while V2.2 does not reverse an applied
+commit debit. Thus neither one-to-one internal correspondence nor a
+general Java--V2.2 refinement proof is claimed. The V2.2 source and
+configurations support the semantic comparison with the Java witnesses.
+The available V2.2 source copy lacks the original logs for the 52-case
+matrix, so this manuscript reports no execution totals or verdicts from
+that matrix. The Java G1--G2 observations are supplementary to the frozen
+1,272-task V1 campaign.

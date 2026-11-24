@@ -1,0 +1,32 @@
+% Desglose reproducible de las catorce familias del protocolo V1.
+% Fuente: experiments/paper1/configurations.csv y cases.json.
+% Solo presenta el plan; NO valida los resultados raw.
+\begin{table}[htbp]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\caption{All fourteen frozen configuration families. Counts distinguish scheduled warm-ups from measured executions. The identifiers match \texttt{configurations.csv}.}
+\label{tab:all-configuration-families}
+\begin{tabular}{p{0.39\linewidth}p{0.19\linewidth}rrr}
+\hline
+Configuration ID & Expansion & Tasks & Warm-up & Measured \\
+\hline
+\texttt{RQ1R4-TLC-SMALL} & 7 properties & 84 & 14 & 70 \\
+\texttt{RQ1R4-TLC-MEDIUM} & 7 properties & 84 & 14 & 70 \\
+\texttt{RQ1R4-TLC-LARGE} & 7 properties & 84 & 14 & 70 \\
+\texttt{RQ1R4-ALLOY-SMALL} & 7 properties & 84 & 14 & 70 \\
+\texttt{RQ1R4-ALLOY-MEDIUM} & 7 properties & 84 & 14 & 70 \\
+\texttt{RQ1R4-ALLOY-LARGE} & 7 properties & 84 & 14 & 70 \\
+\texttt{RQ2-TLC-MUTANTS} & 5 mutants & 60 & 10 & 50 \\
+\texttt{RQ2-ALLOY-MUTANTS} & 5 mutants & 60 & 10 & 50 \\
+\texttt{RQ3-TLC-VALID} & 10 cases, 30 seeds & 300 & 0 & 300 \\
+\texttt{RQ3-TLC-NEGATIVE} & 10 cases, 30 seeds & 300 & 0 & 300 \\
+\texttt{RQ4-TLC-FAULT-NORMAL} & 1 fault profile & 12 & 2 & 10 \\
+\texttt{RQ4-TLC-FAULT-REPLAY} & 1 fault profile & 12 & 2 & 10 \\
+\texttt{RQ4-TLC-FAULT-TIMEOUT} & 1 fault profile & 12 & 2 & 10 \\
+\texttt{RQ4-TLC-FAULT-QUORUM} & 1 fault profile & 12 & 2 & 10 \\
+\hline
+\textbf{Total} & 14 families & \textbf{1272} & \textbf{112} & \textbf{1160} \\
+\hline
+\end{tabular}
+\end{table}

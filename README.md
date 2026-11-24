@@ -41,6 +41,10 @@ Estos commits cumplen funciones distintas y no deben tratarse como una única re
 
 #### Artifact público del Paper 1
 
+**Artefacto científico publicado:** [Zenodo, versión 1.0.0](https://doi.org/10.5281/zenodo.24516596).
+
+El depósito contiene la evidencia experimental V1, los resultados G3-v1 y G3-v2, las fuentes de referencia y el manifiesto de integridad SHA-256. Los registros originales de la matriz independiente V2.2 de 52 casos no forman parte del depósito.
+
 El artifact público del Paper 1 es un subconjunto explícitamente delimitado de DLT-Lab.
 
 Su contrato de inclusión y exclusión se encuentra en:

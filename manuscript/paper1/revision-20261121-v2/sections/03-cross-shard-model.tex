@@ -1,0 +1,377 @@
+\section{Cross-Shard Transaction Model}
+\label{sec:cross-shard-model}
+
+\subsection{System abstraction}
+\label{subsec:system-abstraction}
+
+We study a cross-shard transaction protocol in which a transfer moves value from
+a source shard to a target shard while preserving a consistent terminal outcome.
+Each shard maintains an independent UTXO-based ledger, and each cross-shard
+transfer is represented by a uniquely identified protocol session.
+
+A session coordinates source locking, cross-shard receipt creation and delivery,
+destination preparation, and the final commit decision, while also handling
+aborts, validation failures, insufficient quorum, timeouts, duplicate receipts,
+and partially applied commits.
+
+The implementation separates shard management from transaction-state mutation.
+The shard manager maintains topology, validators, logical time, session
+registration, and aggregate metrics, while the atomic-commit component validates
+protocol preconditions and applies state changes. This separation allows the
+transaction protocol to be analyzed independently from unrelated functionality
+in the surrounding simulation platform.
+
+Receipt authenticity is an abstract protocol precondition rather than a
+cryptographic result. Quorum summarizes validator approval without modeling the
+consensus mechanism that produces votes, and timeouts use logical rounds rather
+than wall-clock deadlines.
+
+\subsection{Cross-shard session state machine}
+\label{subsec:state-machine}
+
+Each transfer is represented by a finite-state session. The implementation
+contains the following states:
+
+\begin{itemize}
+\item \texttt{CREATED}
+\item \texttt{SOURCE\_\allowbreak LOCKED}
+\item \texttt{RECEIPT\_\allowbreak CREATED}
+\item \texttt{RECEIPT\_\allowbreak DELIVERED}
+\item \texttt{DESTINATION\_\allowbreak PREPARED}
+\item \texttt{COMMITTED}
+\item \texttt{ABORTED}
+\item \texttt{TIMED\_\allowbreak OUT}
+\item \texttt{FAILED\_\allowbreak VALIDATION}
+\end{itemize}
+
+The normal successful execution follows
+
+\begin{equation}
+\begin{split}
+\texttt{CREATED}
+&\rightarrow \texttt{SOURCE\_\allowbreak LOCKED} \\
+&\rightarrow \texttt{RECEIPT\_\allowbreak CREATED} \\
+&\rightarrow \texttt{RECEIPT\_\allowbreak DELIVERED} \\
+&\rightarrow \texttt{DESTINATION\_\allowbreak PREPARED} \\
+&\rightarrow \texttt{COMMITTED}.
+\end{split}
+\label{eq:normal-commit-path}
+\end{equation}
+
+The states \texttt{COMMITTED}, \texttt{ABORTED}, \texttt{TIMED\_\allowbreak OUT},
+and \texttt{FAILED\_\allowbreak VALIDATION} are terminal and have no outgoing
+transitions.
+
+Abort and validation-failure transitions may occur from nonterminal states. A
+timeout may occur after source locking and before a terminal decision, but not
+directly from \texttt{CREATED}, where no source resource has been locked.
+
+The transition relation rejects commit after abort, commit after timeout,
+creation-to-commit jumps, repeated terminal decisions, and receipt processing
+for a different transfer identifier. Each accepted transition emits an
+immutable event containing sequence number, logical time, transfer identifier,
+action, previous state, next state, and diagnostic reason.
+
+\subsection{Atomic commit and rollback}
+\label{subsec:atomic-commit}
+
+The executable commit operation has four conceptual stages:
+
+\begin{enumerate}
+\item preparation of the commit plan
+\item validation of commit preconditions
+\item application of ledger and session mutations
+\item rollback if an application step fails
+\end{enumerate}
+
+Before modifying ledger state, the protocol constructs a commit plan and
+captures a restorable snapshot containing the source UTXO and lock state,
+receipt-consumption state, optional change output, destination output, and a
+checkpoint of the complete protocol session.
+
+During normal commit, the destination is prepared, the receipt consumed, the
+source value removed, the source lock released, optional change created, the
+destination output created, and the session moved to \texttt{COMMITTED}.
+
+An application exception starts rollback from the captured snapshot. Successful
+rollback restores the destination and change outputs, source UTXO, receipt
+consumption, source lock, and session checkpoint. The journal records
+\texttt{ROLLBACK\_COMPLETED}, and the propagated \texttt{ProtocolException}
+reports \texttt{rolledBack=true}. If restoration throws, the journal records
+\texttt{ROLLBACK\_FAILED}, the restoration error is attached to the application
+error, and the propagated exception reports \texttt{rolledBack=false}.
+That outcome gives no restoration guarantee. The session checkpoint can undo
+an incomplete application without emitting a synthetic reverse transition;
+the attempt journal retains intermediate stages in memory.
+
+Deterministic failure-injection points around receipt consumption, source debit,
+and destination credit make partially executed commits reproducible without
+introducing nondeterministic faults.
+
+\subsection{Concurrent formal abstraction}
+\label{subsec:formal-abstraction}
+
+\input{sections/editorial-v1-formalization}
+
+Bounded TLA+ and Alloy models abstract the executable protocol to the
+protocol-level state required for concurrent sessions and failure behavior. They
+represent transfer status, source and target shards, resource locks, receipt
+ownership and consumption, destination credit, released funds, messages, and
+validator votes, while collapsing implementation states that do not alter the
+protocol-level decision state.
+
+\begingroup\raggedright
+The Java-to-formal projection maps \texttt{CREATED} to \texttt{Pending};
+\texttt{SOURCE\_\allowbreak LOCKED}, \texttt{RECEIPT\_\allowbreak CREATED}, and
+\texttt{RECEIPT\_\allowbreak DELIVERED} to \texttt{Locked};
+\texttt{DESTINATION\_\allowbreak PREPARED} to \texttt{Prepared};
+\texttt{COMMITTED} to \texttt{Committed}; and \texttt{ABORTED},
+\texttt{TIMED\_\allowbreak OUT}, and \texttt{FAILED\_\allowbreak VALIDATION} to
+\texttt{Aborted}.
+\par\endgroup
+
+TLA+ additionally stores the first abstract terminal decision in
+\texttt{terminalStatus}. Alloy instead represents bounded executions as an
+ordered sequence of states and checks terminal-state irreversibility over
+consecutive states. The two models therefore encode terminal consistency
+differently while targeting the same protocol concern.
+
+Concurrent configurations vary shards and active transfers and include
+duplicate receipts, delayed messages, timeout races, and quorum behavior. They
+are finite by construction, so conclusions are bounded by the declared scopes
+and constants.
+
+TLA+ and Alloy are complementary representations of the same protocol concerns,
+not equivalent state spaces or interchangeable cost models. Absolute
+execution-time differences are therefore not used to infer tool superiority.
+
+\subsection{Evaluated protocol properties}
+\label{subsec:properties}
+
+Seven protocol properties define the main bounded verification target.
+
+\begin{description}
+
+\item[] \texttt{NoReceipt\allowbreak Replay}.
+A cross-shard receipt must not be consumed more than once.
+
+\item[] \texttt{DestinationCreditRequires\allowbreak ValidReceipt}.
+Destination-side credit requires a receipt accepted as valid by the protocol.
+
+\item[] \texttt{Decision\allowbreak Consistency}.
+A committed transfer must not simultaneously be represented as having released
+its source funds through an abort-like terminal outcome.
+
+\item[] \texttt{NoValueLossAt\allowbreak Termination}.
+At a terminal state, transferred value must either have been committed to the
+destination or remain recoverable on the source side.
+
+\item[] \texttt{TerminalState\allowbreak Irreversibility}.
+Once the protocol reaches its first terminal decision, a later execution step
+must not replace it with an incompatible terminal outcome.
+
+\item[] \texttt{EventuallyReleasedAfter\allowbreak Timeout}.
+An abstract transfer represented as \texttt{Aborted} must have released its
+source funds. This property captures the release obligation associated with the
+modeled timeout and non-commit terminal behavior.
+Despite its historical name, it is a state invariant, essentially
+\texttt{Aborted} $\Rightarrow$ \texttt{fundsReleased}, not a general temporal
+liveness property. The study does not establish fairness, eventual decision
+or commit, or freedom from permanent locking for arbitrary executions.
+
+\item[] \texttt{Quorum\allowbreak Required}.
+A commit requires the relevant validator quorum. TLA+ parameterizes this
+threshold through \texttt{Quorum}, whereas the evaluated Alloy model requires at
+least two validator votes.
+
+\end{description}
+
+Alloy checks assertions with the same seven names. Its replay assertion
+excludes \texttt{ManyUses} for each receipt atom. Its credit assertion
+requires a consumed receipt owned by the transfer, using the relation from
+receipts to transfers. Its two terminal-state implications require committed
+credit and aborted release. Its remaining assertions forbid committed release,
+require two votes at commit, require release when aborted, and preserve
+terminal status between adjacent states. In both V1 models these conditions
+refer to abstract indicators. The mutation experiments target selected
+assertions or invariants within these property families.
+
+\subsection{Scope of the model}
+\label{subsec:model-scope}
+
+Receipt authenticity remains abstract, validator quorum is an approval
+condition rather than a verified consensus protocol, and time is represented by
+logical rounds. Network behavior is scenario-bounded: delay and duplicate
+receipts are represented in evaluated configurations, while concrete network
+events not structurally represented by the abstraction are projected as
+stuttering steps during trace conformance.
+
+Both formal representations operate over finite configurations. Absence of a
+counterexample therefore means only that no violation was found for the
+evaluated model, property, configuration, and bound, not an unbounded proof of
+protocol correctness.
+
+The Java implementation is related to the formal model through bounded trace
+conformance, not a general refinement proof or behavioral equivalence.
+
+% Interpretación formal: no modifica ni reejecuta los modelos congelados.
+\subsection{Claim-level formalization and observation boundaries}
+\label{subsec:claim-formalization}
+
+Table~\ref{tab:three-levels} describes the guards and effects of the
+unmutated systems. UTXO denotes an unspent transaction output. The two V1
+models use abstract credit and release indicators; V2.2 tracks signed balance
+deltas, and Java records individual outputs and owners.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Guards, transition effects and observation boundaries of the evaluated
+systems. The Java and V2.2 rows describe distinct execution contracts.}
+\label{tab:three-levels}
+\begin{tabular}{@{}p{0.12\linewidth}p{0.49\linewidth}p{0.32\linewidth}@{}}
+\hline
+Object & Guards, transitions and effects & Observation boundary \\
+\hline
+Java &
+Begin validates the source UTXO, checks source quorum and obtains its lock. Commit requires a
+nonterminal session, a delivered receipt (delivery can occur within the call),
+a logical round within the deadline, destination approvals meeting quorum
+and an unused receipt ID. The plan validates the source and output
+preconditions and captures a snapshot. Application prepares the destination,
+marks the receipt, debits and unlocks the input, creates change and destination
+outputs, and records commit. Application failure attempts local restoration. &
+Concrete UTXO amounts and owners, receipt IDs, locks and session state.
+The in-memory journal exposes stages and distinguishes completed from failed
+rollback. The protocol monitor and journal cover one JVM. \\
+TLA+ V1 &
+\texttt{LockTransfer} moves a pending transfer to locked and enqueues receipts.
+\texttt{ConsumeReceipt} requires a locked transfer and an available, non-delayed
+receipt with zero previous uses and no credit. It prepares the transfer,
+counts the use and sets credit together. Distinct votes accrue after prepare.
+Commit requires prepare, credit and quorum. Enabled timeout from locked
+without credit aborts and releases in the same step. &
+One abstract terminal status per transfer, with a first-decision marker.
+Credit and release are flags. The replay projection groups concrete events
+and permits stuttering. \\
+Alloy V1 &
+Adjacent ordered states obey the trace relation. Lock introduces receipt
+messages. A queued receipt message for a locked transfer, with zero uses
+for that receipt atom, enables prepare, one use and credit. Distinct votes
+accrue after prepare. Commit requires prepare, credit and two votes.
+Timeout from locked without credit aborts and releases. &
+Finite ordered relational traces with per-receipt-atom use counts.
+Adjacent-state stability represents terminal irreversibility. The scopes
+and quorum differ from TLC. \\
+TLA+ V2.2 &
+\texttt{Lock} reserves an unspent, unowned input. \texttt{Prepare} consumes
+an available receipt with no prior use or decision. \texttt{DecideCommit}
+requires prepare, quorum and no decision. \texttt{DecideAbort} requires
+a locked source and no decision. \texttt{ApplySrc} debits or releases a
+locked source, and \texttt{ApplyDst} credits a prepared destination or
+rejects an unprepared or prepared destination, according to that decision. &
+Separate source, destination and decision states permit partial application.
+Balances are signed deltas. The model has no transition that reverses an
+applied debit to represent the observed Java rollback. \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{V1 obligations}
+The \texttt{ConsumeReceipt} action changes the receipt-use counter and
+\texttt{destinationCredit} in a single abstract transition; the two effects
+cannot be independently interrupted at that level. The alias
+\texttt{AtomicCommit} is exactly \texttt{DecisionConsistency}, whose
+meaning is
+\[
+  \forall t:\ \texttt{status[t]}=\texttt{Committed}
+  \Rightarrow \neg\texttt{fundsReleased[t]}.
+\]
+It is not a cross-node atomic-commit theorem. Similarly, the historical
+\texttt{EventuallyReleasedAfterTimeout} formula is the state invariant
+\(\forall t:\ \texttt{status[t]}=\texttt{Aborted}\Rightarrow
+\texttt{fundsReleased[t]}\). Its name must not be read as a temporal
+liveness result. Several of the seven evaluated safety properties follow
+closely from their corresponding transition guards; removing precisely those
+guards in an associated formal mutant tests targeted sensitivity, not
+independent completeness of the property suite.
+
+\paragraph{Where the seven V1 obligations obtain their support.}
+Table~\ref{tab:v1-guards} makes the inductive dependencies explicit. A
+property supported by a guard is meaningful within the transition system,
+but a mutant that simply removes the same guard is a weak independent test
+of specification adequacy. The original checker logs and reachability
+witnesses are needed before claiming non-vacuous activation of each
+antecedent.
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\caption{V1 target conditions and their direct transition dependencies;
+these are source-level interpretations, not additional checker results.}
+\label{tab:v1-guards}
+\begin{tabular}{@{}p{0.38\linewidth}p{0.50\linewidth}@{}}
+\hline
+Evaluated property & Directly relevant modeled condition/action \\
+\hline
+\texttt{NoReceiptReplay} & \texttt{CanConsumeReceipt} prevents a second
+increment of \texttt{receiptUseCount}. \\
+\shortstack[l]{\texttt{DestinationCreditRequires}\\\texttt{ValidReceipt}} & \texttt{ConsumeReceipt}
+sets owner, use count and destination-credit flag in one action. \\
+\texttt{DecisionConsistency} & \texttt{CommitTransfer} and abort actions
+constrain committed status versus release. \\
+\texttt{NoValueLossAtTermination} & State disjunction accepts pending
+states, committed credit, or aborted release, without amounts. \\
+\texttt{TerminalStateIrreversibility} & Terminal-state transitions and the
+first-decision marker preclude incompatible later status. \\
+\texttt{EventuallyReleasedAfterTimeout} & \texttt{TimeoutTransfer} changes
+\texttt{status} and \texttt{fundsReleased} together. \\
+\texttt{QuorumRequired} & \texttt{CanCommit} requires enough votes before
+\texttt{CommitTransfer}. \\
+\hline
+\end{tabular}
+\end{table}
+
+\paragraph{The distinct V2.2 abstraction.}
+The V2.2 predicate named \texttt{Atomicity} excludes two contradictory
+terminal-state combinations:
+\[
+\begin{split}
+ \forall t:\quad&\neg(\texttt{srcState[t]}=\texttt{Debited}
+                 \land\texttt{dstState[t]}=\texttt{Rejected}),\\
+ &\neg(\texttt{srcState[t]}=\texttt{Released}
+                 \land\texttt{dstState[t]}=\texttt{Credited}).
+\end{split}
+\]
+It does not require both effects to occur in the same step. The separately
+defined \texttt{ReachPartialApplication} query explores such intermediate
+application states and is not a proof of global atomicity. V2.2 also defines
+a numerical \texttt{Conservation} invariant for signed shard-balance changes,
+conditional on termination of initiated transfers. The \texttt{bal} map is
+initialized to zero: this is not a specification of all UTXO identities,
+recipients and pre-existing balances. The preserved
+\texttt{correct\_disjoint.cfg} refers to \texttt{Spec}, not
+\texttt{LiveSpec}; the mere presence of \texttt{Termination} and
+\texttt{NoPermanentLock} in the source does not establish either liveness
+property under fairness.
+
+\paragraph{Witnessed implementation--model mismatch.}
+The G2-P3 diagnosis records real Java execution prefixes in which a source
+UTXO is debited and an injected exception triggers successful in-memory
+restoration of the checkpoint. At the V2.2 level, \texttt{ApplySrc} requires
+a prior coordinator decision and the frozen model does not express that
+same return to the earlier locked state following debit. Therefore a
+step-preserving mapping of those internal events is \emph{not established}
+under the examined abstraction. This observation neither disproves every
+possible boundary-level refinement nor proves crash recovery. The journal
+is in-memory, and the measured contract is strictly local to the JVM.
+
+\paragraph{Non-vacuity obligations.}
+For each conditional safety property, verifying its formula on a finite
+state space is insufficient to show that its antecedent was reached.
+Diagnostic witnesses for receipt consumption, commit, abort, timeout,
+contention, and partial application must be associated with the exact model,
+configuration, reachable state and checker result. The original V1
+verification counts are not retroactively enlarged by later G2/P3 witnesses.
+No proof of a new property is claimed in this paper without a corresponding
+checker record and bound.

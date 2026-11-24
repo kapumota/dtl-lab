@@ -1,0 +1,95 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Sharding increases the capacity of distributed ledgers by partitioning state
+and transaction processing across multiple shards. This parallelism creates a
+coordination problem whenever a transaction spans more than one shard: the
+system must preserve a consistent terminal outcome despite delayed or
+duplicated messages, unmet quorum conditions, or interrupted execution.
+Chainspace, OmniLedger, Prophet, CSLAP, and LightCross illustrate different
+approaches to cross-shard transaction processing and atomic commit
+\cite{albassam2018chainspace,kokoriskogias2018omniledger,hong2023prophet,du2024cslap,qi2024lightcross}.
+Their correctness arguments, implementation evidence, and evaluation
+methodologies differ substantially.
+
+Formal methods provide evidence about protocol behavior beyond conventional
+testing. TLA+ and related model-checking workflows analyze distributed
+protocols and connect formal models with executable systems
+\cite{schultz2025mongodb,cirstea2025traces,hackett2025tracelink,howard2025ccf,wang2023mocket,gao2025imocket}.
+Mutation-based assessment instead asks whether a specification or property
+suite reacts when selected controls are intentionally weakened
+\cite{cordy2023mutation}. These techniques are complementary: bounded model
+checking evaluates declared properties in finite configurations, mutation
+analysis measures sensitivity to controlled defects, and trace conformance
+checks selected implementation observations against a formal abstraction.
+
+This paper studies an executable cross-shard commit protocol implemented in
+DTL-Lab, a research-oriented Java simulator rather than a production
+blockchain. The protocol coordinates source locking, receipt creation and
+delivery, destination preparation, commit, abort, timeout, rollback, replay
+protection, and quorum enforcement. Bounded TLA+ and Alloy representations
+model the same protocol concerns through different state representations and
+exploration semantics. The study assumes neither semantic equivalence between
+the formal models nor intrinsic superiority of either tool.
+
+The main scientific question is what can actually be concluded from
+heterogeneous verification evidence when the relevant implementation
+observations differ from those represented by the formal models. Existing
+formal transaction verification, Java trace validation and model-guided
+implementation testing predate this work
+\cite{schultz2025mongodb,cirstea2025traces,hackett2025tracelink,wang2023mocket}.
+We therefore do not claim a new algorithm merely because multiple techniques
+were combined. In addition to reporting the four frozen research questions,
+we perform an explicitly post-campaign audit of claim sufficiency using
+source-level model inspection, the frozen plan, original per-task records,
+and separate Java mutation logs from G3-v1. The audit distinguishes formal-model faults, projected Java
+scenarios, deliberately corrupted abstract traces and post-hoc code
+mutations rather than pooling them as homogeneous detection evidence.
+
+The study is organized around four research questions:
+
+\begin{description}
+\item[\textbf{RQ1.}] What bounded property-verification outcomes are obtained
+for the valid TLA+ and Alloy models across the declared experimental
+configurations?
+
+\item[\textbf{RQ2.}] Do the evaluated TLA+ and Alloy properties detect
+predefined scientific mutations that remove selected protocol controls?
+
+\item[\textbf{RQ3.}] Do projected Java-simulator traces and deliberately modified abstract
+traces yield their expected bounded replay classifications under the
+declared abstraction and case catalogue?
+
+\item[\textbf{RQ4.}] How does verification cost vary across the evaluated
+bound profiles and TLC fault profiles under the frozen execution protocol?
+\end{description}
+
+The evidence is intentionally layered. RQ1 provides bounded property
+verification, RQ2 evaluates sensitivity to predefined scientific mutants, RQ3
+evaluates bounded implementation-model trace conformance without claiming
+refinement or behavioral equivalence, and RQ4 characterizes verification cost
+within each tool without implying an asymptotic law or absolute
+TLC-versus-Alloy superiority.
+
+The definitive campaign scheduled 1,272 tasks. RQ1 included 420 measured
+executions, of which 350 completed and 70 TLC-large executions were censored by
+timeout, with no property violations observed among completed configurations.
+RQ2 detected all 10 predefined scientific mutants, yielding a mutation score of
+1.0 for the evaluated catalogue. RQ3 comprised 300 projected Java-simulator trace replays and 300
+deliberately mutated abstract-trace replays; the former were accepted
+and the latter rejected with the expected diagnostics. RQ4 showed increasing
+verification cost across completed Alloy profiles, while all measured
+TLC-large executions reached timeout. These observations support bounded and
+tool-specific conclusions only.
+
+Reproduction used a separate clone, execution workspace, and operating-system
+user on the same native Linux host. The successful attempt completed 10/10
+predefined gates and reproduced 32/32 expected analysis-artifact hashes. This
+demonstrates process separation and deterministic reconstruction of preserved
+analytical outputs under the documented environment, not hardware independence,
+a complete rerun of all 1,272 tasks, or scientific correctness from hash
+agreement alone.
+
+The remainder of the paper presents related work, the protocol and formal
+models, methodology and experimental design, results and interpretation,
+threats to validity, and reproducibility evidence.

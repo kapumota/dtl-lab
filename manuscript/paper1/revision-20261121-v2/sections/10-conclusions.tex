@@ -1,0 +1,46 @@
+\section{Conclusions}
+\label{sec:conclusions}
+
+This paper revisits a frozen multi-layer assessment of a research-oriented
+cross-shard commit simulator in order to distinguish executable observations
+from claims that the evaluated models and tests cannot establish. The
+original protocol scheduled 1272 tasks: 112 warm-ups and 1160 measured
+executions. RQ1 obtained 350 completed bounded property checks without an
+observed counterexample, while 70 TLC-large runs were censored by timeout.
+The completed base TLC timeout-release checks are vacuous with timeout
+disabled.
+RQ2 detected ten intentionally introduced \emph{formal-model} mutants; its
+perfect score is restricted to selected guard-level defects. RQ3 accepted
+300 projected traces originating from deterministic Java-simulator cases
+and rejected 300 deliberately corrupted \emph{abstract} traces. The latter
+are negative replay controls, not Java implementation failures. RQ4
+characterizes observed model-checking costs within finite resource budgets,
+not a law of asymptotic growth or tool superiority.
+
+A separate post-campaign Java study (G3-v1) exercised ten code mutations.
+Its 110 test executions comprised ten successful controls and 100 mutated
+tests (51 FAIL and 49 PASS). All mutated focal tests failed, but their
+scenarios, internal checks, and instruments differed. In particular, two
+recipient-ownership defects passed every original historical/G1/G2 test in
+the battery and became observable after adding a beneficiary-distinguishing
+scenario. The existing G2 ledger-journal audit also reported divergence on the same
+mutated attempts. This is evidence of insufficient scenario coverage, not proof of
+superior detection by a new algorithm.
+
+At the model level, V1 collapses receipt consumption and destination credit,
+whereas V2.2 represents more intermediate effects but excludes only selected
+contradictory terminal states. G2-P3 documents a Java debit-then-rollback
+history that is not represented step-for-step by the examined V2.2 decision
+sequence. Accordingly, none of the experiments demonstrates general
+Java--V2.2 refinement, durable crash recovery, Byzantine safety or
+atomicity across independently failing shard nodes.
+
+The resulting contribution is a reproducible, bounded \emph{negative case
+study} of claim adequacy. It shows why an apparently successful collection of
+formal checks, mutation outcomes, trace replays and reproduced artifacts can
+still lack the observations necessary for specific end-to-end guarantees.
+This is not a new trace-validation method; a claim of broad generality would
+require an independent implementation, paired scenarios and prospective
+comparators. The audit matched the historical runs to their archived records
+and regenerated the analysis from those records. The results retain their
+original model, workload and observation boundaries.
